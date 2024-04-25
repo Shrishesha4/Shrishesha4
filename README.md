@@ -34,15 +34,15 @@ I'm an independent developer who is gradually transforming the digital world in
 
 ### 📊 Stats
 
-![Forrest's GitHub stats](https://github-readme-stats.vercel.app/api?username=forrestknight&show_icons=true&theme=gruvbox)
+![Forrest's GitHub stats](https://github-readme-stats.vercel.app/api?username=shrishesha4&show_icons=true&theme=gruvbox)
 
-<!-- ![GitHub Streak](https://streak-stats.demolab.com?user=ForrestKnight&theme=gruvbox&border_radius=4.5) -->
+<!-- ![GitHub Streak](https://streak-stats.demolab.com?user=Shrishesha4t&theme=gruvbox&border_radius=4.5) -->
 
 #
 <!--
 <details>
  <summary><h3>Shrishesha's Coding Journey</h3></summary>
-   I started my coding journey as a naive computer science student with a passion for learning everything I could about this programming world. And all the while, teaching myself App development with a dream to build my own app, but that soon got overshadowed by my desire to excel in Web Development.
+   I started my coding journey as a naive computer science student with a passion for learning everything I could about this programming world. And all the while, teaching myself App Development with a dream to build my own app, but that soon got overshadowed by my desire to excel in Web Development.
 -->
 [website]: https://shrishesha.web.app
 [youtube]: https://youtube.com/shrishesha
