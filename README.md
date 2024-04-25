@@ -7,10 +7,10 @@ I'm an independent developer who is gradually transforming the digital world in
 
    <p align="left">
       <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1">
-         <img alt="portfolio" title="My Works and all" src="https://custom-icon-badges.demolab.com/youtube/channel/subscribers/UCD-43OtkpyVEswAgfS1u_xQ?color=%23E05D44&label=Portfolio&logo=video&logoColor=white&style=for-the-badge&labelColor=CE4630"/></a> 
+         <img alt="youtube" title="My Works and all" src="https://custom-icon-badges.demolab.com/youtube/channel/subscribers/UCD-43OtkpyVEswAgfS1u_xQ?color=%23E05D44&label=Portfolio&logo=video&logoColor=white&style=for-the-badge&labelColor=CE4630"/></a> 
       <a href="https://shrishesha4.web.app/">
-         <img alt="youtube views" title="YouTube views" src="https://img.shields.io/badge/portfolio?style=social&color=red&link=shrishesha4.web.app
-"/></a> 
+         <img alt="Website" title="portfolio" src="https://img.shields.io/website?url=https%3A%2F%2Fshrishesha4.web.app&up_message=shrishesha&style=flat-square&labelColor=red&color=black">
+</a> 
       <a href="https://github.com/Shrishesha4?tab=followers">
          <img alt="followers" title="Follow me on Github" src="https://custom-icon-badges.demolab.com/github/followers/Shrishesha4?color=236ad3&labelColor=1155ba&style=for-the-badge&logo=person-add&label=Follow&logoColor=white"/></a>
       <a href="https://github.com/Shrishesha4?tab=repositories&sort=stargazers">
