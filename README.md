@@ -29,7 +29,7 @@ I'm an independent developer who is gradually transforming the digital world in
 <img align="left" alt="TailwindCSS" width="30px" style="padding-right:10px;" src="https://raw.githubusercontent.com/devicons/devicon/v2.16.0/icons/tailwindcss/tailwindcss-original.svg" />
 <img align="left" alt="Git" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" />
 <img align="left" alt="Python" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" />
-<img align="left" alt="C++" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus.svg" />
+<img align="left" alt="C++" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" />
 <img align="left" alt="MySql" width="30px" style="padding-right:10px;" src="https://raw.githubusercontent.com/devicons/devicon/v2.16.0/icons/mysql/mysql-original.svg" />
 <img align="left" alt="ReactRouter" width="30px" style="padding-right:10px;" src="https://raw.githubusercontent.com/devicons/devicon/v2.16.0/icons/reactrouter/reactrouter-original.svg" />
 <img align="left" alt="GitHub" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" />
