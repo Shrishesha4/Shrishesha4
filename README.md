@@ -5,8 +5,7 @@
 I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with code.
 
    <p align="left">
-      <a href="https://shrishesha.web.app">
-         title="Portfolio" </a> 
+      <a href="https://shrishesha.web.app">Portfolio</a> 
       <a href="https://github.com/ForrestKnight?tab=followers">
          <img alt="followers" title="Follow me on Github" src="https://custom-icon-badges.demolab.com/github/followers/Shrishesha4?color=236ad3&labelColor=1155ba&style=for-the-badge&logo=person-add&label=Follow&logoColor=white"/></a>
       <a href="https://github.com/Shrishesha4?tab=repositories&sort=stargazers">
