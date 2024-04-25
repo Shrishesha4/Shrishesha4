@@ -31,7 +31,6 @@ I'm an independent developer who is gradually transforming the digital world in
 <img align="left" alt="Python" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" />
 <img align="left" alt="C++" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-line.svg" />
 <img align="left" alt="MySql" width="30px" style="padding-right:10px;" src="https://raw.githubusercontent.com/devicons/devicon/v2.16.0/icons/mysql/mysql-original.svg" />
-<img align="left" alt="NodeJS" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" />
 <img align="left" alt="ReactRouter" width="30px" style="padding-right:10px;" src="https://raw.githubusercontent.com/devicons/devicon/v2.16.0/icons/reactrouter/reactrouter-original.svg" />
 <img align="left" alt="GitHub" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" />
 
@@ -52,4 +51,4 @@ I'm an independent developer who is gradually transforming the digital world in
    I started my coding journey as a naive computer science student with a passion for learning everything I could about this programming world. And all the while, teaching myself App Development with a dream to build my own app, but that soon got overshadowed by my desire to excel in Web Development.
 -->
 [website]: https://shrishesha.web.app
-[youtube]: https://youtube.com/shrishesha
+[youtube]: https://youtube.com/@shrishesha4
