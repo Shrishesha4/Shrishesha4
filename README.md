@@ -12,7 +12,7 @@ I'm an independent developer who is gradually transforming the digital world in
          <img alt="Website" title="portfolio" src="https://img.shields.io/website?url=https%3A%2F%2Fshrishesha4.web.app&up_message=go&style=for-the-badge&label=Shrishesha&labelColor=red&color=black">
 </a> 
       <a href="https://github.com/Shrishesha4?tab=followers">
-         <img alt="followers" title="Follow me on Github" src="https://img.shields.io/github/followers/Shrishesha4?style=for-the-badge&color=red"/></a>
+         <img alt="followers" title="Follow me on Github" src="https://img.shields.io/github/followers/Shrishesha4?style=for-the-badge&labelColor=%2386cbfc&color=%230078cf"/></a>
       <a href="https://github.com/Shrishesha4?tab=repositories&sort=stargazers">
          <img alt="total stars" title="Total stars on GitHub" src="https://img.shields.io/github/stars/Shrishesha4?style=for-the-badge&labelColor=%23f27f77&color=red"/></a>
    </p>
