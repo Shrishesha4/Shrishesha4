@@ -41,8 +41,8 @@ I'm an independent developer who is gradually transforming the digital world in
 ## 📱 Let's Connect
 
 <img align="center" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="me in linkedin" height="auto" width="20"/> [LinkedIn](https://www.linkedin.com/in/shrishesha/) <br/><br/>
-<img align="center" src="https://repository-images.githubusercontent.com/584612363/dc5a8b7c-1706-4ab9-9ac0-6e7b834a90fd" alt="codewars profile" height="auto" width="20"/> [Twitter(X)](https://twitter.com/Shrishesha4)<br/><br/>
-<img align="center" src="https://raw.githubusercontent.com/gauravghongde/social-icons/master/SVG/Color/Instagram.svg" alt="codepen profile" height="auto" width="20"/> [Instagram](https://instagram.com/shrishesha4)<br/><br/>
+<img align="center" src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/master/public/icons/x/x.svg" alt="twitter profile" height="auto" width="20"/> [Twitter(X)](https://twitter.com/Shrishesha4)<br/><br/>
+<img align="center" src="https://raw.githubusercontent.com/gauravghongde/social-icons/master/SVG/Color/Instagram.svg" alt="instagram profile" height="auto" width="20"/> [Instagram](https://instagram.com/shrishesha4)<br/><br/>
 
 #
 
