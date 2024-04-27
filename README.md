@@ -4,7 +4,6 @@
 
 I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with code.
 
-
    <p align="left">
       <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1">
          <img alt="youtube" title="My Works and all" src="https://custom-icon-badges.demolab.com/youtube/channel/subscribers/UCD-43OtkpyVEswAgfS1u_xQ?color=%23E05D44&label=Subscribe&logo=video&logoColor=white&style=for-the-badge&labelColor=CE4630"/></a> 
@@ -38,7 +37,7 @@ I'm an independent developer who is gradually transforming the digital world in
 
 #
 
-## 📱 Let's Connect
+### 📱 Let's Connect
 
 <img align="center" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="me in linkedin" height="auto" width="20"/> [LinkedIn](https://www.linkedin.com/in/shrishesha/) <br/><br/>
 <img align="center" src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/master/public/icons/x/x.svg" alt="twitter profile" height="auto" width="20"/> [Twitter(X)](https://twitter.com/Shrishesha4)<br/><br/>
