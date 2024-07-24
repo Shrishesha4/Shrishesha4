@@ -2,7 +2,7 @@
 
 **`Digital Craftsman (Developer/Innovator)`**
 
-I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with code.
+I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with my ideas.
 
    <p align="left">
       <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1">
