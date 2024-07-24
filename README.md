@@ -1,6 +1,6 @@
 # Hello, I am Shrishesha!
 
-**`Digital Craftsman (Developer/Creator)`**
+**`Digital Craftsman (Developer/Innovator)`**
 
 I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with code.
 
