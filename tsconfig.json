@@ -1,4 +1,11 @@
 {
+
+  "include": [
+    ".svelte-kit/**/*",
+    "src/**/*.svelte",
+    "src/**/*.ts",
+    "src/**/*.js"
+  ],
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"allowJs": true,
