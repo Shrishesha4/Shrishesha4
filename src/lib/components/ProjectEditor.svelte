@@ -40,7 +40,7 @@
                 on:click={addProject}
                 class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
             >
-                Add Project
+                <i class="fas fa-plus me-2"></i>Add Project
             </button>
         </div>
 
@@ -53,7 +53,7 @@
                             on:click={() => removeProject(i)}
                             class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
-                            Remove
+                            <i class="fas fa-trash me-2"></i>Remove
                         </button>
                     </div>
 

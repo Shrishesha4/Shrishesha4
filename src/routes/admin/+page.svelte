@@ -26,13 +26,13 @@
                             class="py-2 px-1 {activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
                             on:click={() => activeTab = 'profile'}
                         >
-                            Profile
+                            <i class="fas fa-user me-2"></i>Profile
                         </button>
                         <button
                             class="py-2 px-1 {activeTab === 'projects' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
                             on:click={() => activeTab = 'projects'}
                         >
-                            Projects
+                            <i class="fas fa-code me-2"></i>Projects
                         </button>
                     </nav>
                 </div>

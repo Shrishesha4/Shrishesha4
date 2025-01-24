@@ -81,7 +81,7 @@
                                     on:click={() => openProject($projects[currentIndex].url)}
                                     class="text-sm px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md"
                                 >
-                                    Visit Site
+                                    <i class="fas fa-external-link-alt me-2"></i>Visit Site
                                 </button>
                             {/if}
                             {#if $projects[currentIndex].github}
@@ -89,7 +89,7 @@
                                     on:click={() => openProject($projects[currentIndex].github)}
                                     class="text-sm px-4 py-2 bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-900 dark:hover:bg-neutral-600 text-white rounded-md"
                                 >
-                                    View Code
+                                    <i class="fab fa-github me-2"></i>View Code
                                 </button>
                             {/if}
                         </div>

@@ -21,9 +21,9 @@
         <NavHamburger />
     </div>
     <NavUl class="order-1">
-        <NavLi href="/" activeClass="active">Home</NavLi>
-        <NavLi href="/aboutme">About</NavLi>
-        <NavLi href="/projects">Projects</NavLi>
-        <NavLi href="/contact">Contact</NavLi>
+        <NavLi href="/" activeClass="active"><i class="fas fa-home me-2"></i>Home</NavLi>
+        <NavLi href="/aboutme"><i class="fas fa-user me-2"></i>About</NavLi>
+        <NavLi href="/projects"><i class="fas fa-code me-2"></i>Projects</NavLi>
+        <NavLi href="/contact"><i class="fas fa-envelope me-2"></i>Contact</NavLi>
     </NavUl>
 </Navbar>
