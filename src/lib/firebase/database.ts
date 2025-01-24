@@ -2,18 +2,23 @@ import { auth, db } from './config';
 import type { Profile } from '$lib/stores/profile';
 import type { Project } from '$lib/stores/projects';
 import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { loading } from '$lib/stores/loading';
 
 export async function saveProfile(userId: string, profileData: Profile) {
+    loading.show();
     try {
         await setDoc(doc(db, 'profiles', userId), profileData);
         return true;
     } catch (error) {
         console.error('Error saving profile:', error);
         return false;
+    } finally {
+        loading.hide();
     }
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
+    loading.show();
     try {
         const docRef = doc(db, 'profiles', userId);
         const docSnap = await getDoc(docRef);
@@ -21,20 +26,26 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     } catch (error) {
         console.error('Error getting profile:', error);
         return null;
+    } finally {
+        loading.hide();
     }
 }
 
 export async function saveProjects(userId: string, projectsData: Project[]) {
+    loading.show();
     try {
         await setDoc(doc(db, 'projects', userId), { projects: projectsData });
         return true;
     } catch (error) {
         console.error('Error saving projects:', error);
         return false;
+    } finally {
+        loading.hide();
     }
 }
 
 export async function getProjects(userId: string): Promise<Project[]> {
+    loading.show();
     try {
         const docRef = doc(db, 'projects', userId);
         const docSnap = await getDoc(docRef);
@@ -42,6 +53,8 @@ export async function getProjects(userId: string): Promise<Project[]> {
     } catch (error) {
         console.error('Error getting projects:', error);
         return [];
+    } finally {
+        loading.hide();
     }
 }
 

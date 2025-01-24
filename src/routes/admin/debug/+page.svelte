@@ -3,8 +3,6 @@
     import { debugFirestore } from '$lib/firebase/database';
     import { auth } from '$lib/firebase/config';
     import { signInWithEmailAndPassword } from 'firebase/auth';
-    import { defaultProfile } from '$lib/stores/profile';
-    import { defaultProjects } from '$lib/stores/projects';
     import { saveProfile, saveProjects } from '$lib/firebase/database';
 
     let debugResult = 'Testing...';
@@ -28,29 +26,33 @@
         }
     }
 
-    async function migrateData() {
+    async function initializeData() {
         if (!auth.currentUser) {
             migrationStatus = 'Error: Not logged in';
             return;
         }
     
         try {
-            migrationStatus = 'Migrating profile...';
-            await saveProfile(auth.currentUser.uid, defaultProfile);
+            migrationStatus = 'Initializing profile...';
+            const initialProfile = {
+                name: '',
+                title: '',
+                bio: '',
+                skills: [],
+                experience: [],
+                education: []
+            };
+            await saveProfile(auth.currentUser.uid, initialProfile);
             
-            migrationStatus = 'Migrating projects...';
-            await saveProjects(auth.currentUser.uid, defaultProjects);
+            migrationStatus = 'Initializing projects...';
+            await saveProjects(auth.currentUser.uid, []);
             
-            // Clear local storage after successful migration
-            localStorage.removeItem('portfolio_profile');
-            localStorage.removeItem('portfolio_projects');
-            
-            migrationStatus = 'Migration completed successfully! Local data cleared.';
+            migrationStatus = 'Initialization completed successfully!';
             const result = await debugFirestore();
             debugResult = JSON.stringify(result, null, 2);
         } catch (error) {
-            migrationStatus = `Migration failed: ${(error as Error).message}`;
-            console.error('Migration error:', error);
+            migrationStatus = `Initialization failed: ${(error as Error).message}`;
+            console.error('Initialization error:', error);
         }
     }
 
@@ -105,10 +107,10 @@
     <div class="mb-4">
         <button 
             class="bg-primary-600 text-white px-4 py-2 rounded mr-2"
-            on:click={migrateData}
+            on:click={initializeData}
             disabled={!isLoggedIn}
         >
-            Migrate Data to Firestore
+            Initialize Firestore Data
         </button>
         {#if migrationStatus}
             <span class={migrationStatus.includes('Error') ? 'text-red-500' : 

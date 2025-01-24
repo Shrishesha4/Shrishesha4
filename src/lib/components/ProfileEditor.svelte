@@ -1,33 +1,100 @@
 <script lang="ts">
+    import LoadingSpinner from './LoadingSpinner.svelte';
     import { profile } from '$lib/stores/profile';
-    import { isAuthenticated } from '$lib/stores/auth';
+    import { auth } from '$lib/firebase/config';
+    import { toast } from '$lib/stores/toast';
     import { goto } from '$app/navigation';
-    import {onMount} from 'svelte'
+    import { onMount } from 'svelte';
+    import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+
+    const db = getFirestore();
     let currentProfile = { ...$profile };
+    let loading = true;
+    let error = '';
 
-    onMount(() => {
-        if (!$isAuthenticated) {
-            goto('/admin/login');
-        }
-    });
-
-    function updateProfile() {
+    async function loadProfileData() {
         try {
-            profile.set(currentProfile);
-            alert('Profile updated successfully!');
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile');
+            if (!auth.currentUser) {
+                goto('/admin/login');
+                return;
+            }
+    
+            // First get the default profile
+            const defaultProfileDoc = await getDoc(doc(db, 'profiles', 'default'));
+            let profileData = defaultProfileDoc.exists() ? defaultProfileDoc.data() : {};
+    
+            // Then get user-specific profile and merge with default
+            const userProfileDoc = await getDoc(doc(db, 'profiles', auth.currentUser.uid));
+            if (userProfileDoc.exists()) {
+                const userData = userProfileDoc.data();
+                profileData = { ...profileData, ...userData };
+            }
+    
+            // Set the current profile with merged data
+            currentProfile = {
+                name: profileData.name || '',
+                title: profileData.title || '',
+                bio: profileData.bio || '',
+                skills: profileData.skills || [],
+                experience: profileData.experience || [],
+                education: profileData.education || []
+            };
+    
+            // Update the store
+            await profile.set(currentProfile);
+            
+            loading = false;
+        } catch (err) {
+            console.error('Error loading profile:', err);
+            error = 'Failed to load profile data';
+            loading = false;
         }
     }
+
+    async function updateProfile() {
+        try {
+            if (!auth.currentUser) {
+                throw new Error('Not authenticated');
+            }
+
+            // Update Firestore
+            await setDoc(doc(db, 'profiles', auth.currentUser.uid), currentProfile);
+            
+            // Update local store
+            await profile.set(currentProfile);
+            
+            toast.show('Profile updated successfully!', 'success');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast.show('Failed to update profile', 'error');
+        }
+    }
+
+    onMount(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadProfileData();
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    });
 </script>
-{#if $isAuthenticated}
+
+{#if loading}
+    <LoadingSpinner />
+{:else if error}
+    <div class="text-red-500 text-center p-4">{error}</div>
+{:else}
     <div class="min-h-screen p-4 bg-neutral-50 dark:bg-neutral-900">
         <div class="max-w-2xl mx-auto">
             <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1>
             
             <form class="space-y-6" on:submit|preventDefault={updateProfile}>
                 <div>
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Name</label>
                     <input 
                         type="text" 

@@ -3,11 +3,10 @@
     import { onMount } from 'svelte';
     import { theme } from '$lib/stores/theme';
 	import Navbar from '$lib/components/navbar.svelte';
+    import Toast from '$lib/components/Toast.svelte';
+    import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     let { children } = $props();
 
-    onMount(() => {
-        theme.init();
-    });
 </script>
 
 <div class="min-h-screen bg-white dark:bg-primary-dark transition-colors duration-200">
@@ -15,4 +14,6 @@
     <main>
         {@render children()}
     </main>
+    <Toast />
+    <LoadingSpinner />
 </div>

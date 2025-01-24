@@ -1,7 +1,12 @@
 <script lang="ts">
     import { theme } from '$lib/stores/theme';
     import { projects } from '$lib/stores/projects';
+    import { onMount } from 'svelte';
     import ProjectViewer from '$lib/components/projectviewer.svelte';
+
+    onMount(async () => {
+        await projects.load();
+    });
 </script>
 
 <div class="min-h-screen p-4">

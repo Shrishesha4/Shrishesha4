@@ -1,6 +1,8 @@
 <script lang="ts">
     import { login } from '$lib/stores/auth';
     import { goto } from '$app/navigation';
+    import { signInWithEmailAndPassword } from 'firebase/auth';
+    import { auth } from '$lib/firebase/config';
 
     let username = '';
     let password = '';
@@ -10,7 +12,13 @@
     async function handleLogin() {
         try {
             isLoading = true;
-            await login(username, password);
+            // Sign in to Firebase Auth
+            await signInWithEmailAndPassword(auth, username, password);
+            
+            // Perform any additional admin-specific operations here
+            await login(username, password); // Assuming login handles admin-specific logic
+
+            // Redirect to admin dashboard or desired page
             goto('/admin/');
         } catch (err) {
             error = err instanceof Error ? err.message : 'Invalid credentials';
@@ -22,8 +30,8 @@
 
 <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-neutral-900 dark:text-neutral-100">
+        <div class="flex justify-between items-center">
+            <h2 class="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-neutral-100">
                 Admin Login
             </h2>
         </div>
