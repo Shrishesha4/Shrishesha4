@@ -86,7 +86,7 @@
                     >
                         {#if repos[currentIndex]}
                             <div 
-                                class="w-[90vw] bg-white dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
+                                class="w-[70vw] h-[450px] bg-white dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
                                 style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
                             >
                                 <div class="p-6">
@@ -121,7 +121,7 @@
                             <div class="flex gap-2 mt-6">
                                 {#each repos as _, i}
                                     <div 
-                                        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-primary-500 w-4' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4' : 'bg-neutral-300 dark:bg-neutral-600'}"
                                     ></div>
                                 {/each}
                             </div>
@@ -132,8 +132,11 @@
                         <!-- Enhanced Finder-like header -->
                         <div class="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-3 flex items-center space-x-3 border-b border-neutral-200 dark:border-neutral-600">
                             <div class="flex space-x-2">
+                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
+                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
+                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors duration-150"></button>
                             </div>
                         </div>
