@@ -104,6 +104,7 @@
                 </div>
 
                 <div>
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Title</label>
                     <input 
                         type="text" 
@@ -113,6 +114,7 @@
                 </div>
 
                 <div>
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Bio</label>
                     <textarea 
                         bind:value={currentProfile.bio} 
@@ -122,6 +124,7 @@
                 </div>
 
                 <div>
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Skills (comma-separated)</label>
                     <input 
                         type="text" 
@@ -150,6 +153,7 @@
                 </div>
 
                 <div>
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Education</label>
                     {#each currentProfile.education as edu, i}
                         <div class="grid grid-cols-3 gap-2 mb-2">
@@ -176,18 +180,20 @@
                     <button 
                         type="button"
                         on:click={() => currentProfile.education = [...currentProfile.education, { year: '', degree: '', institution: '' }]}
-                        class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-2"
+                        class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-2 border-black dark:border-white"
                     >
                         + Add Education
                     </button>
                 </div>
+                <div class="flex justify-center">
+                    <button 
+                        type="submit" 
+                        class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded transition-colors duration-200"
+                    >
+                        Save Changes
+                    </button>
+                </div>
 
-                <button 
-                    type="submit" 
-                    class="w-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded transition-colors duration-200"
-                >
-                    Save Changes
-                </button>
             </form>
         </div>
     </div>

@@ -2,20 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @layer base {
     body {
-        @apply bg-white dark:bg-primary-dark text-gray-900 dark:text-neutral-100 transition-colors duration-200;
+        @apply bg-neutral-50 dark:bg-primary-dark text-gray-900 dark:text-neutral-100 transition-colors duration-200;
     }
 }
 
 @layer components {
     .card {
-        @apply bg-white dark:bg-primary-medium border border-gray-200 dark:border-primary-light rounded-lg shadow;
+        @apply bg-neutral-100 dark:bg-primary-medium border border-neutral-200 dark:border-primary-light rounded-lg shadow;
     }
     
     .nav-section {
-        @apply bg-white dark:bg-primary-medium;
+        @apply bg-neutral-100 dark:bg-primary-medium;
     }
 }

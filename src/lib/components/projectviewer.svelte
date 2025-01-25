@@ -95,18 +95,14 @@
     <div class="min-h-screen">
         {#if isMobile}
             <div 
-                class="h-screen w-full flex flex-col items-center justify-center overflow-hidden relative bg-neutral-100 dark:bg-neutral-900"
+                class="w-full flex flex-col items-center justify-center overflow-hidden relative mt-6"
                 on:touchstart={handleTouchStart}
                 on:touchmove={handleTouchMove}
                 on:touchend={handleTouchEnd}
             >
-                <div class="absolute top-4 text-neutral-500">
-                    {currentIndex + 1} / {$projects.length}
-                </div>
-                
                 {#if $projects[currentIndex]}
                     <div 
-                        class="w-[90vw] h-[70vh] bg-neutral-50 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
+                        class="w-[90vw] h-[50vh] bg-neutral-50 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
                         style="transform: translateX({$deltaX}px) translateY({$deltaY}px) rotate({$deltaX * 0.1}deg) scale({$scale}); opacity: {$opacity};"
                     >
                         <img 
@@ -149,8 +145,10 @@
                         </div>
                     </div>
                     
-                    <div class="mt-8 flex gap-2 items-center justify-center">
+                    <div class="mt-6 mb-4 flex gap-2 items-center justify-center">
                         {#each Array(Math.min($projects.length, 5)) as _, i}
+                            <!-- svelte-ignore a11y_consider_explicit_label -->
+                            <!-- svelte-ignore element_invalid_self_closing_tag -->
                             <button 
                                 class="w-2 h-2 rounded-full transition-all duration-120 {i === currentIndex ? 'bg-white w-4' : 'bg-neutral-400'}"
                                 on:click={() => currentIndex = i}

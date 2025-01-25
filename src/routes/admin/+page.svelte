@@ -2,10 +2,21 @@
     import { isAuthenticated } from '$lib/stores/auth';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { signOut } from 'firebase/auth';
+    import { auth } from '$lib/firebase/config';
     import ProjectEditor from '$lib/components/ProjectEditor.svelte';
     import ProfileEditor from '$lib/components/ProfileEditor.svelte';
 
     let activeTab = 'profile';
+
+    async function handleLogout() {
+        try {
+            await signOut(auth);
+            goto('/');
+        } catch (err) {
+            console.error('Error signing out:', err);
+        }
+    }
 
     onMount(() => {
         if (!$isAuthenticated) {
@@ -17,7 +28,16 @@
 {#if $isAuthenticated}
     <div class="min-h-screen p-4">
         <div class="max-w-4xl mx-auto">
-            <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+                <button
+                    on:click={handleLogout}
+                    class="p-2 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors"
+                    title="Logout"
+                >
+                    <i class="fas fa-sign-out-alt text-xl"></i>
+                </button>
+            </div>
             
             <div class="mb-6">
                 <div class="border-b border-gray-200">

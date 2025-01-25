@@ -1,7 +1,5 @@
 <script lang="ts">
     import '../app.postcss';
-    import { onMount } from 'svelte';
-    import { theme } from '$lib/stores/theme';
 	import Navbar from '$lib/components/navbar.svelte';
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';

@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { saveProjects, getProjects } from '$lib/firebase/database';
-import { auth } from '$lib/firebase/config';
+import { auth, db } from '$lib/firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
 export interface Project {
     id: string;
@@ -14,18 +15,17 @@ export interface Project {
 
 function createProjectsStore() {
     const { subscribe, set } = writable<Project[]>([]);
-    
     let loaded = false;
 
     return {
         subscribe,
         set: async (value: Project[]) => {
             try {
-                if (auth.currentUser) {
-                    await saveProjects(auth.currentUser.uid, value);
+                if (!auth.currentUser) {
+                    throw new Error('Authentication required to save projects');
                 }
+                await saveProjects(auth.currentUser.uid, value);
                 set(value);
-                // Save to local storage
                 localStorage.setItem('projects', JSON.stringify(value));
             } catch (error) {
                 console.error('Error saving projects:', error);
@@ -35,7 +35,7 @@ function createProjectsStore() {
         load: async () => {
             if (loaded) return;
             try {
-                // Load from local storage first
+                // Try local storage first
                 const storedProjects = localStorage.getItem('projects');
                 if (storedProjects) {
                     set(JSON.parse(storedProjects));
@@ -43,11 +43,15 @@ function createProjectsStore() {
                     return;
                 }
 
-                if (auth.currentUser) {
-                    const projects = await getProjects(auth.currentUser.uid);
+                // If not in local storage, get from Firestore
+                const projectsRef = collection(db, 'projects');
+                const projectsSnapshot = await getDocs(projectsRef);
+                
+                if (!projectsSnapshot.empty) {
+                    const firstDoc = projectsSnapshot.docs[0];
+                    const projects = firstDoc.data().projects || [];
                     set(projects);
                     loaded = true;
-                    // Save to local storage
                     localStorage.setItem('projects', JSON.stringify(projects));
                 }
             } catch (error) {

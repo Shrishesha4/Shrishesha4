@@ -11,6 +11,7 @@
     let loading = true;
     let error = '';
     let showModal = false;
+    let originalProjects: string = ''; // Track original state
 
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -21,6 +22,7 @@
                 }
                 await projects.load();
                 currentProjects = [...$projects];
+                originalProjects = JSON.stringify(currentProjects);
                 loading = false;
             } catch (err) {
                 error = 'Failed to load projects data';
@@ -30,6 +32,12 @@
 
         return () => unsubscribe();
     });
+
+    // Function to check if project is modified
+    function isProjectModified(project: Project, index: number): boolean {
+        const originalProject = JSON.parse(originalProjects)[index];
+        return JSON.stringify(project) !== JSON.stringify(originalProject);
+    }
 
     // Subscribe to projects store changes
     $: {
@@ -66,6 +74,18 @@
             toast.show('Failed to save projects', 'error');
         }
     }
+
+    async function saveProject(project: Project, index: number) {
+        try {
+            const updatedProjects = [...currentProjects];
+            updatedProjects[index] = project;
+            await projects.set(updatedProjects);
+            originalProjects = JSON.stringify(updatedProjects);
+            toast.show('Project saved successfully!', 'success');
+        } catch (error) {
+            toast.show('Failed to save project', 'error');
+        }
+    }
 </script>
 
 <ProjectModal 
@@ -99,13 +119,26 @@
                     <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow">
                         <div class="flex justify-between items-start mb-4">
                             <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Project {i + 1}</h2>
-                            <!-- svelte-ignore a11y_consider_explicit_label -->
-                            <button 
-                                on:click={() => removeProject(i)}
-                                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-                            >
-                                <i class="fas fa-trash me-2"></i>
-                            </button>
+                            <div class="flex gap-2">
+                                {#if isProjectModified(project, i)}
+                                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                                    <button 
+                                        on:click={() => saveProject(project, i)}
+                                        class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 mr-5"
+                                        title="Save changes"
+                                    >
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                {/if}
+                                <!-- svelte-ignore a11y_consider_explicit_label -->
+                                <button 
+                                    on:click={() => removeProject(i)}
+                                    class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+                                    title="Delete project"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="space-y-4">
@@ -161,12 +194,12 @@
                 {/each}
             </div>
 
-            <div class="mt-6">
+            <div class="mt-6 flex justify-center">
                 <button 
                     on:click={saveProjects}
-                    class="w-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded transition-colors duration-200"
+                    class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded transition-colors duration-200"
                 >
-                    Save All Changes
+                    Save Changes
                 </button>
             </div>
         </div>

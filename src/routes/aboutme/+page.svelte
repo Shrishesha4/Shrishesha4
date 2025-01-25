@@ -1,54 +1,19 @@
 <script lang="ts">
     import { profile } from '$lib/stores/profile';
     import { onMount } from 'svelte';
-    import { getFirestore, doc, getDoc} from 'firebase/firestore';
-    import { auth } from '$lib/firebase/config';
 
-    const db = getFirestore();
     let loading = true;
     let error = '';
 
-    async function loadProfileData() {
+    onMount(async () => {
         try {
-            // First try to get the default profile data
-            const defaultProfileDoc = await getDoc(doc(db, 'profiles', 'default'));
-            let profileData = defaultProfileDoc.exists() ? defaultProfileDoc.data() : {};
-            
-            // If user is authenticated, try to get their specific profile and merge with default
-            if (auth.currentUser) {
-                const userProfileDoc = await getDoc(doc(db, 'profiles', auth.currentUser.uid));
-                if (userProfileDoc.exists()) {
-                    const userData = userProfileDoc.data();
-                    profileData = { ...profileData, ...userData };
-                }
-            }
-
-            // Set the profile with merged data
-            await profile.set({
-                name: profileData.name || '',
-                title: profileData.title || '',
-                bio: profileData.bio || '',
-                skills: profileData.skills || [],
-                experience: profileData.experience || [],
-                education: profileData.education || []
-            });
+            await profile.load();
         } catch (err) {
             console.error('Error loading profile:', err);
             error = 'Failed to load profile data';
         } finally {
             loading = false;
         }
-    }
-
-    onMount(() => {
-        // Listen for auth state changes
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            loadProfileData();
-        });
-
-        return () => {
-            unsubscribe(); // Cleanup subscription
-        };
     });
 </script>
 

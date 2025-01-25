@@ -66,10 +66,9 @@
 {#if loading}
     <LoadingSpinner />
 {:else}
-    <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-8 py-2">GitHub Repositories</h2>
+    <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-1 py-1 mt-6">GitHub Repositories</h2>
     <section class="py-2 ">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">  
             {#if loading}
                 <div class="flex justify-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -79,14 +78,14 @@
             {:else}
                 {#if isMobile}
                     <div 
-                        class="h-[70vh] w-full flex flex-col items-center justify-center overflow-hidden relative"
+                        class="h-[60vh] w-full flex flex-col items-center justify-center overflow-hidden relative"
                         on:touchstart={handleTouchStart}
                         on:touchmove={handleTouchMove}
                         on:touchend={handleTouchEnd}
                     >
                         {#if repos[currentIndex]}
                             <div 
-                                class="w-[70vw] h-[450px] bg-white dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
+                                class="w-full h-[500px] bg-white dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
                                 style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
                             >
                                 <div class="p-6">
