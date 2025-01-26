@@ -6,7 +6,8 @@
     import { goto } from '$app/navigation';
     import { toast } from '$lib/stores/toast';
     import ProjectModal from './ProjectModal.svelte';
-
+    import { slide } from 'svelte/transition';
+    
     let currentProjects: Project[] = [];
     let loading = true;
     let error = '';
@@ -48,30 +49,29 @@
 
     function addProject() {
         showModal = true;
-        currentProjects = [...currentProjects, {
-            id: crypto.randomUUID(),
-            title: '',
-            description: '',
-            image: '',
-            technologies: [],
-            url: '',
-            github: ''
-        }];
     }
 
     function removeProject(index: number) {
         currentProjects = currentProjects.filter((_, i) => i !== index);
     }
 
+    // Add this near the top of your script section
+    let isSaving = false;
+    
+    // Update the saveProjects function
     async function saveProjects() {
         try {
             if (!auth.currentUser) {
                 throw new Error('Not authenticated');
             }
+            isSaving = true;
             await projects.set(currentProjects);
+            originalProjects = JSON.stringify(currentProjects); // Update original state
             toast.show('Projects saved successfully!', 'success');
         } catch (error) {
             toast.show('Failed to save projects', 'error');
+        } finally {
+            isSaving = false;
         }
     }
 
@@ -85,6 +85,24 @@
         } catch (error) {
             toast.show('Failed to save project', 'error');
         }
+    }
+
+    // Add this function near your other functions
+    function hasUnsavedChanges(): boolean {
+        // Check for modified projects or if any projects were deleted
+        return currentProjects.some((project, index) => isProjectModified(project, index)) || 
+               currentProjects.length !== JSON.parse(originalProjects).length;
+    }
+    // Add this to your script section at the top
+    let expandedProjects: Set<number> = new Set([0]); // Track expanded state, default first item expanded
+
+    function toggleProject(index: number) {
+        if (expandedProjects.has(index)) {
+            expandedProjects.delete(index);
+        } else {
+            expandedProjects.add(index);
+        }
+        expandedProjects = expandedProjects; // Trigger reactivity
     }
 </script>
 
@@ -101,7 +119,7 @@
 {:else if error}
     <div class="text-red-500 text-center p-4">{error}</div>
 {:else}
-    <div class="min-h-screen p-4 bg-neutral-50 dark:bg-neutral-900">
+    <div class="min-h-screen p-4 ">
         <div class="max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Edit Projects</h1>
@@ -113,15 +131,33 @@
                     <i class="fas fa-plus me-2"></i>
                 </button>
             </div>
+            {#if hasUnsavedChanges() && !isSaving}
+                <div class="flex justify-end mb-4">
+                    <button 
+                        on:click={saveProjects}
+                        class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200 flex items-center"
+                    >
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            {/if}
 
             <div class="space-y-6">
                 {#each currentProjects as project, i}
                     <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow">
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Project {i + 1}</h2>
+                            <div class="flex items-center gap-4 cursor-pointer" on:click={() => toggleProject(i)}>
+                                <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>
+                                <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                                    {project.title || `Project ${i + 1}`}
+                                </h2>
+                            </div>
+                            <!-- svelte-ignore a11y_consider_explicit_label -->
                             <div class="flex gap-2">
                                 {#if isProjectModified(project, i)}
-                                    <!-- svelte-ignore a11y_consider_explicit_label -->
                                     <button 
                                         on:click={() => saveProject(project, i)}
                                         class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 mr-5"
@@ -130,7 +166,6 @@
                                         <i class="fas fa-save"></i>
                                     </button>
                                 {/if}
-                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button 
                                     on:click={() => removeProject(i)}
                                     class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
@@ -140,87 +175,72 @@
                                 </button>
                             </div>
                         </div>
-
-                        <div class="space-y-4">
-                            <div>
+                
+                        {#if expandedProjects.has(i)}
+                            <div class="space-y-4" transition:slide>
+                                <!-- Existing form fields remain here -->
                                 <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Title</label>
-                                <input 
-                                    type="text" 
-                                    bind:value={project.title}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Title</label>
+                                        <input 
+                                            type="text" 
+                                            bind:value={project.title}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Description</label>
+                                        <textarea 
+                                            bind:value={project.description}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            rows="3"
+                                        ></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Image URL</label>
+                                        <input 
+                                            type="url" 
+                                            bind:value={project.image}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Project URL</label>
+                                        <input 
+                                            type="url" 
+                                            bind:value={project.url}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">GitHub URL</label>
+                                        <input 
+                                            type="url" 
+                                            bind:value={project.github}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Technologies (comma-separated)</label>
+                                        <input 
+                                            type="text" 
+                                            bind:value={project.technologies}
+                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            placeholder="React, TypeScript, Node.js"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-
-                            <div>
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Description</label>
-                                <textarea 
-                                    bind:value={project.description}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                    rows="3"
-                                ></textarea>
-                            </div>
-
-                            <div>
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Image URL</label>
-                                <input 
-                                    type="text" 
-                                    bind:value={project.image}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
-                            </div>
-
-                            <div>
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Project URL</label>
-                                <input 
-                                    type="url" 
-                                    bind:value={project.url}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
-                            </div>
-
-                            <div>
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">GitHub URL</label>
-                                <input 
-                                    type="url" 
-                                    bind:value={project.github}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
-                            </div>
-                            <div>
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
-                                <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Technologies (comma-separated)</label>
-                                <input 
-                                    type="text" 
-                                    value={project.technologies.join(', ')}
-                                    on:input={(e) => {
-                                        if (e.target) {
-                                            project.technologies = (e.target as HTMLInputElement).value
-                                                .split(',')
-                                                .map(t => t.trim())
-                                                .filter(Boolean);
-                                        }
-                                    }}
-                                    class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
-                            </div>
-                        </div>
+                        {/if}
                     </div>
                 {/each}
             </div>
 
-            <div class="mt-6 flex justify-center">
-                <button 
-                    on:click={saveProjects}
-                    class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded transition-colors duration-200"
-                >
-                    Save Changes
-                </button>
-            </div>
+            <!-- Remove this section at the bottom -->
+            <!-- <div class="mt-6 flex justify-center">
+                <button on:click={saveProjects}>Save Changes</button>
+            </div> -->
         </div>
     </div>
 {/if}

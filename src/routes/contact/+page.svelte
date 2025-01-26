@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { theme } from '$lib/stores/theme';
 </script>
 
 <div class="min-h-screen p-4">

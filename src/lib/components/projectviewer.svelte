@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
     import { spring } from 'svelte/motion';
     import { projects } from '$lib/stores/projects';
-    import GithubRepos from '$lib/components/GithubRepos.svelte';
     import LoadingSpinner from './LoadingSpinner.svelte';
     let isMobile = false;
     let currentIndex = 0;
@@ -92,7 +91,7 @@
 {#if loading}
     <LoadingSpinner />
 {:else}
-    <div class="min-h-screen">
+    <div>
         {#if isMobile}
             <div 
                 class="w-full flex flex-col items-center justify-center overflow-hidden relative mt-6"
@@ -102,7 +101,7 @@
             >
                 {#if $projects[currentIndex]}
                     <div 
-                        class="w-[90vw] h-auto min-h-[60vh] bg-neutral-50 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
+                        class="w-[90vw] h-auto min-h-[60vh] bg-neutral-200 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
                         style="transform: translateX({$deltaX * 0.5}px) translateY({$deltaY * 0.3}px) rotate({$deltaX * 0.05}deg) scale({$scale}); opacity: {$opacity};"
                     >
                         <img 
@@ -146,8 +145,9 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-6 mb-4 flex gap-2 items-center justify-center">
+
+                    <!-- page index -->
+                    <div class="mt-6 mb-0 flex gap-2 items-center justify-center">
                         {#each Array(Math.min($projects.length, 5)) as _, i}
                             <!-- svelte-ignore a11y_consider_explicit_label -->
                             <!-- svelte-ignore element_invalid_self_closing_tag -->
@@ -164,7 +164,7 @@
             </div>
         {:else}
             <div class="p-4 md:p-8">
-                <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-neutral-200 dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
                     <div class="bg-neutral-200 dark:bg-neutral-700 p-2 flex items-center space-x-2">
                         <div class="w-3 h-3 rounded-full bg-red-500"></div>
                         <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
@@ -219,6 +219,5 @@
                 </div>
             </div>
         {/if}
-        <GithubRepos />
     </div>
 {/if}

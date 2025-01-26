@@ -28,7 +28,7 @@
     }
 </script>
 
-<div class="min-h-screen flex justify-center bg-neutral-50 dark:bg-neutral-900 py-4 px-4 pb-32 md:pb-4 sm:px-6 lg:px-8"> <!-- Added bottom padding for mobile -->
+<div class="min-h-screen flex justify-center py-4 px-4 pb-32 md:pb-4 sm:px-6 lg:px-8"> 
     <div class="max-w-md w-full space-y-8">
         <div class="flex justify-center items-center">
             <h2 class="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-neutral-100">

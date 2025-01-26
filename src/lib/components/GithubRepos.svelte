@@ -3,6 +3,9 @@
     import { onMount } from 'svelte';
     import { spring } from 'svelte/motion';
     import axios from 'axios';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     let repos: any[] = [];
     let loading = true;
@@ -34,6 +37,7 @@
             console.error('Error fetching repositories:', err);
             error = 'Failed to load repositories';
             loading = false;
+            dispatch('error');
         }
     }
 
@@ -85,7 +89,7 @@
                     >
                         {#if repos[currentIndex]}
                             <div 
-                                class="w-full h-[500px] bg-white dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
+                                class="w-full h-[500px] bg-neutral-200 dark:bg-neutral-700 rounded-xl shadow-lg transition-transform"
                                 style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
                             >
                                 <div class="p-6">
