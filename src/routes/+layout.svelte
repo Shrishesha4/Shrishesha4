@@ -13,4 +13,11 @@
     </main>
     <Toast />
     <LoadingSpinner />
+    <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700">
+        <div class="container mx-auto flex justify-center items-center">
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                © {new Date().getFullYear()} . Shrishesha
+            </p>
+        </div>
+    </footer>
 </div>
