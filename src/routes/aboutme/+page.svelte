@@ -26,7 +26,7 @@
 {:else}
     <div class="min-h-screen p-4">
         <div class="max-w-4xl mx-auto">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">About Me</h1>
+            <!-- <h1 class="text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">About Me</h1> -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Profile Image Section -->
                 <div class="flex flex-col items-center md:items-start">

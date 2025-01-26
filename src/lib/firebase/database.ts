@@ -3,6 +3,7 @@ import type { Profile } from '$lib/stores/profile';
 import type { Project } from '$lib/stores/projects';
 import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { loading } from '$lib/stores/loading';
+import type { ContactConfig } from '$lib/stores/contact';
 
 export async function saveProfile(userId: string, profileData: Profile) {
     loading.show();
@@ -201,5 +202,33 @@ export async function debugFirestore() {
             error: error instanceof Error ? error.message : 'Unknown error',
             isConnected: false
         };
+    }
+}
+// Add these functions to your existing database.ts file
+
+export async function saveContactConfig(config: ContactConfig) {
+    loading.show();
+    try {
+        await setDoc(doc(db, 'config', 'contact'), config);
+        return true;
+    } catch (error) {
+        console.error('Error saving contact config:', error);
+        return false;
+    } finally {
+        loading.hide();
+    }
+}
+
+export async function getContactConfig(): Promise<ContactConfig | null> {
+    loading.show();
+    try {
+        const docRef = doc(db, 'config', 'contact');
+        const docSnap = await getDoc(docRef);
+        return docSnap.exists() ? docSnap.data() as ContactConfig : null;
+    } catch (error) {
+        console.error('Error getting contact config:', error);
+        return null;
+    } finally {
+        loading.hide();
     }
 }

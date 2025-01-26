@@ -251,9 +251,12 @@
 										<h3 class="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
 											{post.title}
 										</h3>
-										<p class="text-neutral-600 dark:text-neutral-300 line-clamp-2">
-											{#each post.tag as t}
-											{t}
+										<p class="text-xs font-light text-neutral-900 dark:text-neutral-100 mb-2">
+											{post.description}
+										</p>
+										<p class="text-xs font-thin text-neutral-600 dark:text-neutral-300 line-clamp-2">
+											{#each post.tags as t}
+											{t} <br>
 											{/each}
 										</p>
 									</div>

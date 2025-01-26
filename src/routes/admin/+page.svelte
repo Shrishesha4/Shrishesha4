@@ -8,6 +8,7 @@
     import ProfileEditor from '$lib/components/ProfileEditor.svelte';
     import BlogEditor from '$lib/components/BlogEditor.svelte';
     import { blogs } from '$lib/stores/blogs';
+    import ContactEditor from '$lib/components/ContactEditor.svelte';
 
     let activeTab = 'profile';
     let editingBlog: typeof $blogs[0] | null = null;
@@ -68,6 +69,13 @@
                         >
                             <i class="fas fa-blog me-2"></i>Blogs
                         </button>
+                        <!-- Add to your tab buttons -->
+                        <button
+                            class="py-2 px-1 {activeTab === 'contact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
+                            on:click={() => activeTab = 'contact'}
+                        >
+                            Contact
+                        </button>
                     </nav>
                 </div>
             </div>
@@ -78,6 +86,9 @@
                 <ProjectEditor />
             {:else if activeTab === 'blogs'}
                 <BlogEditor bind:editingBlog />
+            <!-- Add to your tab content -->
+            {:else if activeTab === 'contact'}
+                <ContactEditor />
             {/if}
         </div>
     </div>
