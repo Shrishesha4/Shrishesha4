@@ -1,18 +1,18 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBrFfOELyuu51wSC1vfGqC4LULE9hhhJ5A",
-    authDomain: "shrishesha4.firebaseapp.com",
-    projectId: "shrishesha4",
-    storageBucket: "shrishesha4.firebasestorage.app",
-    messagingSenderId: "1066466188153",
-    appId: "1:1066466188153:web:b88776360477c867adada8",
-    measurementId: "G-3S6LVYBZRF"
-  };
-  
+  apiKey: "AIzaSyDYl7I27PHWm8o-1j0JQbiN21GqofATtMk",
+  authDomain: "shrishesha-n.firebaseapp.com",
+  projectId: "shrishesha-n",
+  storageBucket: "shrishesha-n.firebasestorage.app",
+  messagingSenderId: "947201474466",
+  appId: "1:947201474466:web:81e4d49ef5bd00c4047cfb",
+  measurementId: "G-R4WJP4HS1D"
+};
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if it hasn't been initialized yet
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const db = getFirestore(app);
 export const auth = getAuth(app);
