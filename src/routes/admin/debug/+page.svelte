@@ -63,7 +63,7 @@
     });
 </script>
 
-<div class="p-4">
+<div class="p-4 pb-32 md:pb-4"> <!-- Added bottom padding for mobile -->
     <h1 class="text-2xl mb-4">Firebase Debug</h1>
     
     {#if !isLoggedIn}

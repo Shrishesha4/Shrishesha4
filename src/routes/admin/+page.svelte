@@ -26,7 +26,7 @@
 </script>
 
 {#if $isAuthenticated}
-    <div class="min-h-screen p-4">
+    <div class="min-h-screen p-4 pb-32 md:pb-4"> <!-- Added bottom padding for mobile -->
         <div class="max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Admin Dashboard</h1>
