@@ -95,9 +95,9 @@
         {#if isMobile}
             <div 
                 class="w-full flex flex-col items-center justify-center overflow-hidden relative mt-6"
-                on:touchstart={handleTouchStart}
-                on:touchmove={handleTouchMove}
-                on:touchend={handleTouchEnd}
+                on:touchstart|passive={handleTouchStart}
+                on:touchmove|passive={handleTouchMove}
+                on:touchend|passive={handleTouchEnd}
             >
                 {#if $projects[currentIndex]}
                     <div 

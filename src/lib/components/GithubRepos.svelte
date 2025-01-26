@@ -83,9 +83,9 @@
                 {#if isMobile}
                     <div 
                         class="h-[60vh] w-full flex flex-col items-center justify-center overflow-hidden relative"
-                        on:touchstart={handleTouchStart}
-                        on:touchmove={handleTouchMove}
-                        on:touchend={handleTouchEnd}
+                        on:touchstart|passive={handleTouchStart}
+                        on:touchmove|passive={handleTouchMove}
+                        on:touchend|passive={handleTouchEnd}
                     >
                         {#if repos[currentIndex]}
                             <div 

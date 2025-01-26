@@ -10,7 +10,7 @@ export function onIdleFor(timeout: number, callback: () => void) {
         // Reset timer on user activity
         const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
         events.forEach(event => {
-            document.addEventListener(event, resetTimer, false);
+            document.addEventListener(event, resetTimer, { passive: true });
         });
 
         // Initial timer setup
