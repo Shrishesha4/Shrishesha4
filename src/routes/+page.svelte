@@ -12,6 +12,10 @@
     let loading = true;
     let error = '';
     let githubError = false;
+    
+    // Initialize with empty arrays to prevent undefined errors
+    $: blogPosts = $blogs || [];
+    $: projectsList = $projects || [];
 
     function handleGithubError() {
         githubError = true;
@@ -59,14 +63,14 @@
         {:else}
             <section class="mb-16">
                 <NewBlogPosts 
-                    posts={$blogs} 
+                    posts={blogPosts} 
                     {error} 
                     onRetry={() => { error = ''; fetchData(); }} 
                 />
             </section>
             <section class="mb-16">
                 <FeaturedProjects 
-                    projects={$projects} 
+                    projects={projectsList} 
                     {error} 
                     onRetry={() => { error = ''; fetchData(); }} 
                 />
