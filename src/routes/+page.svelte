@@ -27,7 +27,7 @@
 			if (projectsDoc.exists()) {
 				const data = projectsDoc.data();
 				projects = data.projects || [];
-				console.log('Projects loaded:', projects);
+				console.log('Projects loaded.');
 			}
 
 			const blogsRef = doc(db, 'blogs', 'Ykr9irYsL8YYEFgspxCuQ7Rkv5E2');
@@ -36,7 +36,7 @@
 			if (blogsDoc.exists()) {
 				const data = blogsDoc.data();
 				blogPosts = data.blogs || [];
-				console.log('Blog posts loaded:', blogPosts);
+				console.log('Blog posts loaded');
 			} else {
 				console.log('No Blog posts.');
 			}
