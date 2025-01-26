@@ -5,8 +5,8 @@
 
 {#if $toast}
     <div 
-        class="fixed bottom-4 right-4 z-50"
-        transition:fly={{ y: 50, duration: 200 }}
+        class="fixed top-6 left-6 z-[200]"
+        transition:fly={{ y: -50, duration: 200 }}
     >
         <div class={`px-4 py-2 rounded-lg shadow-lg ${
             $toast.type === 'success' 
