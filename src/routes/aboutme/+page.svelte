@@ -16,7 +16,7 @@
         }
     });
 </script>
-
+<!-- svelte-ignore a11y_img_redundant_alt -->
 {#if loading}
     <div class="flex justify-center items-center min-h-screen">
         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -30,7 +30,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Profile Image Section -->
                 <div class="flex flex-col items-center md:items-start">
-                    <!-- svelte-ignore a11y_img_redundant_alt -->
                     <img 
                         src="me.png" 
                         alt="Profile Picture" 
@@ -39,6 +38,15 @@
                     <div class="text-center md:text-left">
                         <h2 class="text-2xl font-semibold text-gray-900 dark:text-neutral-100">{$profile.name}</h2>
                         <p class="text-gray-600 dark:text-neutral-400">{$profile.title}</p>
+                        
+                        <a 
+                            href="https://cal.com/shrishesha-n"
+                            class="inline-flex items-center gap-3 px-8 py-3 mt-4 bg-neutral-800 hover:bg-neutral-900 text-white rounded-full transition-colors duration-200"
+                        >
+                            <i class="fas fa-calendar text-m"></i>
+                            <span class="text-m">Schedule a call</span>
+                            <i class="fas fa-arrow-right text-m"></i>
+                        </a>
                     </div>
                 </div>
 

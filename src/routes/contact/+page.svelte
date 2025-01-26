@@ -78,18 +78,18 @@
     }
 </script>
 
-<div class="min-h-screen px-4 py-6 sm:p-4">
+<div class="min-h-screen p-4">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6 px-2 sm:px-0">Contact Me</h1>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">Contact Me</h1>
         
         {#if loading}
             <div class="flex justify-center">
                 <LoadingSpinner />
             </div>
         {:else}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-2 sm:px-0">
+            <div class="grid md:grid-cols-2 gap-8">
                 <!-- Contact Form -->
-                <div class="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-xl shadow-sm order-2 md:order-1">
+                <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-sm">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Send a Message</h2>
                     
                     {#if error}
@@ -160,33 +160,28 @@
                 </div>
 
                 <!-- Contact Information -->
-                <div class="space-y-6 order-1 md:order-2">
-                    <div class="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-xl shadow-sm">
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-sm">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Information</h2>
                         <div class="space-y-4">
                             {#if $contactConfig.email}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
-                                    <a 
-                                        href="mailto:shrisheshanarmatesshvara@gmail.com"
-                                        target="_blank"
-                                    >
-                                        <i class="fa-regular fa-envelope text-sm"></i>
-                                        <span class="text-sm">{$contactConfig.email}</span>
-                                    </a>
+                                    <i class="fa-regular fa-envelope text-xl"></i>
+                                    <span>{$contactConfig.email}</span>
                                 </div>
                             {/if}
                             
                             {#if $contactConfig.phone}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
-                                    <i class="fa-solid fa-phone text-sm"></i>
-                                    <span class="text-sm">{$contactConfig.phone}</span>
+                                    <i class="fa-solid fa-phone text-xl"></i>
+                                    <span>{$contactConfig.phone}</span>
                                 </div>
                             {/if}
                             
                             {#if $contactConfig.location}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
-                                    <i class="fa-solid fa-location-dot text-sm"></i>
-                                    <span class="text-sm">{$contactConfig.location}</span>
+                                    <i class="fa-solid fa-location-dot text-xl"></i>
+                                    <span>{$contactConfig.location}</span>
                                 </div>
                             {/if}
                         </div>

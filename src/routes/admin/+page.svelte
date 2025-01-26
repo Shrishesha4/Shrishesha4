@@ -16,7 +16,7 @@
     async function handleLogout() {
         try {
             await signOut(auth);
-            goto('/');
+            goto('/admin/login');
         } catch (err) {
             console.error('Error signing out:', err);
         }

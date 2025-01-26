@@ -12,7 +12,8 @@
     let loading = true;
     let error = '';
     let showModal = false;
-    let originalProjects: string = ''; // Track original state
+    let originalProjects: string = '';
+    let isSaving = false;
 
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -34,13 +35,11 @@
         return () => unsubscribe();
     });
 
-    // Function to check if project is modified
     function isProjectModified(project: Project, index: number): boolean {
         const originalProject = JSON.parse(originalProjects)[index];
         return JSON.stringify(project) !== JSON.stringify(originalProject);
     }
 
-    // Subscribe to projects store changes
     $: {
         if ($projects) {
             currentProjects = [...$projects];
@@ -54,11 +53,7 @@
     function removeProject(index: number) {
         currentProjects = currentProjects.filter((_, i) => i !== index);
     }
-
-    // Add this near the top of your script section
-    let isSaving = false;
     
-    // Update the saveProjects function
     async function saveProjects() {
         try {
             if (!auth.currentUser) {
@@ -66,7 +61,7 @@
             }
             isSaving = true;
             await projects.set(currentProjects);
-            originalProjects = JSON.stringify(currentProjects); // Update original state
+            originalProjects = JSON.stringify(currentProjects);
             toast.show('Projects saved successfully!', 'success');
         } catch (error) {
             toast.show('Failed to save projects', 'error');
@@ -87,14 +82,12 @@
         }
     }
 
-    // Add this function near your other functions
     function hasUnsavedChanges(): boolean {
-        // Check for modified projects or if any projects were deleted
         return currentProjects.some((project, index) => isProjectModified(project, index)) || 
                currentProjects.length !== JSON.parse(originalProjects).length;
     }
-    // Add this to your script section at the top
-    let expandedProjects: Set<number> = new Set([0]); // Track expanded state, default first item expanded
+    // Initialize with empty set instead of Set([0])
+    let expandedProjects: Set<number> = new Set();
 
     function toggleProject(index: number) {
         if (expandedProjects.has(index)) {
@@ -102,7 +95,7 @@
         } else {
             expandedProjects.add(index);
         }
-        expandedProjects = expandedProjects; // Trigger reactivity
+        expandedProjects = expandedProjects;
     }
 </script>
 
@@ -138,7 +131,7 @@
                 <div class="flex justify-end mb-4">
                     <button 
                         on:click={saveProjects}
-                        class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200 flex items-center"
+                        class="bg-primary-800 dark:bg-primary-100 text-primary-800 dark:text-white border px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200 flex items-center"
                     >
                         <i class="fas fa-save mr-2"></i>
                         Save Changes

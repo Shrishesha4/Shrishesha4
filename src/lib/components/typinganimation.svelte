@@ -1,26 +1,35 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import Typed from 'typed.js';
+    import { onMount } from 'svelte';
+    import Typed from 'typed.js';
+    import { profile } from '$lib/stores/profile';
 
-	export let strings: string[] = [
-		'a Web Developer.',
-		'a Graphic Designer.',
-		'an App Developer.'
-	];
+    let typed: Typed;
 
-	onMount(() => {
-		const typed = new Typed('.typing', {
-			strings: strings,
-			typeSpeed: 100,
-			backSpeed: 60,
-			loop: true,
-			cursorChar: '|'
-		});
+    onMount(() => {
+        typed = new Typed('.typing', {
+            strings: $profile.typingStrings,
+            typeSpeed: 100,
+            backSpeed: 60,
+            loop: true,
+            cursorChar: '|'
+        });
 
-		return () => {
-			typed.destroy();
-		};
-	});
+        return () => {
+            typed.destroy();
+        };
+    });
+
+    // Update typing strings when profile changes
+    $: if (typed && $profile.typingStrings) {
+        typed.destroy();
+        typed = new Typed('.typing', {
+            strings: $profile.typingStrings,
+            typeSpeed: 100,
+            backSpeed: 60,
+            loop: true,
+            cursorChar: '|'
+        });
+    }
 </script>
 
 <span class="typing"></span>

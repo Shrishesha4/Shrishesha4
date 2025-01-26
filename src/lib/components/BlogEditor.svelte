@@ -2,14 +2,31 @@
     import { blogs } from '$lib/stores/blogs';
     import { toast } from '$lib/stores/toast';
     import { onMount } from 'svelte';
-
+    import { goto } from '$app/navigation';
+    import { auth } from '$lib/firebase/config';
+    
     export let editingBlog: any = null;
     let selectedBlogs: string[] = [];
     let allBlogs: typeof $blogs = [];
-
-    onMount(async () => {
-        await blogs.load();
-        allBlogs = [...$blogs];
+    let loading = true;
+    
+    onMount(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            try {
+                if (!user) {
+                    goto('/admin/login');
+                    return;
+                }
+                await blogs.load();
+                allBlogs = [...$blogs];
+                loading = false;
+            } catch (err) {
+                err = 'Failed to load blogs data';
+                loading = false;
+            }
+        });
+    
+        return () => unsubscribe();
     });
 
     let newBlog = {
@@ -177,7 +194,7 @@
             <button
                 type="submit"
                 form="blogForm"
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors"
+                class="px-4 py-2 bg-primary-600 text-whit border border-black dark:border-white dark:border-bg-primary rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors"
             >
                 <i class="fas fa-save mr-2"></i>
                 {editingBlog.id ? 'Update' : 'Create'}

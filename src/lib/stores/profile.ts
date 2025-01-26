@@ -17,6 +17,7 @@ export interface Profile {
     skills: string[];
     experience: string[];
     education: Education[];
+    typingStrings: string[]; // Add this new field
 }
 
 export const defaultProfile: Profile = {
@@ -25,7 +26,8 @@ export const defaultProfile: Profile = {
     bio: "",
     skills: [],
     experience: [],
-    education: []
+    education: [],
+    typingStrings: ['a Web Developer.', 'a Graphic Designer.', 'an App Developer.']
 };
 
 function createProfileStore() {
@@ -74,7 +76,8 @@ function createProfileStore() {
                         bio: profileData.bio || defaultProfile.bio,
                         skills: profileData.skills || defaultProfile.skills,
                         experience: profileData.experience || defaultProfile.experience,
-                        education: profileData.education || defaultProfile.education
+                        education: profileData.education || defaultProfile.education,
+                        typingStrings: profileData.typingStrings || defaultProfile.typingStrings
                     };
                     
                     set(profile);

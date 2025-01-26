@@ -2,6 +2,8 @@
     import { contactConfig, type ContactConfig } from '$lib/stores/contact';
     import { toast } from '$lib/stores/toast';
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { auth } from '$lib/firebase/config';
 
     let currentConfig: ContactConfig = {
         spreadsheetUrl: '',
@@ -12,15 +14,23 @@
     let loading = true;
     let error = '';
 
-    onMount(async () => {
-        try {
-            await contactConfig.load();
-            currentConfig = { ...$contactConfig };
-            loading = false;
-        } catch (err) {
-            error = 'Failed to load contact configuration';
-            loading = false;
-        }
+    onMount(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            try {
+                if (!user) {
+                    goto('/admin/login');
+                    return;
+                }
+                await contactConfig.load();
+                currentConfig = { ...$contactConfig };
+                loading = false;
+            } catch (err) {
+                error = 'Failed to load contact configuration';
+                loading = false;
+            }
+        });
+    
+        return () => unsubscribe();
     });
 
     async function saveConfig() {
@@ -36,7 +46,6 @@
 <div class="min-h-screen p-4">
     <div class="max-w-2xl mx-auto">
         <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Contact Information</h1> -->
-        
         {#if loading}
             <div class="flex justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -83,11 +92,10 @@
                         class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
                     />
                 </div>
-
-                <div class="flex justify-end">
+                <div class="flex justify-center">
                     <button 
                         type="submit"
-                        class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
+                        class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
                     >
                         Save Changes
                     </button>
