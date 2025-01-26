@@ -44,6 +44,7 @@
         {:else if error}
             <div class="text-red-500 text-center p-4">{error}</div>
         {:else}
+        <!-- svelte-ignore a11y_label_has_associated_control -->
             <form class="space-y-6" on:submit|preventDefault={saveConfig}>
                 <div>
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Google Spreadsheet URL</label>

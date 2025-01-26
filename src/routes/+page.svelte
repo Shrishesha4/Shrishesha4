@@ -3,11 +3,17 @@
 	import { onMount } from 'svelte';
 	import { db } from '$lib/firebase/config';
 	import { doc, getDoc } from 'firebase/firestore';
+	import GithubRepos from '$lib/components/GithubRepos.svelte';
 
 	let projects: any[] = [];
 	let blogPosts: any[] = [];
 	let loading = true;
 	let error = '';
+	let githubError = false;
+
+	function handleGithubError() {
+        githubError = true;
+    }
 
 	async function fetchData() {
 		try {
@@ -234,6 +240,12 @@
 				{:else}
 					<p class="text-neutral-600 dark:text-neutral-400 text-center">No projects available yet.</p>
 				{/if}
+			</section>
+
+			<section>
+				{#if !githubError}
+            		<GithubRepos on:error={handleGithubError} />
+        		{/if}
 			</section>
 
 			<!-- Latest Blog Posts -->
