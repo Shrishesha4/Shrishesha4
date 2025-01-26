@@ -113,7 +113,11 @@
         saveProjects();
     }}
 />
-
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<!-- svelte-ignore a11y_label_has_associated_control -->
+<!-- svelte-ignore a11y_missing_content -->
 {#if loading}
     <LoadingSpinner />
 {:else if error}
@@ -122,8 +126,7 @@
     <div class="min-h-screen p-4 ">
         <div class="max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Edit Projects</h1>
-                <!-- svelte-ignore a11y_consider_explicit_label -->
+                <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100"></h1>
                 <button 
                     on:click={addProject}
                     class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
@@ -146,8 +149,6 @@
             <div class="space-y-6">
                 {#each currentProjects as project, i}
                     <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow">
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-4 cursor-pointer" on:click={() => toggleProject(i)}>
                                 <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>
@@ -155,7 +156,6 @@
                                     {project.title || `Project ${i + 1}`}
                                 </h2>
                             </div>
-                            <!-- svelte-ignore a11y_consider_explicit_label -->
                             <div class="flex gap-2">
                                 {#if isProjectModified(project, i)}
                                     <button 
@@ -178,8 +178,6 @@
                 
                         {#if expandedProjects.has(i)}
                             <div class="space-y-4" transition:slide>
-                                <!-- Existing form fields remain here -->
-                                <!-- svelte-ignore a11y_label_has_associated_control -->
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Title</label>
@@ -236,11 +234,6 @@
                     </div>
                 {/each}
             </div>
-
-            <!-- Remove this section at the bottom -->
-            <!-- <div class="mt-6 flex justify-center">
-                <button on:click={saveProjects}>Save Changes</button>
-            </div> -->
         </div>
     </div>
 {/if}

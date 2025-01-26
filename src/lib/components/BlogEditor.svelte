@@ -106,10 +106,13 @@
     }
 </script>
 
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<!-- svelte-ignore a11y_label_has_associated_control -->
+<!-- svelte-ignore a11y_missing_content -->
 <div class="space-y-6">
     {#if !editingBlog}
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Manage Blogs</h2>
+            <h2 class="text-2xl font-bold"> </h2>
             <div class="flex gap-4">
                 {#if selectedBlogs.length > 0}
                     <button
@@ -180,7 +183,6 @@
                 {editingBlog.id ? 'Update' : 'Create'}
             </button>
         </div>
-
         <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-6">
             <div>
                 <label class="block text-sm font-medium mb-2">Title</label>

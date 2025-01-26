@@ -88,13 +88,12 @@
 {:else if error}
     <div class="text-red-500 text-center p-4">{error}</div>
 {:else}
-    <div class="min-h-screen p-4 bg-neutral-50 dark:bg-neutral-900">
+<!-- svelte-ignore a11y_label_has_associated_control -->
+    <div class="min-h-screen p-4">
         <div class="max-w-2xl mx-auto">
-            <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1>
-            
+            <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1> -->
             <form class="space-y-6" on:submit|preventDefault={updateProfile}>
                 <div>
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Name</label>
                     <input 
                         type="text" 
@@ -104,7 +103,6 @@
                 </div>
 
                 <div>
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Title</label>
                     <input 
                         type="text" 
@@ -114,7 +112,6 @@
                 </div>
 
                 <div>
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Bio</label>
                     <textarea 
                         bind:value={currentProfile.bio} 
@@ -124,7 +121,6 @@
                 </div>
 
                 <div>
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Skills (comma-separated)</label>
                     <input 
                         type="text" 
@@ -153,7 +149,6 @@
                 </div>
 
                 <div>
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Education</label>
                     {#each currentProfile.education as edu, i}
                         <div class="grid grid-cols-3 gap-2 mb-2">

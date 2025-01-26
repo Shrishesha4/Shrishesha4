@@ -32,13 +32,12 @@
         editingBlog = null;
     }
 </script>
-
+<!-- svelte-ignore a11y_consider_explicit_label -->
 {#if $isAuthenticated}
     <div class="min-h-screen p-4 pb-32 md:pb-4">
         <div class="max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Admin Dashboard</h1>
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
                     on:click={handleLogout}
                     class="p-2 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors"
@@ -69,12 +68,11 @@
                         >
                             <i class="fas fa-blog me-2"></i>Blogs
                         </button>
-                        <!-- Add to your tab buttons -->
                         <button
                             class="py-2 px-1 {activeTab === 'contact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
                             on:click={() => activeTab = 'contact'}
                         >
-                            Contact
+                            <i class="fas fa-address-card me-2"></i>Contact
                         </button>
                     </nav>
                 </div>
@@ -86,10 +84,10 @@
                 <ProjectEditor />
             {:else if activeTab === 'blogs'}
                 <BlogEditor bind:editingBlog />
-            <!-- Add to your tab content -->
             {:else if activeTab === 'contact'}
                 <ContactEditor />
             {/if}
+            
         </div>
     </div>
 {/if}
