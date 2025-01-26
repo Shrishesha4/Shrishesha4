@@ -187,7 +187,7 @@
 		{:else}
 			<!-- Featured Projects -->
 			<section class="mb-16">
-				<h2 class="mb-8 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+				<h2 class="mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100">
 					Featured Projects
 				</h2>
 				{#if projects.length > 0}
@@ -260,7 +260,7 @@
 
 			<!-- Latest Blog Posts -->
 			<section class="mb-16">
-				<h2 class="mb-8 text-2xl font-bold text-neutral-900 dark:text-neutral-100">Latest Posts</h2>
+				<h2 class="mt-6 mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100">Latest Posts</h2>
 				{#if blogPosts.length > 0}
 					<div class="space-y-6">
 						{#each blogPosts.slice(0, 4) as post}

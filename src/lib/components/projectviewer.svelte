@@ -94,22 +94,22 @@
     <div>
         {#if isMobile}
             <div 
-                class="w-full flex flex-col items-center justify-center overflow-hidden relative mt-6"
+                class="w-full flex flex-col items-center justify-center rounded-xl overflow-hidden relative mt-6"
                 on:touchstart|passive={handleTouchStart}
                 on:touchmove|passive={handleTouchMove}
                 on:touchend|passive={handleTouchEnd}
             >
                 {#if $projects[currentIndex]}
                     <div 
-                        class="w-[90vw] h-auto min-h-[60vh] bg-neutral-200 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
+                        class="w-[85vw] h-auto min-h-[50vh] bg-neutral-200 dark:bg-neutral-800 rounded-2xl shadow-lg transition-all duration-200 overflow-hidden"
                         style="transform: translateX({$deltaX * 0.5}px) translateY({$deltaY * 0.3}px) rotate({$deltaX * 0.05}deg) scale({$scale}); opacity: {$opacity};"
                     >
                         <img 
                             src={$projects[currentIndex].image} 
                             alt={$projects[currentIndex].title}
-                            class="w-full h-56 object-cover rounded-t-xl"
+                            class="w-full h-48 object-cover"
                         />
-                        <div class="p-6">
+                        <div class="p-5">
                             <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
                                 {$projects[currentIndex].title}
                             </h2>

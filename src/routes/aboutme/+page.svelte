@@ -68,7 +68,7 @@
                 <!-- Education Timeline Section -->
                 <div class="mt-8 -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-16">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4 px-4">Education Timeline</h3>
-                    <div class="relative overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-neutral-600">
+                    <div class="relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         <div class="flex gap-8 p-4 min-w-max">
                             {#each $profile.education as edu}
                                 <div class="flex flex-col items-center w-64">
