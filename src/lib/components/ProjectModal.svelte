@@ -42,7 +42,6 @@
                 <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">Add New Project</h2>
                 <form on:submit|preventDefault={handleSubmit} class="space-y-4">
                     <div>
-                        <!-- svelte-ignore a11y_label_has_associated_control -->
                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Title</label>
                         <input 
                             type="text" 
@@ -53,7 +52,6 @@
                     </div>
 
                     <div>
-                        <!-- svelte-ignore a11y_label_has_associated_control -->
                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Description</label>
                         <textarea 
                             bind:value={project.description}
@@ -64,7 +62,6 @@
                     </div>
 
                     <div>
-                        <!-- svelte-ignore a11y_label_has_associated_control -->
                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Image URL</label>
                         <input 
                             type="text" 
@@ -75,7 +72,24 @@
                     </div>
 
                     <div>
-                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Project URL</label>
+                        <input 
+                            type="url" 
+                            bind:value={project.url}
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">GitHub URL</label>
+                        <input 
+                            type="url" 
+                            bind:value={project.github}
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                    </div>
+
+                    <div>
                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Technologies (comma-separated)</label>
                         <input 
                             type="text" 

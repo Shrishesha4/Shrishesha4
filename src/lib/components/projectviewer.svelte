@@ -41,10 +41,10 @@
         deltaX.set(currentX - startX);
         deltaY.set(currentY - startY);
         
-        // Adjust opacity and scale based on swipe distance
+        // Reduce the intensity of opacity and scale changes
         const distance = Math.abs(currentX - startX);
-        opacity.set(1 - Math.min(distance / 500, 0.5));
-        scale.set(1 - Math.min(distance / 1000, 0.1));
+        opacity.set(1 - Math.min(distance / 1000, 0.3));
+        scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
     function handleTouchEnd() {
@@ -102,43 +102,45 @@
             >
                 {#if $projects[currentIndex]}
                     <div 
-                        class="w-[90vw] h-[50vh] bg-neutral-50 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
-                        style="transform: translateX({$deltaX}px) translateY({$deltaY}px) rotate({$deltaX * 0.1}deg) scale({$scale}); opacity: {$opacity};"
+                        class="w-[90vw] h-auto min-h-[60vh] bg-neutral-50 dark:bg-neutral-800 rounded-xl shadow-lg transition-all duration-200"
+                        style="transform: translateX({$deltaX * 0.5}px) translateY({$deltaY * 0.3}px) rotate({$deltaX * 0.05}deg) scale({$scale}); opacity: {$opacity};"
                     >
                         <img 
                             src={$projects[currentIndex].image} 
                             alt={$projects[currentIndex].title}
-                            class="w-full h-48 object-cover rounded-t-xl"
+                            class="w-full h-56 object-cover rounded-t-xl"
                         />
                         <div class="p-6">
-                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
                                 {$projects[currentIndex].title}
                             </h2>
-                            <p class="text-neutral-600 dark:text-neutral-400 mt-4">
+                            <p class="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
                                 {$projects[currentIndex].description}
                             </p>
-                            <div class="flex flex-wrap gap-2 mt-6">
+                            <div class="flex flex-wrap gap-2 mt-4">
                                 {#each $projects[currentIndex].technologies as tech}
-                                    <span class="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-sm">
+                                    <span class="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs">
                                         {tech}
                                     </span>
                                 {/each}
                             </div>
-                            <div class="flex gap-4 mt-8 justify-center">
+                            <div class="flex gap-3 mt-6">
                                 {#if $projects[currentIndex].url}
                                     <button 
                                         on:click={() => openProject($projects[currentIndex].url)}
-                                        class="flex-1 text-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-colors"
+                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm"
                                     >
-                                        <i class="fas fa-external-link-alt me-2"></i>Visit Site
+                                        <i class="fas fa-globe"></i>
+                                        <span>Visit</span>
                                     </button>
                                 {/if}
                                 {#if $projects[currentIndex].github}
                                     <button 
                                         on:click={() => openProject($projects[currentIndex].github)}
-                                        class="flex-1 text-center px-6 py-3 bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-900 dark:hover:bg-neutral-600 text-white rounded-xl transition-colors"
+                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-900 dark:hover:bg-neutral-600 text-white rounded-lg transition-colors text-sm"
                                     >
-                                        <i class="fab fa-github me-2"></i>View Code
+                                        <i class="fab fa-github"></i>
+                                        <span>View Code</span>
                                     </button>
                                 {/if}
                             </div>
