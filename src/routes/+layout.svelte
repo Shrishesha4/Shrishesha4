@@ -8,7 +8,7 @@
 
 <div class="min-h-screen bg-white dark:bg-primary-dark transition-colors duration-200">
     <Navbar/>
-    <main class="pt-24 pb-28 md:pt-28 md:pb-24 px-4">
+    <main class="pt-8 md:pt-28 px-4">
         {@render children()}
     </main>
     <Toast />
