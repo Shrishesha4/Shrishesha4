@@ -88,7 +88,7 @@
     <div class="text-red-500 text-center p-4">{error}</div>
 {:else}
     <div class="min-h-screen p-4">
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-2xl mx-auto bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
             <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1> -->
             <form class="space-y-6" on:submit|preventDefault={updateProfile}>
                 <div>
@@ -149,7 +149,7 @@
                 <div>
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Education</label>
                     {#each currentProfile.education as edu, i}
-                        <div class="grid grid-cols-3 gap-2 mb-2">
+                        <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 mb-2">
                             <input 
                                 type="text" 
                                 bind:value={edu.year} 
@@ -168,6 +168,15 @@
                                 placeholder="Institution"
                                 class="p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
                             />
+                            <button 
+                                type="button"
+                                on:click={() => {
+                                    currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
+                                }}
+                                class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     {/each}
                     <button 

@@ -167,7 +167,7 @@
                 {/if}
                 <button
                     on:click={() => editingBlog = newBlog}
-                    class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                    class="px-4 py-2 text-black dark:text-white rounded-lg hover:bg-primary-700"
                 >
                     <i class="fas fa-plus mr-2"></i>
                 </button>
@@ -177,7 +177,7 @@
 
         <div class="space-y-4">
             {#each $blogs as blog}
-                <div class="flex items-center gap-4 p-4 bg-white dark:bg-neutral-800 rounded-lg">
+                <div class="flex items-center gap-4 p-4 bg-neutral-200 dark:bg-neutral-800 rounded-lg">
                     <input
                         type="checkbox"
                         checked={selectedBlogs.includes(blog.id)}
@@ -226,7 +226,7 @@
                 {editingBlog.id ? 'Update' : 'Create'}
             </button>
         </div>
-        <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-6">
+        <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-6 bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
             <div>
                 <label class="block text-sm font-medium mb-2">Title</label>
                 <input
@@ -247,9 +247,9 @@
                 ></textarea>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium mb-2">Content</label>
-                <div class="border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 overflow-hidden">
+            <div class="">
+                <label class="block text-sm font-medium mb-2 ">Content</label>
+                <div class="border rounded-lg bg-white dark:bg-neutral-800 border-neutral-400 dark:border-neutral-700 overflow-hidden">
                     <!-- Toolbar section remains the same -->
                     <!-- Make toolbar horizontally scrollable -->
                     <div class="bg-neutral-100 dark:bg-neutral-700 p-2 border-b dark:border-neutral-600 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -490,7 +490,7 @@
                 <label class="block text-sm font-medium mb-2">Tags</label>
                 <div class="flex gap-2 mb-2">
                     {#each editingBlog.tags as tag}
-                        <span class="px-2 py-1 bg-neutral-200 dark:bg-neutral-700 rounded-full text-sm flex items-center gap-1">
+                        <span class="px-2 py-1 bg-neutral-400/80 dark:bg-neutral-700 rounded-full text-sm flex items-center gap-1">
                             {tag}
                             <button
                                 type="button"
@@ -522,7 +522,7 @@
             <div class="flex justify-center">
                 <button
                     type="submit"
-                    class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-20"
+                    class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-black dark:text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-20"
                 >
                     {editingBlog.id ? 'Update Blog Post' : 'Create Blog Post'}
                 </button>

@@ -175,7 +175,7 @@
                         </div>
                         
                         <!-- Enhanced Finder-like content -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-neutral-50/50 dark:bg-neutral-800/50">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-neutral-200 dark:bg-neutral-800/50">
                             {#each repos as repo}
                                 <div class="group bg-white/90 dark:bg-neutral-700/90 backdrop-blur-sm rounded-lg p-4 hover:bg-white dark:hover:bg-neutral-600 transition-all duration-200 border border-neutral-200/50 dark:border-neutral-600/50 hover:shadow-md">
                                     <div class="flex items-start space-x-3">

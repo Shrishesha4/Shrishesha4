@@ -117,9 +117,9 @@
     <div class="text-red-500 text-center p-4">{error}</div>
 {:else}
     <div class="min-h-screen p-4 ">
-        <div class="max-w-4xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100"></h1>
+        <div class="max-w-4xl mx-auto ">
+            <div class="flex justify-between items-center mb-6 ">
+                <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 "></h1>
                 <button 
                     on:click={addProject}
                     class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
@@ -141,7 +141,7 @@
 
             <div class="space-y-6">
                 {#each currentProjects as project, i}
-                    <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow">
+                    <div class="bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl p-4 rounded-lg shadow">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-4 cursor-pointer" on:click={() => toggleProject(i)}>
                                 <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>

@@ -43,9 +43,9 @@
         }
     }
 </script>
-
+<!-- svelte-ignore a11y_label_has_associated_control -->
 <div class="min-h-screen p-4">
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-2xl mx-auto bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
         {#if loading}
             <div class="flex justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -95,7 +95,7 @@
                 <div class="flex justify-center">
                     <button 
                         type="submit"
-                        class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
+                        class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-black dark:text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
                     >
                         Save Changes
                     </button>
