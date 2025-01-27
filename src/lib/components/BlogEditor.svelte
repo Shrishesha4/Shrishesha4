@@ -1,4 +1,5 @@
 <script lang="ts">
+    
     import { blogs } from '$lib/stores/blogs';
     import { toast } from '$lib/stores/toast';
     import { onMount } from 'svelte';
@@ -6,6 +7,7 @@
     import { auth } from '$lib/firebase/config';
     
     export let editingBlog: any = null;
+    let isCodeView = false;
     let selectedBlogs: string[] = [];
     let allBlogs: typeof $blogs = [];
     let loading = true;
@@ -51,14 +53,14 @@
 
     function addTag() {
         const trimmedTag = tagInput.trim();
-        if (trimmedTag && !newBlog.tags.includes(trimmedTag as never)) {
-            newBlog.tags = [...newBlog.tags as never, trimmedTag as never];
+        if (trimmedTag && !editingBlog.tags.includes(trimmedTag)) {
+            editingBlog.tags = [...editingBlog.tags, trimmedTag];
             tagInput = '';
         }
     }
 
     function removeTag(tag: string) {
-        newBlog.tags = newBlog.tags.filter(t => t !== tag);
+        editingBlog.tags = editingBlog.tags.filter((t: string) => t !== tag);
     }
 
     function generateSlug(title: string): string {
@@ -120,6 +122,30 @@
         } else {
             selectedBlogs = selectedBlogs.filter(id => id !== blogId);
         }
+    }
+
+    function execCommand(command: string, value: string | null = null) {
+        document.execCommand(command, false, value as string);
+    }
+
+    function handleImageInsert() {
+        const url = prompt('Enter image URL:');
+        if (url) {
+            execCommand('insertImage', url);
+        }
+    }
+
+    function handleLinkInsert() {
+        const url = prompt('Enter link URL:');
+        if (url) {
+            execCommand('createLink', url);
+        }
+    }
+
+    // Add this function to handle content updates in code view
+    function handleCodeChange(event: Event) {
+        const textarea = event.target as HTMLTextAreaElement;
+        editingBlog.content = textarea.value;
     }
 </script>
 
@@ -222,13 +248,233 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-2">Content (HTML)</label>
-                <textarea
-                    bind:value={editingBlog.content}
-                    required
-                    rows="10"
-                    class="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
-                ></textarea>
+                <label class="block text-sm font-medium mb-2">Content</label>
+                <div class="border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 overflow-hidden">
+                    <!-- Toolbar section remains the same -->
+                    <!-- Make toolbar horizontally scrollable -->
+                    <div class="bg-neutral-100 dark:bg-neutral-700 p-2 border-b dark:border-neutral-600 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div class="flex items-center gap-2 min-w-max">
+                            <!-- Paragraph & Headings -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('formatBlock', '<p>')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Paragraph"
+                            >
+                                <i class="fas fa-paragraph"></i>
+                            </button>
+                            <!-- Headings -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('formatBlock', '<h1>')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Heading 1"
+                            >
+                                <i class="fas fa-heading"></i><span class="text-xs">1</span>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('formatBlock', '<h2>')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Heading 2"
+                            >
+                                <i class="fas fa-heading"></i><span class="text-xs">2</span>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('formatBlock', '<h3>')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Heading 3"
+                            >
+                                <i class="fas fa-heading"></i><span class="text-xs">3</span>
+                            </button>
+
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+
+                            <!-- Text Formatting -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('bold')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Bold"
+                                >
+                                    <i class="fas fa-bold"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('italic')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Italic"
+                            >
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('underline')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Underline"
+                            >
+                                <i class="fas fa-underline"></i>
+                            </button>
+                        
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+                            <!-- Additional Text Formatting -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('strikeThrough')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Strike Through"
+                            >
+                                <i class="fas fa-strikethrough"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('subscript')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Subscript"
+                            >
+                                <i class="fas fa-subscript"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('superscript')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Superscript"
+                            >
+                                <i class="fas fa-superscript"></i>
+                            </button>
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+                           
+                            <!-- Lists -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('insertUnorderedList')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Bullet List"
+                            >
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('insertOrderedList')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Numbered List"
+                            >
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+                            
+                            <!-- Indentation -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('indent')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Increase Indent"
+                            >
+                                <i class="fas fa-indent"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('outdent')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Decrease Indent"
+                            >
+                                <i class="fas fa-outdent"></i>
+                            </button>
+
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+
+                            <!-- Alignment -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('justifyLeft')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Align Left"
+                            >
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('justifyCenter')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Align Center"
+                            >
+                                <i class="fas fa-align-center"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('justifyRight')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Align Right"
+                            >
+                                <i class="fas fa-align-right"></i>
+                            </button>
+                            
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto"></div>
+                            
+                            <!-- Media -->
+                            <button
+                                type="button"
+                                on:click={handleImageInsert}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Insert Image"
+                            >
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={handleLinkInsert}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Insert Link"
+                            >
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <!-- Line breaks -->
+                            <button
+                                type="button"
+                                on:click={() => execCommand('insertHorizontalRule')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Horizontal Line"
+                            >
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button
+                                type="button"
+                                on:click={() => execCommand('insertLineBreak')}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded"
+                                title="Line Break"
+                            >
+                                <i class="fas fa-level-down-alt fa-rotate-90"></i>
+                            </button>
+
+                            <!-- Add this before the last button -->
+                            <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto ml-auto"></div>
+                            
+                            <button
+                                type="button"
+                                on:click={() => isCodeView = !isCodeView}
+                                class="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100"
+                                title={isCodeView ? "Switch to Visual Editor" : "Switch to HTML Code"}
+                            >
+                                <i class="fas {isCodeView ? 'fa-eye' : 'fa-code'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {#if isCodeView}
+                        <textarea
+                            bind:value={editingBlog.content}
+                            class="w-full min-h-[400px] p-4 focus:outline-none font-mono text-sm bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-100"
+                            spellcheck="false"
+                            placeholder="Enter HTML content here..."
+                        ></textarea>
+                    {:else}
+                        <div
+                            contenteditable="true"
+                            bind:innerHTML={editingBlog.content}
+                            class="min-h-[400px] p-4 focus:outline-none prose dark:prose-invert max-w-none"
+                        ></div>
+                    {/if}
+                </div>
             </div>
 
             <div>
@@ -273,13 +519,14 @@
                     </button>
                 </div>
             </div>
-
-            <button
-                type="submit"
-                class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-                {editingBlog.id ? 'Update Blog Post' : 'Create Blog Post'}
-            </button>
+            <div class="flex justify-center">
+                <button
+                    type="submit"
+                    class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-20"
+                >
+                    {editingBlog.id ? 'Update Blog Post' : 'Create Blog Post'}
+                </button>
+            </div>
         </form>
     {/if}
 </div>

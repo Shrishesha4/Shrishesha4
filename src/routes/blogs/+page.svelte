@@ -24,7 +24,7 @@
                             <img 
                                 src={blog.image} 
                                 alt={blog.title}
-                                class="w-full h-48 object-cover"
+                                class="w-full h-48 object-cover rounded-xl"
                             />
                         {/if}
                         <div class="p-6">
