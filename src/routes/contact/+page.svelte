@@ -89,8 +89,10 @@
         {:else}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <!-- Reduced gap on mobile -->
                 <!-- Contact Form -->
-                <div class="bg-white dark:bg-neutral-800 p-3 sm:p-6 rounded-xl shadow-sm"> <!-- Reduced padding on mobile -->
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Send a Message</h2>
+                <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl"> <!-- Reduced padding on mobile -->
+                    <div class="flex justify-center">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">Send a Message</h2>
+                    </div>
                     
                     {#if error}
                         <div class="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-3 rounded-lg mb-4">
@@ -163,8 +165,8 @@
 
                 <!-- Contact Information -->
                 <div class="space-y-4"> <!-- Reduced vertical spacing -->
-                    <div class="bg-white dark:bg-neutral-800 p-3 sm:p-6 rounded-xl shadow-sm">
-                        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Information</h2>
+                    <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
+                        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Info</h2>
                         <div class="space-y-4">
                             {#if $contactConfig.email}
                                 <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">

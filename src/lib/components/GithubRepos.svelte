@@ -14,6 +14,9 @@
     let currentIndex = 0;
     let startX: number;
     let deltaX = spring(0);
+    let startY: number;
+    let opacity = spring(1);
+    let scale = spring(1);
 
     onMount(() => {
         checkMobile();
@@ -48,31 +51,60 @@
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
         startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        opacity.set(1);
+        scale.set(1);
     }
 
     function handleTouchMove(e: TouchEvent) {
         if (!isMobile || startX === undefined) return;
         const currentX = e.touches[0].clientX;
+        const distance = Math.abs(currentX - startX);
         deltaX.set(currentX - startX);
+        opacity.set(1 - Math.min(distance / 800, 0.3)); // Reduced opacity change
+        scale.set(1 - Math.min(distance / 2000, 0.05)); // Reduced scale effect
     }
 
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
-        if ($deltaX < -100 && currentIndex < repos.length - 1) {
-            currentIndex++;
-        } else if ($deltaX > 100 && currentIndex > 0) {
-            currentIndex--;
+        const threshold = 80; // Slightly increased threshold for more intentional swipes
+
+        if ($deltaX < -threshold && currentIndex < repos.length - 1) {
+            opacity.set(0.7); // Less dramatic fade
+            scale.set(0.95); // Less dramatic scale
+            deltaX.set(-window.innerWidth / 2); // Reduced slide distance
+            setTimeout(() => {
+                currentIndex++;
+                deltaX.set(0);
+                opacity.set(1);
+                scale.set(1);
+            }, 150); // Faster transition
+        } else if ($deltaX > threshold && currentIndex > 0) {
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(window.innerWidth / 2);
+            setTimeout(() => {
+                currentIndex--;
+                deltaX.set(0);
+                opacity.set(1);
+                scale.set(1);
+            }, 150);
+        } else {
+            // Smoother reset
+            deltaX.set(0);
+            opacity.set(1);
+            scale.set(1);
         }
-        deltaX.set(0);
         startX = 0;
     }
 </script>
+<!-- svelte-ignore a11y_consider_explicit_label -->
 {#if loading}
     <LoadingSpinner />
 {:else}
-    <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-1 py-1 mt-6">GitHub Repositories</h2>
-    <section class="py-2 ">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">  
+    <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-6 py-1 mt-6">GitHub Repositories</h2>
+    <section class="py-2 overflow-visible">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">  
             {#if loading}
                 <div class="flex justify-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -82,7 +114,7 @@
             {:else}
                 {#if isMobile}
                     <div 
-                        class="h-[60vh] w-full flex flex-col items-center justify-center overflow-hidden relative"
+                        class="h-[60vh] w-full flex flex-col items-center justify-center relative overflow-visible"
                         on:touchstart|passive={handleTouchStart}
                         on:touchmove|passive={handleTouchMove}
                         on:touchend|passive={handleTouchEnd}
@@ -124,22 +156,20 @@
                             <div class="flex gap-2 mt-6">
                                 {#each repos as _, i}
                                     <div 
-                                        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
                                     ></div>
                                 {/each}
                             </div>
                         {/if}
                     </div>
                 {:else}
-                    <div class="bg-white/80 dark:bg-neutral-700/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
+                
+                    <div class="bg-neutral-200 dark:bg-neutral-900/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
                         <!-- Enhanced Finder-like header -->
-                        <div class="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-3 flex items-center space-x-3 border-b border-neutral-200 dark:border-neutral-600">
+                        <div class="bg-white/80 dark:bg-neutral-700 backdrop-blur-sm p-2 flex items-center ">
                             <div class="flex space-x-2">
-                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
-                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
-                                <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors duration-150"></button>
                             </div>
                         </div>
@@ -150,9 +180,7 @@
                                 <div class="group bg-white/90 dark:bg-neutral-700/90 backdrop-blur-sm rounded-lg p-4 hover:bg-white dark:hover:bg-neutral-600 transition-all duration-200 border border-neutral-200/50 dark:border-neutral-600/50 hover:shadow-md">
                                     <div class="flex items-start space-x-3">
                                         <div class="flex-shrink-0">
-                                            <svg class="w-10 h-10 text-neutral-400 group-hover:text-primary-500 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
-                                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V19a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
-                                            </svg>
+                                            <i class="fas fa-file text-4xl text-neutral-400 group-hover:text-primary-500 transition-colors duration-200"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-500 transition-colors duration-200">
@@ -177,12 +205,10 @@
                                         href={repo.html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="mt-3 text-xs text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center"
+                                        class="mt-3 inline-flex items-center text-xs px-3 py-1.5 bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-white rounded-md transition-colors duration-200"
                                     >
-                                        View Repository 
-                                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
+                                        View  
+                                        <i class="pl-2 fas fa-arrow-right text-xs text-white group-hover:text-primary-500 transition-colors duration-200"></i>
                                     </a>
                                 </div>
                             {/each}

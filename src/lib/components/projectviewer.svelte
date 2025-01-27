@@ -40,40 +40,37 @@
         deltaX.set(currentX - startX);
         deltaY.set(currentY - startY);
         
-        // Reduce the intensity of opacity and scale changes
+        // Reduced intensity of effects
         const distance = Math.abs(currentX - startX);
-        opacity.set(1 - Math.min(distance / 1000, 0.3));
+        opacity.set(1 - Math.min(distance / 800, 0.3));
         scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
-        const threshold = 100;
+        const threshold = 80;
         
         if ($deltaX < -threshold && currentIndex < $projects.length - 1) {
-            // Swipe left - next project
-            opacity.set(0);
-            scale.set(0.8);
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(-window.innerWidth / 2);
             setTimeout(() => {
                 currentIndex++;
                 deltaX.set(0);
-                deltaY.set(0);
                 opacity.set(1);
                 scale.set(1);
-            }, 200);
+            }, 150);
         } else if ($deltaX > threshold && currentIndex > 0) {
-            // Swipe right - previous project
-            opacity.set(0);
-            scale.set(0.8);
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(window.innerWidth / 2);
             setTimeout(() => {
                 currentIndex--;
                 deltaX.set(0);
-                deltaY.set(0);
                 opacity.set(1);
                 scale.set(1);
-            }, 200);
+            }, 150);
         } else {
-            // Reset if not swiped enough
             deltaX.set(0);
             deltaY.set(0);
             opacity.set(1);
@@ -91,10 +88,10 @@
 {#if loading}
     <LoadingSpinner />
 {:else}
-    <div>
+    <div class="overflow-visible">
         {#if isMobile}
             <div 
-                class="w-full flex flex-col items-center justify-center rounded-xl overflow-hidden relative mt-6"
+                class="w-full flex flex-col items-center justify-center relative mt-6 overflow-visible"
                 on:touchstart|passive={handleTouchStart}
                 on:touchmove|passive={handleTouchMove}
                 on:touchend|passive={handleTouchEnd}
@@ -152,20 +149,20 @@
                             <!-- svelte-ignore a11y_consider_explicit_label -->
                             <!-- svelte-ignore element_invalid_self_closing_tag -->
                             <button 
-                                class="w-2 h-2 rounded-full transition-all duration-120 {i === currentIndex ? 'bg-white w-4' : 'bg-neutral-400'}"
+                                class="w-2 h-2 rounded-full transition-all duration-120 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-400'}"
                                 on:click={() => currentIndex = i}
                             />
                         {/each}
-                        {#if $projects.length > 5}
+                        <!-- {#if $projects.length > 5}
                             <span class="text-neutral-400 text-sm"></span>
-                        {/if}
+                        {/if} -->
                     </div>
                 {/if}
             </div>
         {:else}
             <div class="p-4 md:p-8">
-                <div class="bg-neutral-200 dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
-                    <div class="bg-neutral-200 dark:bg-neutral-700 p-2 flex items-center space-x-2">
+                <div class="bg-neutral-200 dark:bg-neutral-900/80 rounded-lg shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
+                    <div class="bg-white/80 dark:bg-neutral-700 p-2 flex items-center space-x-2">
                         <div class="w-3 h-3 rounded-full bg-red-500"></div>
                         <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                         <div class="w-3 h-3 rounded-full bg-green-500"></div>
