@@ -96,12 +96,6 @@
                         </div>
                     {/if}
 
-                    {#if success}
-                        <div class="bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 p-3 rounded-lg mb-4">
-                            Message sent successfully!
-                        </div>
-                    {/if}
-
                     <form on:submit|preventDefault={handleSubmit} class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"> <!-- Added grid for name and email -->
                             <div>
@@ -159,6 +153,12 @@
                             </button>
                         </div>
                     </form>
+
+                    {#if success}
+                        <div class="bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 p-3 rounded-lg mb-4">
+                            Message sent successfully!
+                        </div>
+                    {/if}
                 </div>
 
                 <!-- Contact Information -->
