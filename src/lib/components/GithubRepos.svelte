@@ -50,6 +50,7 @@
 
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
+        e.preventDefault(); // Prevent default touch behavior
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         opacity.set(1);
@@ -58,11 +59,12 @@
 
     function handleTouchMove(e: TouchEvent) {
         if (!isMobile || startX === undefined) return;
+        e.preventDefault(); // Prevent default touch behavior
         const currentX = e.touches[0].clientX;
         const distance = Math.abs(currentX - startX);
         deltaX.set(currentX - startX);
-        opacity.set(1 - Math.min(distance / 800, 0.3)); // Reduced opacity change
-        scale.set(1 - Math.min(distance / 2000, 0.05)); // Reduced scale effect
+        opacity.set(1 - Math.min(distance / 800, 0.3));
+        scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
     function handleTouchEnd() {
