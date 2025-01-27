@@ -121,7 +121,7 @@
                     >
                         {#if repos[currentIndex]}
                             <div 
-                                class="w-full h-[500px] bg-neutral-200 dark:bg-neutral-900 rounded-xl shadow-lg transition-transform"
+                                class="w-full h-[500px] bg-neutral-200 dark:bg-neutral-800 rounded-xl shadow-lg transition-transform"
                                 style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
                             >
                                 <div class="p-6">
