@@ -39,30 +39,28 @@
                 read: false
             });
         
-            // Then send to Google Spreadsheet
+            // Modified Google Spreadsheet submission for better mobile compatibility
             if ($contact.spreadsheetUrl) {
-                // Create a form and submit it programmatically
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = $contact.spreadsheetUrl;
-                form.target = '_blank';
-        
-                const submissionData = {
-                    ...formData,
-                    timestamp: new Date().toISOString()
-                };
-        
-                Object.entries(submissionData).forEach(([key, value]) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    form.appendChild(input);
-                });
-        
-                document.body.appendChild(form);
-                form.submit();
-                document.body.removeChild(form);
+                try {
+                    const response = await fetch($contact.spreadsheetUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            ...formData,
+                            timestamp: new Date().toISOString()
+                        }).toString()
+                    });
+                    
+                    if (!response.ok && response.type !== 'opaque') {
+                        throw new Error('Failed to submit to spreadsheet');
+                    }
+                } catch (err) {
+                    console.warn('Spreadsheet submission error:', err);
+                    // Continue execution even if spreadsheet submission fails
+                }
             }
             
             success = true;
