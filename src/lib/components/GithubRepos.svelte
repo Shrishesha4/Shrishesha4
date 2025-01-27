@@ -17,8 +17,6 @@
     let startY: number;
     let opacity = spring(1);
     let scale = spring(1);
-    let touchStartY: number;
-    let isScrolling = false;
 
     onMount(() => {
         checkMobile();
@@ -52,67 +50,54 @@
 
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            touchStartY = e.touches[0].clientY;
-            opacity.set(1);
-            scale.set(1);
-}
+        e.preventDefault(); // Prevent default touch behavior
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        opacity.set(1);
+        scale.set(1);
+    }
 
     function handleTouchMove(e: TouchEvent) {
         if (!isMobile || startX === undefined) return;
+        e.preventDefault(); // Prevent default touch behavior
         const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        
-        // Determine if the user is scrolling vertically
-        if (!isScrolling) {
-            isScrolling = Math.abs(currentY - touchStartY) > Math.abs(currentX - startX);
-        }
-        
-        // Only handle horizontal swipes
-        if (!isScrolling) {
-            e.preventDefault();
-            const distance = Math.abs(currentX - startX);
-            deltaX.set(currentX - startX);
-            opacity.set(1 - Math.min(distance / 800, 0.3));
-            scale.set(1 - Math.min(distance / 2000, 0.05));
-        }
+        const distance = Math.abs(currentX - startX);
+        deltaX.set(currentX - startX);
+        opacity.set(1 - Math.min(distance / 800, 0.3));
+        scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
-        if (!isScrolling) {
-            const threshold = 80; // Slightly increased threshold for more intentional swipes
+        const threshold = 80; // Slightly increased threshold for more intentional swipes
 
-            if ($deltaX < -threshold && currentIndex < repos.length - 1) {
-                opacity.set(0.7); // Less dramatic fade
-                scale.set(0.95); // Less dramatic scale
-                deltaX.set(-window.innerWidth / 2); // Reduced slide distance
-                setTimeout(() => {
-                    currentIndex++;
-                    deltaX.set(0);
-                    opacity.set(1);
-                    scale.set(1);
-                }, 150); // Faster transition
-            } else if ($deltaX > threshold && currentIndex > 0) {
-                opacity.set(0.7);
-                scale.set(0.95);
-                deltaX.set(window.innerWidth / 2);
-                setTimeout(() => {
-                    currentIndex--;
-                    deltaX.set(0);
-                    opacity.set(1);
-                    scale.set(1);
-                }, 150);
-            } else {
-                // Smoother reset
+        if ($deltaX < -threshold && currentIndex < repos.length - 1) {
+            opacity.set(0.7); // Less dramatic fade
+            scale.set(0.95); // Less dramatic scale
+            deltaX.set(-window.innerWidth / 2); // Reduced slide distance
+            setTimeout(() => {
+                currentIndex++;
                 deltaX.set(0);
                 opacity.set(1);
                 scale.set(1);
-            }
+            }, 150); // Faster transition
+        } else if ($deltaX > threshold && currentIndex > 0) {
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(window.innerWidth / 2);
+            setTimeout(() => {
+                currentIndex--;
+                deltaX.set(0);
+                opacity.set(1);
+                scale.set(1);
+            }, 150);
+        } else {
+            // Smoother reset
+            deltaX.set(0);
+            opacity.set(1);
+            scale.set(1);
         }
         startX = 0;
-        isScrolling = false;
     }
 </script>
 <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -132,9 +117,9 @@
                 {#if isMobile}
                     <div 
                         class="h-[60vh] w-full flex flex-col items-center justify-center relative overflow-visible"
-                        on:touchstart|preventDefault={handleTouchStart}
-                        on:touchmove|preventDefault={handleTouchMove}
-                        on:touchend|preventDefault={handleTouchEnd}
+                        on:touchstart|passive={handleTouchStart}
+                        on:touchmove|passive={handleTouchMove}
+                        on:touchend|passive={handleTouchEnd}
                     >
                         {#if repos[currentIndex]}
                             <div 

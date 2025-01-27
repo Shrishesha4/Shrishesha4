@@ -25,14 +25,10 @@
         isMobile = window.innerWidth < 768;
     }
 
-    let touchStartY: number;
-    let isScrolling = false;
-
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        touchStartY = e.touches[0].clientY;
         opacity.set(1);
         scale.set(1);
     }
@@ -41,58 +37,46 @@
         if (!isMobile || startX === undefined) return;
         const currentX = e.touches[0].clientX;
         const currentY = e.touches[0].clientY;
+        deltaX.set(currentX - startX);
+        deltaY.set(currentY - startY);
         
-        // Determine if the user is scrolling vertically
-        if (!isScrolling) {
-            isScrolling = Math.abs(currentY - touchStartY) > Math.abs(currentX - startX);
-        }
-        
-        // Only handle horizontal swipes
-        if (!isScrolling) {
-            e.preventDefault();
-            deltaX.set(currentX - startX);
-            deltaY.set(currentY - startY);
-            
-            const distance = Math.abs(currentX - startX);
-            opacity.set(1 - Math.min(distance / 800, 0.3));
-            scale.set(1 - Math.min(distance / 2000, 0.05));
-        }
+        // Reduced intensity of effects
+        const distance = Math.abs(currentX - startX);
+        opacity.set(1 - Math.min(distance / 800, 0.3));
+        scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
-        if (!isScrolling) {
-            const threshold = 80;
-            
-            if ($deltaX < -threshold && currentIndex < $projects.length - 1) {
-                opacity.set(0.7);
-                scale.set(0.95);
-                deltaX.set(-window.innerWidth / 2);
-                setTimeout(() => {
-                    currentIndex++;
-                    deltaX.set(0);
-                    opacity.set(1);
-                    scale.set(1);
-                }, 150);
-            } else if ($deltaX > threshold && currentIndex > 0) {
-                opacity.set(0.7);
-                scale.set(0.95);
-                deltaX.set(window.innerWidth / 2);
-                setTimeout(() => {
-                    currentIndex--;
-                    deltaX.set(0);
-                    opacity.set(1);
-                    scale.set(1);
-                }, 150);
-            } else {
+        const threshold = 80;
+        
+        if ($deltaX < -threshold && currentIndex < $projects.length - 1) {
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(-window.innerWidth / 2);
+            setTimeout(() => {
+                currentIndex++;
                 deltaX.set(0);
-                deltaY.set(0);
                 opacity.set(1);
                 scale.set(1);
-            }
-            startX = startY = 0;
-            isScrolling = false;
+            }, 150);
+        } else if ($deltaX > threshold && currentIndex > 0) {
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(window.innerWidth / 2);
+            setTimeout(() => {
+                currentIndex--;
+                deltaX.set(0);
+                opacity.set(1);
+                scale.set(1);
+            }, 150);
+        } else {
+            deltaX.set(0);
+            deltaY.set(0);
+            opacity.set(1);
+            scale.set(1);
         }
+        startX = startY = 0;
     }
 
     function openProject(url?: string) {
@@ -108,9 +92,9 @@
         {#if isMobile}
             <div 
                 class="w-full flex flex-col items-center justify-center relative mt-6 overflow-visible"
-                on:touchstart|preventDefault={handleTouchStart}
-                on:touchmove|preventDefault={handleTouchMove}
-                on:touchend|preventDefault={handleTouchEnd}
+                on:touchstart|passive={handleTouchStart}
+                on:touchmove|passive={handleTouchMove}
+                on:touchend|passive={handleTouchEnd}
             >
                 {#if $projects[currentIndex]}
                     <div 
