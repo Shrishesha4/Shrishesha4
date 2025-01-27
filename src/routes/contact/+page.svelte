@@ -155,7 +155,7 @@
                     </form>
 
                     {#if success}
-                        <div class="bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 p-3 rounded-lg mb-4">
+                        <div class="mt-6 bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 p-3 rounded-lg">
                             Message sent successfully!
                         </div>
                     {/if}
