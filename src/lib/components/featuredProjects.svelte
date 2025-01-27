@@ -18,7 +18,7 @@
     {:else if projects.length > 0}
         <div class="grid gap-6 md:grid-cols-2">
             {#each projects.slice(0, 4) as project}
-                <div class="rounded-xl bg-neutral-200 p-6 shadow-sm transition hover:shadow-md dark:bg-neutral-800">
+                <div class="rounded-xl bg-neutral-200 p-6 shadow-sm transition hover:shadow-md dark:bg-neutral-900">
                     {#if project.image}
                         <img
                             src={project.image}

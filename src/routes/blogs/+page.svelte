@@ -19,7 +19,7 @@
                     href="/blogs/{blog.slug}" 
                     class="block group"
                 >
-                    <article class="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg">
+                    <article class="bg-neutral-100 dark:bg-neutral-800/50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg">
                         {#if blog.image}
                             <img 
                                 src={blog.image} 
