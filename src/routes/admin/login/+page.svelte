@@ -49,6 +49,7 @@
                         type="text"
                         required
                         bind:value={username}
+                        autocomplete="username"
                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 placeholder-neutral-500 dark:placeholder-neutral-400 text-neutral-900 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-800 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                         placeholder="Username"
                     />
@@ -61,6 +62,7 @@
                         type="password"
                         required
                         bind:value={password}
+                        autocomplete="current-password"
                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 placeholder-neutral-500 dark:placeholder-neutral-400 text-neutral-900 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-800 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                         placeholder="Password"
                     />

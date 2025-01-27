@@ -76,7 +76,7 @@
 
 <div class="min-h-screen p-4 pb-24"> <!-- Increased padding-top for better navbar clearance -->
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">Contact Me</h1>
+        <h1 class="text-4xl sm:text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">Contact Me</h1>
         
         {#if loading}
             <div class="flex justify-center">

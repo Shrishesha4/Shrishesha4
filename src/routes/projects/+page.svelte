@@ -15,9 +15,9 @@
 	}
 </script>
 
-<div class="min-h-screen p-4 pt-0">
+<div class="min-h-screen p-4 pb-24">
 	<div class="mx-auto max-w-4xl">
-		<h1 class="text-3xl font-bold text-gray-900 dark:text-neutral-100">Projects</h1>
+		<h1 class="text-4xl font-bold text-gray-900 dark:text-neutral-100">Projects</h1>
 		<ProjectViewer />
 		{#if !githubError}
 			<GithubRepos on:error={handleGithubError} />

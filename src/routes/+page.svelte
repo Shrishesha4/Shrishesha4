@@ -43,7 +43,7 @@
 
 <div class="min-h-screen p-4 pt-0">
     <SocialLinks/>
-    <hr class="bg-gray m-5 dark:bg-gray-800 md:hidden" />
+    <hr class="bg-gray m-5 dark:bg-neutral-800 md:hidden" />
     <div class="mx-auto max-w-4xl">
         <section class="mb-16">
             <Hero/>
