@@ -1,9 +1,11 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { debugFirestore } from '$lib/firebase/database';
     import { auth } from '$lib/firebase/config';
     import { signInWithEmailAndPassword } from 'firebase/auth';
-    import { saveProfile, saveProjects } from '$lib/firebase/database';
+    import { projects } from '$lib/stores/projects';
+    import { profile } from '$lib/stores/profile';
+    import { contact } from '$lib/stores/contact';
 
     let debugResult = 'Testing...';
     let isLoggedIn = false;
@@ -18,12 +20,21 @@
             loginError = '';
             await signInWithEmailAndPassword(auth, email, password);
             isLoggedIn = true;
+            await loadData();
             const result = await debugFirestore();
             debugResult = JSON.stringify(result, null, 2);
         } catch (e) {
             loginError = (e as Error).message;
             console.error('Login error:', e);
         }
+    }
+
+    async function loadData() {
+        await Promise.all([
+            projects.load(),
+            profile.load(),
+            contact.load()
+        ]);
     }
 
     async function initializeData() {
@@ -33,19 +44,25 @@
         }
     
         try {
-            migrationStatus = 'Initializing profile...';
-            const initialProfile = {
-                name: '',
-                title: '',
-                bio: '',
-                skills: [],
-                experience: [],
-                education: []
-            };
-            await saveProfile(auth.currentUser.uid, initialProfile);
-            
-            migrationStatus = 'Initializing projects...';
-            await saveProjects(auth.currentUser.uid, []);
+            migrationStatus = 'Initializing data...';
+            await Promise.all([
+                projects.set([]),
+                profile.set({
+					name: '',
+					title: '',
+					bio: '',
+					skills: [],
+					experience: [],
+					education: [],
+					typingStrings: []
+				}),
+                contact.set({
+                    spreadsheetUrl: '',
+                    email: '',
+                    phone: '',
+                    location: ''
+                })
+            ]);
             
             migrationStatus = 'Initialization completed successfully!';
             const result = await debugFirestore();
@@ -58,8 +75,17 @@
 
     onMount(async () => {
         isLoggedIn = !!auth.currentUser;
+        if (isLoggedIn) {
+            await loadData();
+        }
         const result = await debugFirestore();
         debugResult = JSON.stringify(result, null, 2);
+    });
+
+    onDestroy(() => {
+        projects.cleanup();
+        profile.cleanup();
+        contact.cleanup();
     });
 </script>
 

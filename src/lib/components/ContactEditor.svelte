@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { contactConfig, type ContactConfig } from '$lib/stores/contact';
+    import { contact } from '$lib/stores/contact';
+    import type { ContactConfig } from '$lib/stores/contact';
     import { toast } from '$lib/stores/toast';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
@@ -21,8 +22,8 @@
                     goto('/admin/login');
                     return;
                 }
-                await contactConfig.load();
-                currentConfig = { ...$contactConfig };
+                await contact.load();
+                currentConfig = { ...$contact };
                 loading = false;
             } catch (err) {
                 error = 'Failed to load contact configuration';
@@ -35,17 +36,16 @@
 
     async function saveConfig() {
         try {
-            await contactConfig.set(currentConfig);
+            await contact.set(currentConfig);
             toast.show('Contact information updated successfully!', 'success');
         } catch (error) {
             toast.show('Failed to update contact information', 'error');
         }
     }
 </script>
-<!-- svelte-ignore a11y_label_has_associated_control -->
+
 <div class="min-h-screen p-4">
     <div class="max-w-2xl mx-auto">
-        <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Contact Information</h1> -->
         {#if loading}
             <div class="flex justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>

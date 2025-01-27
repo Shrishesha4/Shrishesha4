@@ -1,6 +1,6 @@
 <script lang="ts">
     import { isAuthenticated } from '$lib/stores/auth';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
     import { signOut } from 'firebase/auth';
     import { auth } from '$lib/firebase/config';
@@ -8,6 +8,9 @@
     import ProfileEditor from '$lib/components/ProfileEditor.svelte';
     import BlogEditor from '$lib/components/BlogEditor.svelte';
     import { blogs } from '$lib/stores/blogs';
+    import { projects } from '$lib/stores/projects';
+    import { profile } from '$lib/stores/profile';
+    import { contact } from '$lib/stores/contact';
     import ContactEditor from '$lib/components/ContactEditor.svelte';
 
     let activeTab = 'profile';
@@ -22,10 +25,27 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
         if (!$isAuthenticated) {
             goto('/admin/login');
+            return;
         }
+
+        // Load all data when admin dashboard mounts
+        await Promise.all([
+            blogs.load(),
+            projects.load(),
+            profile.load(),
+            contact.load()
+        ]);
+    });
+
+    onDestroy(() => {
+        // Cleanup listeners when component is destroyed
+        blogs.cleanup();
+        projects.cleanup();
+        profile.cleanup();
+        contact.cleanup();
     });
 
     $: if (activeTab !== 'blogs') {

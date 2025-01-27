@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase/config';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 export interface ContactConfig {
     spreadsheetUrl: string;
@@ -12,17 +12,9 @@ export interface ContactConfig {
 const defaultConfig: ContactConfig = {
     spreadsheetUrl: '',
     email: '',
+    phone: '',
+    location: ''
 };
-
-export interface ContactMessage {
-    id?: string;
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-    timestamp: Date;
-    read: boolean;
-}
 
 function createContactStore() {
     const { subscribe, set } = writable<ContactConfig>(defaultConfig);
