@@ -154,7 +154,7 @@
                             <button
                                 type="submit"
                                 disabled={sending}
-                                class="px-4 py-2 border border-neutral-900 dark:border-neutral-700 text-white rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-600 transition-colors duration-200 disabled:opacity-50"
+                                class="px-4 py-2 border border-neutral-900 dark:border-neutral-700 text-black dark:text-white rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-600 transition-colors duration-200 disabled:opacity-50"
                             >
                                 {sending ? 'Sending...' : ''}
                                 <i class="fa fa-paper-plane px-2" aria-hidden="true"></i>
