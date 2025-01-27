@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { auth, db } from '$lib/firebase/config';
-import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, onSnapshot } from 'firebase/firestore';
 
 export interface Blog {
     id: string;
@@ -15,7 +15,7 @@ export interface Blog {
 
 function createBlogsStore() {
     const { subscribe, set } = writable<Blog[]>([]);
-    let loaded = false;
+    let unsubscribe: (() => void) | null = null;
 
     return {
         subscribe,
@@ -26,35 +26,49 @@ function createBlogsStore() {
                 }
                 await setDoc(doc(db, 'blogs', auth.currentUser.uid), { blogs: value });
                 set(value);
-                localStorage.setItem('blogs', JSON.stringify(value));
             } catch (error) {
                 console.error('Error saving blogs:', error);
                 throw error;
             }
         },
         load: async () => {
-            if (loaded) return;
             try {
-                const storedBlogs = localStorage.getItem('blogs');
-                if (storedBlogs) {
-                    set(JSON.parse(storedBlogs));
-                    loaded = true;
-                    return;
+                // Unsubscribe from any existing listener
+                if (unsubscribe) {
+                    unsubscribe();
                 }
 
-                const blogsRef = collection(db, 'blogs');
-                const blogsSnapshot = await getDocs(blogsRef);
-                
-                if (!blogsSnapshot.empty) {
-                    const firstDoc = blogsSnapshot.docs[0];
-                    const blogs = firstDoc.data().blogs || [];
-                    set(blogs);
-                    loaded = true;
-                    localStorage.setItem('blogs', JSON.stringify(blogs));
+                // Set up real-time listener
+                if (auth.currentUser) {
+                    unsubscribe = onSnapshot(doc(db, 'blogs', auth.currentUser.uid), (doc) => {
+                        if (doc.exists()) {
+                            const blogs = doc.data().blogs || [];
+                            set(blogs);
+                        } else {
+                            set([]);
+                        }
+                    }, (error) => {
+                        console.error('Error in blogs listener:', error);
+                    });
+                } else {
+                    // For public access, get all blogs
+                    const blogsRef = collection(db, 'blogs');
+                    const blogsSnapshot = await getDocs(blogsRef);
+                    
+                    if (!blogsSnapshot.empty) {
+                        const firstDoc = blogsSnapshot.docs[0];
+                        const blogs = firstDoc.data().blogs || [];
+                        set(blogs);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading blogs:', error);
                 throw error;
+            }
+        },
+        cleanup: () => {
+            if (unsubscribe) {
+                unsubscribe();
             }
         }
     };

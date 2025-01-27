@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
-import { saveProjects, getProjects } from '$lib/firebase/database';
 import { auth, db } from '$lib/firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, collection, getDocs } from 'firebase/firestore';
 
 export interface Project {
     id: string;
@@ -15,7 +14,7 @@ export interface Project {
 
 function createProjectsStore() {
     const { subscribe, set } = writable<Project[]>([]);
-    let loaded = false;
+    let unsubscribe: (() => void) | null = null;
 
     return {
         subscribe,
@@ -24,48 +23,49 @@ function createProjectsStore() {
                 if (!auth.currentUser) {
                     throw new Error('Authentication required to save projects');
                 }
-                await saveProjects(auth.currentUser.uid, value);
+                await setDoc(doc(db, 'projects', auth.currentUser.uid), { projects: value });
                 set(value);
-                localStorage.setItem('projects', JSON.stringify(value));
             } catch (error) {
                 console.error('Error saving projects:', error);
                 throw error;
             }
         },
         load: async () => {
-            if (loaded) return;
             try {
-                // Try local storage first
-                const storedProjects = localStorage.getItem('projects');
-                if (storedProjects) {
-                    set(JSON.parse(storedProjects));
-                    loaded = true;
-                    return;
+                if (unsubscribe) {
+                    unsubscribe();
                 }
 
-                // If not in local storage, get from Firestore
-                const projectsRef = collection(db, 'projects');
-                const projectsSnapshot = await getDocs(projectsRef);
-                
-                if (!projectsSnapshot.empty) {
-                    const firstDoc = projectsSnapshot.docs[0];
-                    const projects = firstDoc.data().projects || [];
-                    set(projects);
-                    loaded = true;
-                    localStorage.setItem('projects', JSON.stringify(projects));
+                if (auth.currentUser) {
+                    unsubscribe = onSnapshot(doc(db, 'projects', auth.currentUser.uid), (doc) => {
+                        if (doc.exists()) {
+                            const projects = doc.data().projects || [];
+                            set(projects);
+                        } else {
+                            set([]);
+                        }
+                    });
+                } else {
+                    const projectsRef = collection(db, 'projects');
+                    const projectsSnapshot = await getDocs(projectsRef);
+                    
+                    if (!projectsSnapshot.empty) {
+                        const firstDoc = projectsSnapshot.docs[0];
+                        const projects = firstDoc.data().projects || [];
+                        set(projects);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading projects:', error);
                 throw error;
+            }
+        },
+        cleanup: () => {
+            if (unsubscribe) {
+                unsubscribe();
             }
         }
     };
 }
 
 export const projects = createProjectsStore();
-
-// Initialize thumbnails if needed
-// Remove fetchThumbnails call since it's not defined in the store
-if (typeof window !== 'undefined') {
-    // Initialize any client-side only logic here if needed
-}

@@ -1,9 +1,21 @@
 <script lang="ts">
+    import { blogs } from '$lib/stores/blogs';
+    import { projects } from '$lib/stores/projects';
+    import { profile } from '$lib/stores/profile';
+    import { contact } from '$lib/stores/contact';
     import '../app.postcss';
     import Navbar from '$lib/components/navbar.svelte';
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     let { children } = $props();
+    import {onDestroy} from 'svelte';
+
+    onDestroy(() => {
+        blogs.cleanup();
+        projects.cleanup();
+        profile.cleanup();
+        contact.cleanup();
+    });
 </script>
 
 <div class="min-h-screen bg-white dark:bg-primary-dark transition-colors duration-200">

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { contactConfig } from '$lib/stores/contact';
+    import { contact } from '$lib/stores/contact';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { db } from '$lib/firebase/config';
     import { collection, addDoc } from 'firebase/firestore';
@@ -18,7 +18,7 @@
 
     onMount(async () => {
         try {
-            await contactConfig.load();
+            await contact.load();
             loading = false;
         } catch (err) {
             error = 'Failed to load contact information';
@@ -40,20 +40,18 @@
             });
         
             // Then send to Google Spreadsheet
-            if ($contactConfig.spreadsheetUrl) {
+            if ($contact.spreadsheetUrl) {
                 // Create a form and submit it programmatically
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = $contactConfig.spreadsheetUrl;
+                form.action = $contact.spreadsheetUrl;
                 form.target = '_blank';
         
-                // Change variable name to avoid conflict
                 const submissionData = {
                     ...formData,
                     timestamp: new Date().toISOString()
                 };
         
-                // Use the renamed variable
                 Object.entries(submissionData).forEach(([key, value]) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -170,24 +168,24 @@
                     <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
                         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Info</h2>
                         <div class="space-y-4">
-                            {#if $contactConfig.email}
+                            {#if $contact.email}
                                 <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-regular fa-envelope text-lg sm:text-xl"></i>
-                                    <span class="text-sm sm:text-base break-all">{$contactConfig.email}</span>
+                                    <span class="text-sm sm:text-base break-all">{$contact.email}</span>
                                 </div>
                             {/if}
                             
-                            {#if $contactConfig.phone}
+                            {#if $contact.phone}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-solid fa-phone text-xl"></i>
-                                    <span>{$contactConfig.phone}</span>
+                                    <span>{$contact.phone}</span>
                                 </div>
                             {/if}
                             
-                            {#if $contactConfig.location}
+                            {#if $contact.location}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-solid fa-location-dot text-xl"></i>
-                                    <span>{$contactConfig.location}</span>
+                                    <span>{$contact.location}</span>
                                 </div>
                             {/if}
                         </div>
