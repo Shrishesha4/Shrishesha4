@@ -9,7 +9,9 @@
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     let { children } = $props();
     import {onDestroy} from 'svelte';
+    import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
+    injectSpeedInsights();
     onDestroy(() => {
         blogs.cleanup();
         projects.cleanup();
