@@ -7,6 +7,7 @@
     import { toast } from '$lib/stores/toast';
     import ProjectModal from './ProjectModal.svelte';
     import { slide } from 'svelte/transition';
+	import ImageUpload from './ImageUpload.svelte';
     
     let currentProjects: Project[] = [];
     let loading = true;
@@ -189,11 +190,10 @@
                                         ></textarea>
                                     </div>
                                     <div>
-                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Image URL</label>
-                                        <input 
-                                            type="url" 
-                                            bind:value={project.image}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Project Image</label>
+                                        <ImageUpload
+                                            currentImage={project.image}
+                                            onImageUploaded={(url) => project.image = url}
                                         />
                                     </div>
                                     <div>

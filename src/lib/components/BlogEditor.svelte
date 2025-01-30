@@ -5,6 +5,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { auth } from '$lib/firebase/config';
+	import ImageUpload from './ImageUpload.svelte';
     
     export let editingBlog: any = null;
     let isCodeView = false;
@@ -73,14 +74,12 @@
     async function handleSubmit() {
         try {
             if (!editingBlog.id) {
-                // New blog
                 editingBlog.id = crypto.randomUUID();
                 editingBlog.slug = generateSlug(editingBlog.title);
                 const updatedBlogs = [...$blogs, editingBlog];
                 await blogs.set(updatedBlogs);
                 toast.show('Blog post created successfully!', 'success');
             } else {
-                // Update existing blog
                 editingBlog.slug = generateSlug(editingBlog.title);
                 const updatedBlogs = $blogs.map(blog => 
                     blog.id === editingBlog.id ? editingBlog : blog
@@ -128,11 +127,20 @@
         document.execCommand(command, false, value as string);
     }
 
+    let showImageModal = false;
+    let tempImageUrl = '';
+
     function handleImageInsert() {
-        const url = prompt('Enter image URL:');
-        if (url) {
-            execCommand('insertImage', url);
-        }
+        // const url = prompt('Enter image URL:');
+        // if (url) {
+        //     execCommand('insertImage', url);
+        // }
+        showImageModal = true;
+    }
+
+    function handleImageUploaded(url: string) {
+        execCommand('insertImage', url);
+        showImageModal = false;
     }
 
     function handleLinkInsert() {
@@ -468,11 +476,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-2">Image URL</label>
-                <input
-                    type="url"
-                    bind:value={editingBlog.image}
-                    class="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                <label class="block text-sm font-medium mb-2">Blog Image</label>
+                <ImageUpload
+                    currentImage={editingBlog.image}
+                    onImageUploaded={(url) => editingBlog.image = url}
                 />
             </div>
 
@@ -519,4 +526,24 @@
             </div>
         </form>
     {/if}
+    {#if showImageModal}
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-neutral-800 p-6 rounded-lg w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Insert Image</h3>
+                <button
+                    type="button"
+                    on:click={() => showImageModal = false}
+                    class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ImageUpload
+                currentImage={tempImageUrl}
+                onImageUploaded={handleImageUploaded}
+            />
+        </div>
+    </div>
+{/if}
 </div>

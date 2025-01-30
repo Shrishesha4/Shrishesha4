@@ -83,7 +83,7 @@ function createProjectsStore() {
                 }
             } catch (error) {
                 console.error('Error loading projects:', error);
-                set([]); // Set empty array on error
+                set([]);
             }
         },
         cleanup: () => {
