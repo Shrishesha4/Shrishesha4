@@ -55,12 +55,17 @@ function createProfileStore() {
                 }
 
                 if (auth.currentUser) {
+                    // Use real-time updates
                     unsubscribe = onSnapshot(doc(db, 'profiles', auth.currentUser.uid), (doc) => {
                         if (doc.exists()) {
-                            set(doc.data() as Profile);
+                            const data = doc.data() as Profile;
+                            set(data);
                         }
+                    }, (error) => {
+                        console.error('Profile snapshot error:', error);
                     });
                 } else {
+                    // For public view, get the first available profile
                     const profilesRef = collection(db, 'profiles');
                     const profileSnapshot = await getDocs(profilesRef);
                     
