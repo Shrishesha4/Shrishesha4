@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || import.meta.env.FIREBASE_API_KEY || process.env.FIREBASE_API_KEY,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || import.meta.env.FIREBASE_API_KEY || process.env.FIREBASE_API_KEY || "AIzaSyDYl7I27PHWm8o-1j0JQbiN21GqofATtMk",
   authDomain: "shrishesha-n.firebaseapp.com",
   projectId: "shrishesha-n",
   storageBucket: "shrishesha-n.firebasestorage.app",
