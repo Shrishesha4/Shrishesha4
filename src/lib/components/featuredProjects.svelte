@@ -1,22 +1,19 @@
 <script lang="ts">
     import type { Project } from '$lib/types';
-	import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
-	import { index } from '../../../.svelte-kit/output/server/nodes/0';
+    import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
     
     export let projects: Project[] = [];
     export let error: string = '';
     export let onRetry: () => void;
-    let imageLoading: { [key: number]: boolean } = {};
+    let imageLoading: { [key: string]: boolean } = {};
 
-
-    function handleImageLoad(index: number) {
-        imageLoading[index] = false;
+    function handleImageLoad(projectId: string) {
+        imageLoading[projectId] = false;
     }
 
-    function handleImageLoadStart(index: number) {
-        imageLoading[index] = true;
+    function handleImageLoadStart(projectId: string) {
+        imageLoading[projectId] = true;
     }
-
 </script>
 
 <div>
@@ -43,14 +40,14 @@
                         alt={project.title}
                         class="w-full h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-lg"
                         loading="lazy"
-                        on:load={() => handleImageLoad(index)}
-                        on:loadstart={() => handleImageLoadStart(index)}
+                        on:load={() => handleImageLoad(project.id)}
+                        on:loadstart={() => handleImageLoadStart(project.id)}
                     />
                     {/if}
-                    <h3 class="mb-2 mt-3 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                    <h3 class="mb-2 mt-3 text-xl font-bold text-neutral-900 dark:text-neutral-100">
                         {project.title}
                     </h3>
-                    <p class="mb-4 line-clamp-2 font-thin text-neutral-600 dark:text-neutral-300">
+                    <p class="mb-4 line-clamp-2 text-neutral-600 dark:text-neutral-300">
                         {project.description}
                     </p>
                     <div class="flex flex-col gap-4">
