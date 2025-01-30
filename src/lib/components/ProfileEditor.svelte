@@ -1,11 +1,12 @@
 <script lang="ts">
     import LoadingSpinner from './LoadingSpinner.svelte';
-    import { defaultProfile, profile } from '$lib/stores/profile';
+    import { profile } from '$lib/stores/profile';
     import { auth } from '$lib/firebase/config';
     import { toast } from '$lib/stores/toast';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+    import ImageUpload from './ImageUpload.svelte';
 
     const db = getFirestore();
     let currentProfile = { ...$profile };
@@ -40,7 +41,9 @@
                 skills: profileData.skills || [],
                 experience: profileData.experience || [],
                 education: profileData.education || [],
-                typingStrings: profileData.typingStrings || defaultProfile.typingStrings
+                typingStrings: profileData.typingStrings || '',
+                favicon:profileData.favicon || '',
+                profileImage:profileData.profileImage || ''
             };
     
             await profile.set(currentProfile);
@@ -97,11 +100,39 @@
             <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1> -->
             <form class="space-y-6" on:submit|preventDefault={updateProfile}>
                 <div class="relative">
+                    
+
                     {#if savingStates.profile}
                         <div class="absolute inset-0 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl flex items-center justify-center backdrop-blur-sm z-10">
                             <LoadingSpinner />
                         </div>
                     {/if}
+
+                    <div class="mb-6">
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Favicon</label>
+                        <div class="max-w-auto">
+                            <ImageUpload
+                                currentImage={currentProfile.favicon}
+                                onImageUploaded={(url) => currentProfile.favicon = url}
+                            />
+                        </div>
+                        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+                            Recommended size: 32x32 or 64x64 pixels (PNG format)
+                        </p>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Profile Image</label>
+                        <div class="max-w-auto">
+                            <ImageUpload
+                                currentImage={currentProfile.profileImage}
+                                onImageUploaded={(url) => currentProfile.profileImage = url}
+                            />
+                        </div>
+                        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+                            Recommended size: 256x256 pixels (Square format)
+                        </p>
+                    </div>
+
                     <div>
                         <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Name</label>
                         <input 
@@ -168,6 +199,7 @@
                         {#each currentProfile.education as edu, i}
                             <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+                                    
                                     <input
                                         type="text" 
                                         bind:value={edu.year} 
@@ -181,15 +213,6 @@
                                             placeholder="Degree"
                                             class="w-[calc(100%-2rem)] p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
                                         />
-                                        <button 
-                                            type="button"
-                                            on:click={() => {
-                                                currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
-                                            }}
-                                            class="absolute right-0 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                        >
-                                            <i class="fas fa-trash"></i>
-                                        </button>
                                     </div>
                                     <input 
                                         type="text" 
@@ -197,7 +220,17 @@
                                         placeholder="Institution"
                                         class="w-[calc(100%-2rem)] p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
                                     />
+                                    
                                 </div>
+                                <button 
+                                    type="button"
+                                    on:click={() => {
+                                        currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
+                                    }}
+                                    class="absolute right-0 py-2 sm:mt-0 mt-14 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         {/each}
                         <button 
@@ -219,7 +252,7 @@
                         <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Typing Animation Strings</label>
                         <div class="space-y-2">
                             {#each currentProfile.typingStrings as string, i}
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 w-min">
                                     <input 
                                         type="text" 
                                         bind:value={currentProfile.typingStrings[i]}

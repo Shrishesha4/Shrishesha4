@@ -31,7 +31,7 @@
                 <!-- Profile Image Section -->
                 <div class="flex flex-col items-center md:items-start">
                     <img 
-                        src="me.png" 
+                        src={$profile.profileImage}
                         alt="Profile Picture" 
                         class="w-48 h-48 rounded-full object-cover shadow-2xl mb-4"
                     />

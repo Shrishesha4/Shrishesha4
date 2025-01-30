@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { theme } from '$lib/stores/theme';
+    import { theme } from '$lib/stores/theme';
     import { blogs } from '$lib/stores/blogs';
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
@@ -8,21 +8,38 @@
     import Navbar from '$lib/components/navbar.svelte';
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-    let { children } = $props();
-
+    import { browser } from '$app/environment';
     import { onDestroy, onMount } from 'svelte';
     import { dev } from '$app/environment';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
+
+    interface LayoutData {
+        children: any;
+    }
+
+
+        export let data: LayoutData;
 
     if (!dev) {
         injectSpeedInsights();
         injectAnalytics();
     }
 
-    onMount(() => {
+    onMount(async () => {
         theme.init();
+        await profile.load();
+        
+        if (browser && typeof window !== 'undefined' && 
+            'updateFavicon' in window && $profile.favicon) {
+            (window as any).updateFavicon($profile.favicon);
+        }
     });
+
+    $: if (browser && typeof window !== 'undefined' && 
+        'updateFavicon' in window && $profile.favicon) {
+        (window as any).updateFavicon($profile.favicon);
+    }
 
     onDestroy(() => {
         blogs.cleanup();
@@ -35,7 +52,7 @@
 <div class="min-h-screen bg-white dark:bg-primary-dark transition-colors duration-200">
     <Navbar/>
     <main class="pt-8 md:pt-28 px-4">
-        {@render children()}
+        <slot />
     </main>
     <Toast />
     <LoadingSpinner />

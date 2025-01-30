@@ -17,6 +17,8 @@ export interface Profile {
     experience: string[];
     education: Education[];
     typingStrings: string[];
+    favicon: string;
+    profileImage: string;
 }
 
 export const defaultProfile: Profile = {
@@ -26,7 +28,9 @@ export const defaultProfile: Profile = {
     skills: [],
     experience: [],
     education: [],
-    typingStrings: ['']
+    typingStrings: [''],
+    favicon: "",
+    profileImage: "" 
 };
 
 function createProfileStore() {
