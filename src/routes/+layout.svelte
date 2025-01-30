@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { theme } from '$lib/stores/theme';
     import { blogs } from '$lib/stores/blogs';
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
@@ -8,12 +9,17 @@
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     let { children } = $props();
-    import {onDestroy} from 'svelte';
+
+    import { onDestroy, onMount } from 'svelte';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit'
 
     injectSpeedInsights();
     injectAnalytics();
+
+    onMount(() => {
+        theme.init();
+    });
 
     onDestroy(() => {
         blogs.cleanup();

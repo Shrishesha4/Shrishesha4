@@ -16,6 +16,30 @@
     let activeTab = 'profile';
     let editingBlog: typeof $blogs[0] | null = null;
 
+    function setActiveTab(tab: string) {
+        activeTab = tab;
+        window.location.hash = tab;
+    }
+
+    onMount(async () => {
+        if (!$isAuthenticated) {
+            goto('/admin/login');
+            return;
+        }
+
+        const hash = window.location.hash.replace('#', '');
+        if (['profile', 'projects', 'blogs', 'contact'].includes(hash)) {
+            activeTab = hash;
+        }
+
+        await Promise.all([
+            blogs.load(),
+            projects.load(),
+            profile.load(),
+            contact.load()
+        ]);
+    });
+
     async function handleLogout() {
         try {
             await signOut(auth);
@@ -25,23 +49,7 @@
         }
     }
 
-    onMount(async () => {
-        if (!$isAuthenticated) {
-            goto('/admin/login');
-            return;
-        }
-
-        // Load all data when admin dashboard mounts
-        await Promise.all([
-            blogs.load(),
-            projects.load(),
-            profile.load(),
-            contact.load()
-        ]);
-    });
-
     onDestroy(() => {
-        // Cleanup listeners when component is destroyed
         blogs.cleanup();
         projects.cleanup();
         profile.cleanup();
@@ -72,27 +80,27 @@
                     <nav class="-mb-px flex space-x-8">
                         <button
                             class="py-2 px-1 {activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
-                            on:click={() => activeTab = 'profile'}
+                            on:click={() => setActiveTab('profile')}
                         >
-                            <i class="fas fa-user me-2"></i>Profile
+                            <i class="fas fa-user me-2"></i>Edit Profile
                         </button>
                         <button
                             class="py-2 px-1 {activeTab === 'projects' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
-                            on:click={() => activeTab = 'projects'}
+                            on:click={() => setActiveTab('projects')}
                         >
-                            <i class="fas fa-code me-2"></i>Projects
+                            <i class="fas fa-code me-2"></i>Manage Projects
                         </button>
                         <button
                             class="py-2 px-1 {activeTab === 'blogs' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
-                            on:click={() => activeTab = 'blogs'}
+                            on:click={() => setActiveTab('blogs')}
                         >
-                            <i class="fas fa-blog me-2"></i>Blogs
+                            <i class="fas fa-blog me-2"></i>Manage Blogs
                         </button>
                         <button
                             class="py-2 px-1 {activeTab === 'contact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
-                            on:click={() => activeTab = 'contact'}
+                            on:click={() => setActiveTab('contact')}
                         >
-                            <i class="fas fa-address-card me-2"></i>Contact
+                            <i class="fas fa-address-card me-2"></i>Contact Info
                         </button>
                     </nav>
                 </div>

@@ -12,13 +12,10 @@
     async function handleLogin() {
         try {
             isLoading = true;
-            // Sign in to Firebase Auth
             await signInWithEmailAndPassword(auth, username, password);
             
-            // Perform any additional admin-specific operations here
-            await login(username, password); // Assuming login handles admin-specific logic
+            await login(username, password);
 
-            // Redirect to admin dashboard or desired page
             goto('/admin/');
         } catch (err) {
             error = err instanceof Error ? err.message : 'Invalid credentials';

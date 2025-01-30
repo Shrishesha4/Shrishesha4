@@ -12,6 +12,18 @@ export interface Project {
     github?: string;
 }
 
+export const defaultProjects: Project[] = [
+    {
+        id: "1",
+        title: "Sample Project",
+        description: "This is a sample project description.",
+        image: "https://via.placeholder.com/300",
+        technologies: ["React", "TypeScript", "Firebase"],
+        url: "https://example.com",
+        github: "https://github.com/example/project"
+    }
+];
+
 function createProjectsStore() {
     const { subscribe, set } = writable<Project[]>([]);
     let unsubscribe: (() => void) | null = null;

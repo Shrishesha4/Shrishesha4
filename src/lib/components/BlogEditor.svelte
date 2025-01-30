@@ -141,12 +141,6 @@
             execCommand('createLink', url);
         }
     }
-
-    // Add this function to handle content updates in code view
-    function handleCodeChange(event: Event) {
-        const textarea = event.target as HTMLTextAreaElement;
-        editingBlog.content = textarea.value;
-    }
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -250,11 +244,8 @@
             <div class="">
                 <label class="block text-sm font-medium mb-2 ">Content</label>
                 <div class="border rounded-lg bg-white dark:bg-neutral-800 border-neutral-400 dark:border-neutral-700 overflow-hidden">
-                    <!-- Toolbar section remains the same -->
-                    <!-- Make toolbar horizontally scrollable -->
                     <div class="bg-neutral-100 dark:bg-neutral-700 p-2 border-b dark:border-neutral-600 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         <div class="flex items-center gap-2 min-w-max">
-                            <!-- Paragraph & Headings -->
                             <button
                                 type="button"
                                 on:click={() => execCommand('formatBlock', '<p>')}
@@ -447,7 +438,6 @@
                                 <i class="fas fa-level-down-alt fa-rotate-90"></i>
                             </button>
 
-                            <!-- Add this before the last button -->
                             <div class="w-px h-6 bg-neutral-300 dark:bg-neutral-600 my-auto ml-auto"></div>
                             
                             <button

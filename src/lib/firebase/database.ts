@@ -5,18 +5,18 @@ import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { loading } from '$lib/stores/loading';
 import type { ContactConfig } from '$lib/stores/contact';
 
-export async function saveProfile(userId: string, profileData: Profile) {
-    loading.show();
-    try {
-        await setDoc(doc(db, 'profiles', userId), profileData);
-        return true;
-    } catch (error) {
-        console.error('Error saving profile:', error);
-        return false;
-    } finally {
-        loading.hide();
-    }
-}
+// export async function saveProfile(userId: string, profileData: Profile) {
+//     loading.show();
+//     try {
+//         await setDoc(doc(db, 'profiles', userId), profileData);
+//         return true;
+//     } catch (error) {
+//         console.error('Error saving profile:', error);
+//         return false;
+//     } finally {
+//         loading.hide();
+//     }
+// }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
     loading.show();
@@ -32,18 +32,38 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     }
 }
 
-export async function saveProjects(userId: string, projectsData: Project[]) {
-    loading.show();
+export async function saveProfile(userId: string, profile: Profile) {
     try {
-        await setDoc(doc(db, 'projects', userId), { projects: projectsData });
+        await setDoc(doc(db, 'profiles', userId), profile);
+        return true;
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        throw error;
+    }
+}
+
+export async function saveProjects(userId: string, projects: Project[]) {
+    try {
+        await setDoc(doc(db, 'projects', userId), { projects });
         return true;
     } catch (error) {
         console.error('Error saving projects:', error);
-        return false;
-    } finally {
-        loading.hide();
+        throw error;
     }
 }
+
+// export async function saveProjects(userId: string, projectsData: Project[]) {
+//     loading.show();
+//     try {
+//         await setDoc(doc(db, 'projects', userId), { projects: projectsData });
+//         return true;
+//     } catch (error) {
+//         console.error('Error saving projects:', error);
+//         return false;
+//     } finally {
+//         loading.hide();
+//     }
+// }
 
 export async function getProjects(userId: string): Promise<Project[]> {
     loading.show();

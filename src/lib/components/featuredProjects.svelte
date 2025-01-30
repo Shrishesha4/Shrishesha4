@@ -1,9 +1,22 @@
 <script lang="ts">
     import type { Project } from '$lib/types';
+	import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
+	import { index } from '../../../.svelte-kit/output/server/nodes/0';
     
     export let projects: Project[] = [];
     export let error: string = '';
     export let onRetry: () => void;
+    let imageLoading: { [key: number]: boolean } = {};
+
+
+    function handleImageLoad(index: number) {
+        imageLoading[index] = false;
+    }
+
+    function handleImageLoadStart(index: number) {
+        imageLoading[index] = true;
+    }
+
 </script>
 
 <div>
@@ -20,16 +33,24 @@
             {#each projects.slice(0, 4) as project}
                 <div class="rounded-xl bg-neutral-200 p-6 shadow-sm transition hover:shadow-md dark:bg-neutral-900">
                     {#if project.image}
-                        <img
-                            src={project.image}
-                            alt={project.title}
-                            class="mb-4 h-48 w-full rounded-lg object-cover"
-                        />
+                    <img 
+                        src={optimizeImage(project.image, { width: 800, format: 'webp' })}
+                        srcset={getResponsiveImageSrcSet(project.image)}
+                        sizes="(max-width: 480px) 100vw,
+                               (max-width: 768px) 50vw,
+                               (max-width: 1024px) 33vw,
+                               800px"
+                        alt={project.title}
+                        class="w-full h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-lg"
+                        loading="lazy"
+                        on:load={() => handleImageLoad(index)}
+                        on:loadstart={() => handleImageLoadStart(index)}
+                    />
                     {/if}
-                    <h3 class="mb-2 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                    <h3 class="mb-2 mt-3 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                         {project.title}
                     </h3>
-                    <p class="mb-4 line-clamp-2 text-neutral-600 dark:text-neutral-300">
+                    <p class="mb-4 line-clamp-2 font-thin text-neutral-600 dark:text-neutral-300">
                         {project.description}
                     </p>
                     <div class="flex flex-col gap-4">

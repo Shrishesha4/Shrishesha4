@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getResponsiveImageSrcSet, optimizeImage } from './../utils/imageOptimizer';
     import { onMount } from 'svelte';
     import { spring } from 'svelte/motion';
     import { projects } from '$lib/stores/projects';
@@ -12,14 +13,22 @@
     let opacity = spring(1);
     let scale = spring(1);
     
-    let loading = true;
+    let loading = false;
+    let imageLoading: { [key: number]: boolean } = {};
 
     onMount(() => {
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        loading = false;
         return () => window.removeEventListener('resize', checkMobile);
     });
+
+    function handleImageLoad(index: number) {
+        imageLoading[index] = false;
+    }
+
+    function handleImageLoadStart(index: number) {
+        imageLoading[index] = true;
+    }
 
     function checkMobile() {
         isMobile = window.innerWidth < 768;
@@ -85,6 +94,8 @@
         }
     }
 </script>
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<!-- svelte-ignore element_invalid_self_closing_tag -->
 {#if loading}
     <LoadingSpinner />
 {:else}
@@ -101,11 +112,22 @@
                         class="w-[85vw] h-auto min-h-[50vh] bg-neutral-200 dark:bg-neutral-800 rounded-2xl shadow-lg transition-all duration-200 overflow-hidden"
                         style="transform: translateX({$deltaX * 0.5}px) translateY({$deltaY * 0.3}px) rotate({$deltaX * 0.05}deg) scale({$scale}); opacity: {$opacity};"
                     >
-                        <img 
-                            src={$projects[currentIndex].image} 
-                            alt={$projects[currentIndex].title}
-                            class="w-full h-48 object-cover"
-                        />
+                        <div class="relative w-full h-48">
+                            {#if imageLoading[currentIndex]}
+                                <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
+                                    <LoadingSpinner />
+                                </div>
+                            {/if}
+                            <img 
+                                src={optimizeImage($projects[currentIndex].image, { width: 800, format: 'webp' })}
+                                srcset={getResponsiveImageSrcSet($projects[currentIndex].image)}
+                                sizes="(max-width: 768px) 100vw, 800px"
+                                alt={$projects[currentIndex].title}
+                                class="w-full h-full object-cover"
+                                on:load={() => handleImageLoad(currentIndex)}
+                                on:loadstart={() => handleImageLoadStart(currentIndex)}
+                            />
+                        </div>
                         <div class="p-5">
                             <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
                                 {$projects[currentIndex].title}
@@ -146,8 +168,6 @@
                     <!-- page index -->
                     <div class="mt-6 mb-0 flex gap-2 items-center justify-center">
                         {#each Array(Math.min($projects.length, 5)) as _, i}
-                            <!-- svelte-ignore a11y_consider_explicit_label -->
-                            <!-- svelte-ignore element_invalid_self_closing_tag -->
                             <button 
                                 class="w-2 h-2 rounded-full transition-all duration-120 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-400'}"
                                 on:click={() => currentIndex = i}
@@ -168,15 +188,26 @@
                         <div class="w-3 h-3 rounded-full bg-green-500"></div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                        {#each $projects as project}
+                        {#each $projects as project, index}
                             <div 
                                 class="group relative cursor-pointer bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
                             >
-                                <img 
-                                    src={project.image} 
-                                    alt={project.title}
-                                    class="w-full aspect-video object-cover"
-                                />
+                                <div class="relative w-full aspect-video">
+                                    {#if imageLoading[index]}
+                                        <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
+                                            <LoadingSpinner />
+                                        </div>
+                                    {/if}
+                                    <img 
+                                        src={optimizeImage(project.image, { width: 800, format: 'webp' })}
+                                        srcset={getResponsiveImageSrcSet(project.image)}
+                                        sizes="(max-width: 768px) 100vw, 800px"
+                                        alt={project.title}
+                                        class="w-full h-full object-cover"
+                                        on:load={() => handleImageLoad(index)}
+                                        on:loadstart={() => handleImageLoadStart(index)}
+                                    />
+                                </div>
                                 <div class="p-4">
                                     <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-100">{project.title}</h3>
                                     <p class="text-sm text-neutral-600 dark:text-neutral-300 mt-2 line-clamp-2">{project.description}</p>

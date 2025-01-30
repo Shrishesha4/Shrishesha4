@@ -11,6 +11,11 @@
     let currentProfile = { ...$profile };
     let loading = true;
     let error = '';
+    let savingStates = {
+        profile: false,
+        education: false,
+        typing: false
+    };
 
     async function loadProfileData() {
         try {
@@ -38,7 +43,6 @@
                 typingStrings: profileData.typingStrings || defaultProfile.typingStrings
             };
     
-            // Update the store
             await profile.set(currentProfile);
             
             loading = false;
@@ -55,16 +59,17 @@
                 throw new Error('Not authenticated');
             }
 
-            // Update Firestore
+            savingStates.profile = true;
             await setDoc(doc(db, 'profiles', auth.currentUser.uid), currentProfile);
             
-            // Update local store
             await profile.set(currentProfile);
             
             toast.show('Profile updated successfully!', 'success');
         } catch (error) {
             console.error('Error updating profile:', error);
             toast.show('Failed to update profile', 'error');
+        } finally {
+            savingStates.profile = false;
         }
     }
 
@@ -91,143 +96,167 @@
         <div class="max-w-2xl mx-auto bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
             <!-- <h1 class="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">Edit Profile</h1> -->
             <form class="space-y-6" on:submit|preventDefault={updateProfile}>
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Name</label>
-                    <input 
-                        type="text" 
-                        bind:value={currentProfile.name} 
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
-                    />
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Title</label>
-                    <input 
-                        type="text" 
-                        bind:value={currentProfile.title} 
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
-                    />
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Bio</label>
-                    <textarea 
-                        bind:value={currentProfile.bio} 
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
-                        rows="4"
-                    ></textarea>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Skills (comma-separated)</label>
-                    <input 
-                        type="text" 
-                        value={currentProfile.skills.join(', ')} 
-                        on:input={(e) => {
-                            if (e.target) {
-                                currentProfile.skills = (e.target as HTMLInputElement).value.split(',').map(s => s.trim())
-                            }
-                        }}
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
-                    />
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Experience (one per line)</label>
-                    <textarea 
-                        value={currentProfile.experience.join('\n')}
-                        on:input={(e) => {
-                            if (e.target && e.target instanceof HTMLTextAreaElement) {
-                                currentProfile.experience = e.target.value.split('\n').filter(Boolean);
-                            }
-                        }}
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
-                        rows="4"
-                    ></textarea>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Education</label>
-                    {#each currentProfile.education as edu, i}
-                        <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 mb-2">
-                            <input 
-                                type="text" 
-                                bind:value={edu.year} 
-                                placeholder="Year"
-                                class="p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                            />
-                            <input 
-                                type="text" 
-                                bind:value={edu.degree} 
-                                placeholder="Degree"
-                                class="p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                            />
-                            <input 
-                                type="text" 
-                                bind:value={edu.institution} 
-                                placeholder="Institution"
-                                class="p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                            />
-                            <button 
-                                type="button"
-                                on:click={() => {
-                                    currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
-                                }}
-                                class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                            >
-                                <i class="fas fa-trash"></i>
-                            </button>
+                <div class="relative">
+                    {#if savingStates.profile}
+                        <div class="absolute inset-0 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl flex items-center justify-center backdrop-blur-sm z-10">
+                            <LoadingSpinner />
                         </div>
-                    {/each}
-                    <button 
-                        type="button"
-                        on:click={() => currentProfile.education = [...currentProfile.education, { year: '', degree: '', institution: '' }]}
-                        class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-2 border-black dark:border-white"
-                    >
-                        + Add Education
-                    </button>
+                    {/if}
+                    <div>
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Name</label>
+                        <input 
+                            type="text" 
+                            bind:value={currentProfile.name} 
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
+                        />
+                    </div>
+    
+                    <div>
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Title</label>
+                        <input 
+                            type="text" 
+                            bind:value={currentProfile.title} 
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
+                        />
+                    </div>
+    
+                    <div>
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Bio</label>
+                        <textarea 
+                            bind:value={currentProfile.bio} 
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
+                            rows="4"
+                        ></textarea>
+                    </div>
+    
+                    <div>
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Skills (comma-separated)</label>
+                        <input 
+                            type="text" 
+                            value={currentProfile.skills.join(', ')} 
+                            on:input={(e) => {
+                                if (e.target) {
+                                    currentProfile.skills = (e.target as HTMLInputElement).value.split(',').map(s => s.trim())
+                                }
+                            }}
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
+                        />
+                    </div>
+    
+                    <div>
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Experience (one per line)</label>
+                        <textarea 
+                            value={currentProfile.experience.join('\n')}
+                            on:input={(e) => {
+                                if (e.target && e.target instanceof HTMLTextAreaElement) {
+                                    currentProfile.experience = e.target.value.split('\n').filter(Boolean);
+                                }
+                            }}
+                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500" 
+                            rows="4"
+                        ></textarea>
+                    </div>
                 </div>
                 <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Typing Animation Strings</label>
-                    <div class="space-y-2">
-                        {#each currentProfile.typingStrings as string, i}
-                            <div class="flex gap-2">
-                                <input 
-                                    type="text" 
-                                    bind:value={currentProfile.typingStrings[i]}
-                                    class="flex-1 p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                                />
-                                <button 
-                                    type="button"
-                                    on:click={() => {
-                                        currentProfile.typingStrings = currentProfile.typingStrings.filter((_, index) => index !== i);
-                                    }}
-                                    class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                >
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                    <div class="relative">
+                        {#if savingStates.education}
+                            <div class="absolute inset-0 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl flex items-center justify-center backdrop-blur-sm z-10">
+                                <LoadingSpinner />
+                            </div>
+                        {/if}
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Education</label>
+                        {#each currentProfile.education as edu, i}
+                            <div class="flex flex-col sm:flex-row items-center gap-2 mb-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+                                    <input
+                                        type="text" 
+                                        bind:value={edu.year} 
+                                        placeholder="Year"
+                                        class="w-[calc(100%-2rem)] p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                    <div class="relative flex items-center">
+                                        <input 
+                                            type="text" 
+                                            bind:value={edu.degree} 
+                                            placeholder="Degree"
+                                            class="w-[calc(100%-2rem)] p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                        />
+                                        <button 
+                                            type="button"
+                                            on:click={() => {
+                                                currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
+                                            }}
+                                            class="absolute right-0 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        bind:value={edu.institution} 
+                                        placeholder="Institution"
+                                        class="w-[calc(100%-2rem)] p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                </div>
                             </div>
                         {/each}
                         <button 
                             type="button"
-                            on:click={() => {
-                                currentProfile.typingStrings = [...currentProfile.typingStrings, ''];
-                            }}
-                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                            on:click={() => currentProfile.education = [...currentProfile.education, { year: '', degree: '', institution: '' }]}
+                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-2 border-black dark:border-white"
                         >
-                            + Add String
+                            + Add Education
+                        </button>   
+                    </div>
+                </div>
+                <div>
+                    <div class="relative">
+                        {#if savingStates.typing}
+                            <div class="absolute inset-0 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl flex items-center justify-center backdrop-blur-sm z-10">
+                                <LoadingSpinner />
+                            </div>
+                        {/if}
+                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Typing Animation Strings</label>
+                        <div class="space-y-2">
+                            {#each currentProfile.typingStrings as string, i}
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        bind:value={currentProfile.typingStrings[i]}
+                                        class="flex-1 p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                    <button 
+                                        type="button"
+                                        on:click={() => {
+                                            currentProfile.typingStrings = currentProfile.typingStrings.filter((_, index) => index !== i);
+                                        }}
+                                        class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            {/each}
+                            <button 
+                                type="button"
+                                on:click={() => {
+                                    currentProfile.typingStrings = [...currentProfile.typingStrings, ''];
+                                }}
+                                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                            >
+                                + Add String
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-center">
+                        <button 
+                            type="submit" 
+                            class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-primary-800 dark:text-white px-4 py-2 rounded transition-colors duration-200"
+                            disabled={Object.values(savingStates).some(state => state)}
+                        >
+                            {Object.values(savingStates).some(state => state) ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 </div>
-                <div class="flex justify-center">
-                    <button 
-                        type="submit" 
-                        class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-primary-800 dark:text-white px-4 py-2 rounded transition-colors duration-200"
-                    >
-                        Save Changes
-                    </button>
-                </div>
-
             </form>
         </div>
     </div>

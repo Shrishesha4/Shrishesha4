@@ -1,21 +1,37 @@
 <script lang="ts">
-    import Hero from '$lib/components/hero.svelte';
-    import NewBlogPosts from '$lib/components/newBlogPosts.svelte';
-    import FeaturedProjects from '$lib/components/featuredProjects.svelte';
     import SocialLinks from '$lib/components/socialLinks.svelte';
     import { onMount } from 'svelte';
     import { blogs } from '$lib/stores/blogs';
     import { projects } from '$lib/stores/projects';
-    import GithubRepos from '$lib/components/GithubRepos.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+    import type { SvelteComponentTyped } from 'svelte';
 
     let loading = true;
     let error = '';
     let githubError = false;
-    
-    // Initialize with empty arrays to prevent undefined errors
+
+
+    let Hero: typeof SvelteComponentTyped<any> | null = null;
+    let NewBlogPosts: typeof SvelteComponentTyped<any> | null = null;
+    let FeaturedProjects: typeof SvelteComponentTyped<any> | null = null;
+    let GithubRepos: typeof SvelteComponentTyped<any> | null = null;
+
     $: blogPosts = $blogs || [];
     $: projectsList = $projects || [];
+
+    async function loadComponents() {
+        const [heroMod, blogsMod, projectsMod, reposMod] = await Promise.all([
+            import('$lib/components/hero.svelte'),
+            import('$lib/components/newBlogPosts.svelte'),
+            import('$lib/components/featuredProjects.svelte'),
+            import('$lib/components/GithubRepos.svelte')
+        ]);
+
+        Hero = heroMod.default as typeof SvelteComponentTyped<any>;
+        NewBlogPosts = blogsMod.default as typeof SvelteComponentTyped<any>;
+        FeaturedProjects = projectsMod.default as typeof SvelteComponentTyped<any>;
+        GithubRepos = reposMod.default as typeof SvelteComponentTyped<any>;
+    }
 
     function handleGithubError() {
         githubError = true;
@@ -26,7 +42,8 @@
             loading = true;
             await Promise.all([
                 blogs.load(),
-                projects.load()
+                projects.load(),
+                loadComponents()
             ]);
         } catch (err: any) {
             console.error('Error details:', err);
@@ -46,7 +63,9 @@
     <hr class="bg-gray m-5 dark:bg-neutral-800 md:hidden" />
     <div class="mx-auto max-w-4xl">
         <section class="mb-16">
-            <Hero/>
+            {#if Hero}
+                <svelte:component this={Hero} />
+            {/if}
         </section>
 
         {#if error}
@@ -62,22 +81,26 @@
             </div>
         {:else}
             <section class="mb-16">
-                <NewBlogPosts 
-                    posts={blogPosts} 
-                    {error} 
-                    onRetry={() => { error = ''; fetchData(); }} 
-                />
+                {#if NewBlogPosts}
+                    <svelte:component this={NewBlogPosts} 
+                        posts={blogPosts} 
+                        {error} 
+                        onRetry={() => { error = ''; fetchData(); }} 
+                    />
+                {/if}
             </section>
             <section class="mb-16">
-                <FeaturedProjects 
-                    projects={projectsList} 
-                    {error} 
-                    onRetry={() => { error = ''; fetchData(); }} 
-                />
+                {#if FeaturedProjects}
+                    <svelte:component this={FeaturedProjects}
+                        projects={projectsList} 
+                        {error} 
+                        onRetry={() => { error = ''; fetchData(); }} 
+                    />
+                {/if}
             </section>
             <section>
-                {#if !githubError}
-                    <GithubRepos on:error={handleGithubError} />
+                {#if !githubError && GithubRepos}
+                    <svelte:component this={GithubRepos} on:error={handleGithubError} />
                 {/if}
             </section>
         {/if}

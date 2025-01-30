@@ -18,7 +18,6 @@
     function handleSubmit() {
         dispatch('save', project);
         show = false;
-        // Reset form
         project = {
             id: crypto.randomUUID(),
             title: '',
@@ -35,6 +34,7 @@
     }
 </script>
 
+<!-- svelte-ignore a11y_label_has_associated_control -->
 {#if show}
     <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-lg">

@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDYl7I27PHWm8o-1j0JQbiN21GqofATtMk",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "shrishesha-n.firebaseapp.com",
   projectId: "shrishesha-n",
   storageBucket: "shrishesha-n.firebasestorage.app",
@@ -12,7 +12,6 @@ const firebaseConfig = {
   measurementId: "G-R4WJP4HS1D"
 };
 
-// Initialize Firebase only if it hasn't been initialized yet
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const db = getFirestore(app);
 export const auth = getAuth(app);

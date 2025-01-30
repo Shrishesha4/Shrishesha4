@@ -19,10 +19,10 @@
                 <a href={`/blogs/${post.slug}`} class="block rounded-xl bg-neutral-200 p-6 transition hover:shadow-md dark:bg-neutral-900">
                     <div class="flex items-start justify-between">
                         <div>
-                            <h3 class="mb-2 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                            <h3 class="mb-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                                 {post.title}
                             </h3>
-                            <p class="mb-2 text-xs font-light text-neutral-900 dark:text-neutral-100">
+                            <p class="mb-2 text-xs font-thin text-neutral-900 dark:text-neutral-100">
                                 {post.description}
                             </p>
                             <p class="line-clamp-2 text-xs font-thin text-neutral-600 dark:text-neutral-300">

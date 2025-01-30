@@ -19,7 +19,6 @@
         };
     });
 
-    // Update typing strings when profile changes
     $: if (typed && $profile.typingStrings) {
         typed.destroy();
         typed = new Typed('.typing', {

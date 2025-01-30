@@ -3,22 +3,34 @@ import { saveProfile, saveProjects } from './database';
 import { defaultProfile } from '$lib/stores/profile';
 import { defaultProjects } from '$lib/stores/projects';
 
-export async function migrateDataToFirestore() {
+interface MigrationResult {
+    success: boolean;
+    profileMigrated: boolean;
+    projectsMigrated: boolean;
+    error?: string;
+}
+
+export async function migrateDataToFirestore(): Promise<MigrationResult> {
+    const result: MigrationResult = {
+        success: false,
+        profileMigrated: false,
+        projectsMigrated: false
+    };
+
     try {
         if (!auth.currentUser) {
             throw new Error('User not authenticated');
         }
-
-        // Migrate profile data
         await saveProfile(auth.currentUser.uid, defaultProfile);
-
-        // Migrate projects data
+        result.profileMigrated = true;
         await saveProjects(auth.currentUser.uid, defaultProjects);
-
+        result.projectsMigrated = true;
+        result.success = true;
         console.log('Data migration completed successfully');
-        return true;
+        return result;
     } catch (error) {
         console.error('Error migrating data:', error);
-        return false;
+        result.error = error instanceof Error ? error.message : 'Unknown error occurred';
+        return result;
     }
 }

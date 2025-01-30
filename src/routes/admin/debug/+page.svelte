@@ -89,13 +89,13 @@
     });
 </script>
 
-<div class="p-4 pb-32 md:pb-4"> <!-- Added bottom padding for mobile -->
+<!-- svelte-ignore a11y_label_has_associated_control -->
+<div class="p-4 pb-32 md:pb-4">
     <h1 class="text-2xl mb-4">Firebase Debug</h1>
     
     {#if !isLoggedIn}
         <div class="mb-6 space-y-4">
             <div>
-                <!-- svelte-ignore a11y_label_has_associated_control -->
                 <label class="block text-sm mb-1">Email</label>
                 <input 
                     type="email" 
@@ -105,7 +105,6 @@
                 />
             </div>
             <div>
-                <!-- svelte-ignore a11y_label_has_associated_control -->
                 <label class="block text-sm mb-1">Password</label>
                 <input 
                     type="password" 

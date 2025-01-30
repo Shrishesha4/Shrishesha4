@@ -86,7 +86,7 @@
         return currentProjects.some((project, index) => isProjectModified(project, index)) || 
                currentProjects.length !== JSON.parse(originalProjects).length;
     }
-    // Initialize with empty set instead of Set([0])
+    
     let expandedProjects: Set<number> = new Set();
 
     function toggleProject(index: number) {

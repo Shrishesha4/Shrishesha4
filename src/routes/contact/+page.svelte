@@ -32,14 +32,12 @@
         error = '';
         
         try {
-            // Save to Firestore first
             await addDoc(collection(db, 'messages'), {
                 ...formData,
                 timestamp: new Date(),
                 read: false
             });
         
-            // Modified Google Spreadsheet submission for better mobile compatibility
             if ($contact.spreadsheetUrl) {
                 try {
                     const response = await fetch($contact.spreadsheetUrl, {
@@ -59,7 +57,6 @@
                     }
                 } catch (err) {
                     console.warn('Spreadsheet submission error:', err);
-                    // Continue execution even if spreadsheet submission fails
                 }
             }
             
@@ -74,7 +71,7 @@
     }
 </script>
 
-<div class="min-h-screen p-4 pb-24"> <!-- Increased padding-top for better navbar clearance -->
+<div class="min-h-screen p-4 pb-24">
     <div class="max-w-4xl mx-auto">
         <h1 class="text-4xl sm:text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">Contact Me</h1>
         
@@ -83,7 +80,7 @@
                 <LoadingSpinner />
             </div>
         {:else}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <!-- Reduced gap on mobile -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Contact Form -->
                 <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl"> <!-- Reduced padding on mobile -->
                     <div class="flex justify-center">
@@ -162,7 +159,7 @@
                 </div>
 
                 <!-- Contact Information -->
-                <div class="space-y-4"> <!-- Reduced vertical spacing -->
+                <div class="space-y-4">
                     <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
                         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Info</h2>
                         <div class="space-y-4">

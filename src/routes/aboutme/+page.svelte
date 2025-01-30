@@ -70,22 +70,6 @@
                                 <li>{exp}</li>
                             {/each}
                         </ul>
-
-                        <!-- <h3 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Education Timeline</h3>
-                        <div class="relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            <div class="flex gap-8 p-4 min-w-max">
-                                {#each $profile.education as edu}
-                                    <div class="flex flex-col items-center w-64">
-                                        <div class="w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full mb-4"></div>
-                                        <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-lg w-full">
-                                            <h4 class="font-semibold text-gray-900 dark:text-neutral-100">{edu.year}</h4>
-                                            <p class="text-gray-700 dark:text-neutral-300 font-medium">{edu.degree}</p>
-                                            <p class="text-gray-600 dark:text-neutral-400 text-sm">{edu.institution}</p>
-                                        </div>
-                                    </div>
-                                {/each}
-                            </div>
-                        </div> -->
                     </div>    
                 </div>
 

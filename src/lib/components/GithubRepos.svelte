@@ -24,13 +24,11 @@
         
         loadRepositories();
 
-        // Return the cleanup function directly
         return () => {
             window.removeEventListener('resize', checkMobile);
         };
     });
 
-    // Separate the repository loading logic
     async function loadRepositories() {
         try {
             const response = await axios.get('https://api.github.com/users/shrishesha4/repos');
@@ -50,7 +48,7 @@
 
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         opacity.set(1);
@@ -59,7 +57,7 @@
 
     function handleTouchMove(e: TouchEvent) {
         if (!isMobile || startX === undefined) return;
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         const currentX = e.touches[0].clientX;
         const distance = Math.abs(currentX - startX);
         deltaX.set(currentX - startX);
@@ -69,18 +67,18 @@
 
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
-        const threshold = 80; // Slightly increased threshold for more intentional swipes
+        const threshold = 80;
 
         if ($deltaX < -threshold && currentIndex < repos.length - 1) {
-            opacity.set(0.7); // Less dramatic fade
-            scale.set(0.95); // Less dramatic scale
-            deltaX.set(-window.innerWidth / 2); // Reduced slide distance
+            opacity.set(0.7);
+            scale.set(0.95);
+            deltaX.set(-window.innerWidth / 2);
             setTimeout(() => {
                 currentIndex++;
                 deltaX.set(0);
                 opacity.set(1);
                 scale.set(1);
-            }, 150); // Faster transition
+            }, 150); 
         } else if ($deltaX > threshold && currentIndex > 0) {
             opacity.set(0.7);
             scale.set(0.95);
@@ -92,7 +90,6 @@
                 scale.set(1);
             }, 150);
         } else {
-            // Smoother reset
             deltaX.set(0);
             opacity.set(1);
             scale.set(1);
