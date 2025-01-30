@@ -10,7 +10,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    'vendor': ['axios', 'firebase/app', 'firebase/auth'],
+                    'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
                     'ui': ['@melt-ui/svelte']
                 }
             }
