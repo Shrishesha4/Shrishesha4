@@ -1,11 +1,15 @@
-<script>
-	import { onMount } from 'svelte';
-	import { blogs } from './../stores/blogs';
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { blogs } from './../stores/blogs';
 
-    onMount (async () => {
+    onMount(async () => {
         await blogs.load();
     });
 
+    function truncateText(text: string, limit: number = 150): string {
+        if (text.length <= limit) return text;
+        return text.slice(0, limit).trim() + '...';
+    }
 </script>
 
 <div class="space-y-8">
@@ -26,9 +30,12 @@
                     <h2 class="text-2xl font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {blog.title}
                     </h2>
-                    <p class="text-neutral-600 dark:text-neutral-400 mb-4">
-                        {blog.description}
-                    </p>
+                    <div class="text-neutral-600 dark:text-neutral-400 mb-4">
+                        <p>{truncateText(blog.description)}</p>
+                        <span class="text-primary-600 dark:text-primary-400 hover:underline mt-2 inline-block">
+                            Read more
+                        </span>
+                    </div>
                     <div class="flex items-center justify-between">
                         <div class="flex gap-2">
                             {#each blog.tags as tag}
