@@ -37,14 +37,23 @@ function createContactStore() {
                     unsubscribe();
                 }
 
-                unsubscribe = onSnapshot(doc(db, 'config', 'contact'), (doc) => {
-                    if (doc.exists()) {
-                        set(doc.data() as ContactConfig);
+                unsubscribe = onSnapshot(
+                    doc(db, 'config', 'contact'),
+                    (doc) => {
+                        if (doc.exists()) {
+                            set(doc.data() as ContactConfig);
+                        } else {
+                            set(defaultConfig);
+                        }
+                    },
+                    (error) => {
+                        console.error('Contact config listener error:', error);
+                        set(defaultConfig); // Set default config on error
                     }
-                });
+                );
             } catch (error) {
                 console.error('Error loading contact config:', error);
-                throw error;
+                set(defaultConfig); // Set default config on error
             }
         },
         cleanup: () => {

@@ -4,10 +4,12 @@
     import { profile } from '$lib/stores/profile';
 
     let typed: Typed;
+    let defaultStrings = ['a Web Developer.', 'a Software Engineer.', 'a Problem Solver.']; // Fallback strings
 
     onMount(() => {
+        // Initialize with default strings or profile strings if available
         typed = new Typed('.typing', {
-            strings: $profile.typingStrings,
+            strings: $profile.typingStrings || defaultStrings,
             typeSpeed: 100,
             backSpeed: 60,
             loop: true,
@@ -15,11 +17,14 @@
         });
 
         return () => {
-            typed.destroy();
+            if (typed) {
+                typed.destroy();
+            }
         };
     });
 
-    $: if (typed && $profile.typingStrings) {
+    // React to changes in profile.typingStrings
+    $: if (typed && $profile.typingStrings && $profile.typingStrings.length > 0) {
         typed.destroy();
         typed = new Typed('.typing', {
             strings: $profile.typingStrings,

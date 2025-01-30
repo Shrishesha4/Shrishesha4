@@ -48,7 +48,6 @@
 
     function handleTouchStart(e: TouchEvent) {
         if (!isMobile) return;
-        e.preventDefault();
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         opacity.set(1);
@@ -57,7 +56,6 @@
 
     function handleTouchMove(e: TouchEvent) {
         if (!isMobile || startX === undefined) return;
-        e.preventDefault();
         const currentX = e.touches[0].clientX;
         const distance = Math.abs(currentX - startX);
         deltaX.set(currentX - startX);
@@ -103,7 +101,7 @@
 {:else}
     <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-6 py-1 mt-6">GitHub Repositories</h2>
     <section class="py-2 overflow-visible">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">  
+        <div class="w-[85vw] max-w-7xl mx-auto overflow-visible">  
             {#if loading}
                 <div class="flex justify-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -113,7 +111,7 @@
             {:else}
                 {#if isMobile}
                     <div 
-                        class="h-[60vh] w-full flex flex-col items-center justify-center relative overflow-visible"
+                        class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible "
                         on:touchstart|passive={handleTouchStart}
                         on:touchmove|passive={handleTouchMove}
                         on:touchend|passive={handleTouchEnd}

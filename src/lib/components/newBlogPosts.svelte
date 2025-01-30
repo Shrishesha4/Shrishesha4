@@ -4,6 +4,11 @@
     export let posts: Blog[] = [];
     export let error: string = '';
     export let onRetry: () => void;
+
+    function truncateText(text: string, limit: number = 150): string {
+        if (text.length <= limit) return text;
+        return text.slice(0, limit).trim() + '...';
+    }
 </script>
 
 <div>
@@ -22,8 +27,11 @@
                             <h3 class="mb-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                                 {post.title}
                             </h3>
-                            <p class="mb-2 text-xs font-thin text-neutral-900 dark:text-neutral-100">
-                                {post.description}
+                            <p class="mb-2 text-sm font-light dark:font-thin text-neutral-900 dark:text-neutral-100">
+                                {truncateText(post.description)}
+                                <span class="text-primary-600 dark:text-primary-400 font-bold hover:underline mt-2 inline-block">
+                                    Read more
+                                </span>
                             </p>
                             <p class="line-clamp-2 text-xs font-thin text-neutral-600 dark:text-neutral-300">
                                 {#each post.tags as t}

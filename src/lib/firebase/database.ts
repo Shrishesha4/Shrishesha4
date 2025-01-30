@@ -5,19 +5,6 @@ import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { loading } from '$lib/stores/loading';
 import type { ContactConfig } from '$lib/stores/contact';
 
-// export async function saveProfile(userId: string, profileData: Profile) {
-//     loading.show();
-//     try {
-//         await setDoc(doc(db, 'profiles', userId), profileData);
-//         return true;
-//     } catch (error) {
-//         console.error('Error saving profile:', error);
-//         return false;
-//     } finally {
-//         loading.hide();
-//     }
-// }
-
 export async function getProfile(userId: string): Promise<Profile | null> {
     loading.show();
     try {
@@ -52,18 +39,6 @@ export async function saveProjects(userId: string, projects: Project[]) {
     }
 }
 
-// export async function saveProjects(userId: string, projectsData: Project[]) {
-//     loading.show();
-//     try {
-//         await setDoc(doc(db, 'projects', userId), { projects: projectsData });
-//         return true;
-//     } catch (error) {
-//         console.error('Error saving projects:', error);
-//         return false;
-//     } finally {
-//         loading.hide();
-//     }
-// }
 
 export async function getProjects(userId: string): Promise<Project[]> {
     loading.show();
@@ -120,7 +95,6 @@ export async function verifyCollections(): Promise<{
 
 export async function initializeFirestore(userId: string) {
     try {
-        // Initialize profiles collection
         const profileRef = doc(db, 'profiles', userId);
         const profileSnapshot = await getDoc(profileRef);
         
@@ -151,12 +125,17 @@ export async function initializeFirestore(userId: string) {
                         degree: "High School",
                         institution: "Mumbai International School"
                     }
+                ],
+                typingStrings: [
+                    "a Full Stack Developer.",
+                    "a Problem Solver.",
+                    "an Innovation Enthusiast.",
+                    "a Tech Explorer."
                 ]
             };
             await setDoc(profileRef, defaultProfile);
         }
 
-        // Initialize projects collection
         const projectsRef = doc(db, 'projects', userId);
         const projectsSnapshot = await getDoc(projectsRef);
 

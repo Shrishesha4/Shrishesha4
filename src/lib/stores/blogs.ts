@@ -33,37 +33,46 @@ function createBlogsStore() {
         },
         load: async () => {
             try {
-                // Unsubscribe from any existing listener
                 if (unsubscribe) {
                     unsubscribe();
                 }
 
-                // Set up real-time listener
                 if (auth.currentUser) {
-                    unsubscribe = onSnapshot(doc(db, 'blogs', auth.currentUser.uid), (doc) => {
-                        if (doc.exists()) {
-                            const blogs = doc.data().blogs || [];
+                    unsubscribe = onSnapshot(
+                        doc(db, 'blogs', auth.currentUser.uid),
+                        (doc) => {
+                            if (doc.exists()) {
+                                const blogs = doc.data().blogs || [];
+                                set(blogs);
+                            } else {
+                                set([]);
+                            }
+                        },
+                        (error) => {
+                            console.error('Blogs listener error:', error);
+                            set([]); // Set empty array on error
+                        }
+                    );
+                } else {
+                    try {
+                        const blogsRef = collection(db, 'blogs');
+                        const blogsSnapshot = await getDocs(blogsRef);
+                        
+                        if (!blogsSnapshot.empty) {
+                            const firstDoc = blogsSnapshot.docs[0];
+                            const blogs = firstDoc.data().blogs || [];
                             set(blogs);
                         } else {
                             set([]);
                         }
-                    }, (error) => {
-                        console.error('Error in blogs listener:', error);
-                    });
-                } else {
-                    // For public access, get all blogs
-                    const blogsRef = collection(db, 'blogs');
-                    const blogsSnapshot = await getDocs(blogsRef);
-                    
-                    if (!blogsSnapshot.empty) {
-                        const firstDoc = blogsSnapshot.docs[0];
-                        const blogs = firstDoc.data().blogs || [];
-                        set(blogs);
+                    } catch (error) {
+                        console.error('Error fetching public blogs:', error);
+                        set([]);
                     }
                 }
             } catch (error) {
                 console.error('Error loading blogs:', error);
-                throw error;
+                set([]); // Set empty array on error
             }
         },
         cleanup: () => {

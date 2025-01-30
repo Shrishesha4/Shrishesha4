@@ -49,27 +49,41 @@ function createProjectsStore() {
                 }
 
                 if (auth.currentUser) {
-                    unsubscribe = onSnapshot(doc(db, 'projects', auth.currentUser.uid), (doc) => {
-                        if (doc.exists()) {
-                            const projects = doc.data().projects || [];
+                    unsubscribe = onSnapshot(
+                        doc(db, 'projects', auth.currentUser.uid),
+                        (doc) => {
+                            if (doc.exists()) {
+                                const projects = doc.data().projects || [];
+                                set(projects);
+                            } else {
+                                set([]);
+                            }
+                        },
+                        (error) => {
+                            console.error('Projects listener error:', error);
+                            set([]); // Set empty array on error
+                        }
+                    );
+                } else {
+                    try {
+                        const projectsRef = collection(db, 'projects');
+                        const projectsSnapshot = await getDocs(projectsRef);
+                        
+                        if (!projectsSnapshot.empty) {
+                            const firstDoc = projectsSnapshot.docs[0];
+                            const projects = firstDoc.data().projects || [];
                             set(projects);
                         } else {
                             set([]);
                         }
-                    });
-                } else {
-                    const projectsRef = collection(db, 'projects');
-                    const projectsSnapshot = await getDocs(projectsRef);
-                    
-                    if (!projectsSnapshot.empty) {
-                        const firstDoc = projectsSnapshot.docs[0];
-                        const projects = firstDoc.data().projects || [];
-                        set(projects);
+                    } catch (error) {
+                        console.error('Error fetching public projects:', error);
+                        set([]);
                     }
                 }
             } catch (error) {
                 console.error('Error loading projects:', error);
-                throw error;
+                set([]); // Set empty array on error
             }
         },
         cleanup: () => {
