@@ -160,8 +160,7 @@
                         {/if}
                     </div>
                 {:else}
-                
-                    <div class="bg-neutral-200 dark:bg-neutral-900/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
+                    <div class="w-full max-w-5xl bg-neutral-200 dark:bg-neutral-900/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20 transform -translate-x-0">
                         <!-- Enhanced Finder-like header -->
                         <div class="bg-white/80 dark:bg-neutral-700 backdrop-blur-sm p-2 flex items-center ">
                             <div class="flex space-x-2">
