@@ -50,6 +50,7 @@
 		"axios": "^1.7.9",
 		"bcryptjs": "^2.4.3",
 		"cloudinary": "^2.5.1",
+		"crypto-js": "^4.2.0",
 		"firebase": "^11.2.0",
 		"typed.js": "^2.1.0"
 	}

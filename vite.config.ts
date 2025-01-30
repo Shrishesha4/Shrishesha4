@@ -17,5 +17,10 @@ export default defineConfig({
     },
     ssr: {
         noExternal: ['@melt-ui/svelte']
+    },
+    resolve: {
+        alias: {
+            crypto: 'crypto-js'
+        }
     }
 });
