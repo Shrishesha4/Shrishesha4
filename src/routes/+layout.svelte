@@ -11,11 +11,14 @@
     let { children } = $props();
 
     import { onDestroy, onMount } from 'svelte';
+    import { dev } from '$app/environment';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-    import { injectAnalytics } from '@vercel/analytics/sveltekit'
+    import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
-    injectSpeedInsights();
-    injectAnalytics();
+    if (!dev) {
+        injectSpeedInsights();
+        injectAnalytics();
+    }
 
     onMount(() => {
         theme.init();
