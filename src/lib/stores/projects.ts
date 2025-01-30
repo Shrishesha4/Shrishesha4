@@ -61,7 +61,7 @@ function createProjectsStore() {
                         },
                         (error) => {
                             console.error('Projects listener error:', error);
-                            set([]); // Set empty array on error
+                            set([]);
                         }
                     );
                 } else {

@@ -1,6 +1,12 @@
 import { writable } from 'svelte/store';
 import { auth } from '$lib/firebase/config';
-import { setPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { 
+    setPersistence, 
+    browserLocalPersistence, 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail 
+} from 'firebase/auth';
 
 export const authState = writable(false);
 
@@ -27,6 +33,16 @@ export async function login(username: string, password: string) {
     } catch (error) {
         console.error('Firebase auth error:', error);
         throw new Error('Invalid credentials');
+    }
+}
+
+export async function resetPassword(email: string) {
+    try {
+        await sendPasswordResetEmail(auth, email);
+        return { success: true, message: 'Password reset email sent successfully' };
+    } catch (error) {
+        console.error('Password reset error:', error);
+        throw new Error('Failed to send password reset email');
     }
 }
 
