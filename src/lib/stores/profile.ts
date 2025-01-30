@@ -1,8 +1,7 @@
 import { writable } from 'svelte/store';
 import { saveProfile } from '$lib/firebase/database';
-import { auth } from '$lib/firebase/config';
+import { auth, db } from '$lib/firebase/config';
 import { collection, doc, getDocs, onSnapshot } from 'firebase/firestore';
-import { db } from '$lib/firebase/config';
 
 export interface Education {
     year: string;
@@ -17,7 +16,7 @@ export interface Profile {
     skills: string[];
     experience: string[];
     education: Education[];
-    typingStrings: string[]; // Add this new field
+    typingStrings: string[];
 }
 
 export const defaultProfile: Profile = {
@@ -27,7 +26,7 @@ export const defaultProfile: Profile = {
     skills: [],
     experience: [],
     education: [],
-    typingStrings: ['a Web Developer.', 'a Graphic Designer.', 'an App Developer.']
+    typingStrings: ['']
 };
 
 function createProfileStore() {
@@ -54,29 +53,31 @@ function createProfileStore() {
                     unsubscribe();
                 }
 
-                if (auth.currentUser) {
-                    // Use real-time updates
-                    unsubscribe = onSnapshot(doc(db, 'profiles', auth.currentUser.uid), (doc) => {
-                        if (doc.exists()) {
-                            const data = doc.data() as Profile;
-                            set(data);
+                const profilesRef = collection(db, 'profiles');
+                const profileSnapshot = await getDocs(profilesRef);
+                
+                if (!profileSnapshot.empty) {
+                    const firstDoc = profileSnapshot.docs[0];
+                    unsubscribe = onSnapshot(
+                        doc(db, 'profiles', firstDoc.id),
+                        (docSnapshot) => {
+                            if (docSnapshot.exists()) {
+                                set(docSnapshot.data() as Profile);
+                            } else {
+                                set(defaultProfile);
+                            }
+                        },
+                        (error) => {
+                            console.error('Profile snapshot error:', error);
+                            set(defaultProfile);
                         }
-                    }, (error) => {
-                        console.error('Profile snapshot error:', error);
-                    });
+                    );
                 } else {
-                    // For public view, get the first available profile
-                    const profilesRef = collection(db, 'profiles');
-                    const profileSnapshot = await getDocs(profilesRef);
-                    
-                    if (!profileSnapshot.empty) {
-                        const firstDoc = profileSnapshot.docs[0];
-                        set(firstDoc.data() as Profile);
-                    }
+                    set(defaultProfile);
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
-                throw error;
+                set(defaultProfile);
             }
         },
         cleanup: () => {

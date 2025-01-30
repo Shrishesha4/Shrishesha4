@@ -72,7 +72,6 @@ export async function verifyCollections(): Promise<{
     error?: string;
 }> {
     try {
-        // Check if collections exist
         const profilesRef = collection(db, 'profiles');
         const projectsRef = collection(db, 'projects');
         
@@ -100,37 +99,25 @@ export async function initializeFirestore(userId: string) {
         
         if (!profileSnapshot.exists()) {
             const defaultProfile = {
-                name: "Shrishesha Narmatesshvara",
-                title: "Tech and Software Enthusiast",
-                bio: "Hello! I'm a passionate techie with expertise in quite a few technologies and a love for creating elegant solutions to complex problems.",
-                skills: ["JavaScript", "TypeScript", "React", "Node.js"],
+                name: "",
+                title: "",
+                bio: "",
+                skills: ["", "", "", ""],
                 experience: [
-                    "X years of professional software development",
-                    "Led multiple successful projects",
-                    "Contributed to open-source communities"
+                    ""
                 ],
                 education: [
                     {
-                        year: "2023",
-                        degree: "Master's Degree",
-                        institution: "University of California, Berkeley"
-                    },
-                    {
-                        year: "2021",
-                        degree: "Bachelor's Degree",
-                        institution: "University of Mumbai"
-                    },
-                    {
-                        year: "2017",
-                        degree: "High School",
-                        institution: "Mumbai International School"
+                        year: "",
+                        degree: "",
+                        institution: ""
                     }
                 ],
                 typingStrings: [
-                    "a Full Stack Developer.",
-                    "a Problem Solver.",
-                    "an Innovation Enthusiast.",
-                    "a Tech Explorer."
+                    "",
+                    "",
+                    "",
+                    ""
                 ]
             };
             await setDoc(profileRef, defaultProfile);
@@ -142,23 +129,14 @@ export async function initializeFirestore(userId: string) {
         if (!projectsSnapshot.exists()) {
             const defaultProjects = {
                 projects: [
-                    {
-                        id: 'ssam',
-                        title: 'Sri Senthil Andavar Motors',
-                        description: 'A comprehensive web application for Sri Senthil Andavar Motors showcasing their services and products',
-                        image: '/images/portfolio/portfolio-4.png',
-                        technologies: ['Web Development', 'Firebase', 'JavaScript'],
-                        url: 'https://senthilandavar-motors.web.app/'
-                    },
-                    {
-                        id: 'dino',
-                        title: 'Chrome Dino',
-                        description: 'A recreation of the popular Chrome browser dinosaur game with enhanced features',
-                        image: '/images/portfolio/portfolio-1.jpg',
-                        technologies: ['JavaScript', 'HTML5', 'CSS3', 'Game Development'],
-                        github: 'https://github.com/Shrishesha4/chrome-dino/tree/main'
-                    }
-                    // ... other projects
+                            {
+                                id: 'dino',
+                                title: 'Chrome Dino',
+                                description: 'A recreation of the popular Chrome browser dinosaur game with enhanced features',
+                                image: '/images/portfolio/portfolio-1.jpg',
+                                technologies: ['JavaScript', 'HTML5', 'CSS3', 'Game Development'],
+                                github: 'https://github.com/Shrishesha4/chrome-dino/tree/main'
+                            }
                 ]
             };
             await setDoc(projectsRef, defaultProjects);
@@ -203,7 +181,6 @@ export async function debugFirestore() {
         };
     }
 }
-// Add these functions to your existing database.ts file
 
 export async function saveContactConfig(config: ContactConfig) {
     loading.show();

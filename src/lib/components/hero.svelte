@@ -1,17 +1,29 @@
 <script>
     import Typinganimation from "./typinganimation.svelte";
+    import { profile } from '$lib/stores/profile';
+    import { loading } from '$lib/stores/loading';
+    import { onMount, onDestroy } from 'svelte';
 
+    onMount(async () => {
+        loading.show();
+        await profile.load();
+        loading.hide();
+    });
+
+    onDestroy(() => {
+        profile.cleanup();
+    });
 </script>
 
 <div>
     <h1 class="mb-6 text-6xl font-bold text-neutral-900 dark:text-neutral-100">
-        Hi, I'm Shrishesha
+        Hi, I'm {$profile.name || ''}
     </h1>
     <div class="mb-8 text-5xl text-neutral-700 dark:text-neutral-300">
         I'm <span class="font-comic text-red-600 dark:text-red-400"><Typinganimation /></span>
     </div>
     <p class="mb-8 text-lg text-neutral-600 dark:text-neutral-400">
-        I craft intuitive user experiences and build innovative solutions.
+        {$profile.bio || ''}
     </p>
     <div class="flex gap-4">
         <a
