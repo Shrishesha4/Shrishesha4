@@ -280,7 +280,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex justify-center">
+                    <div class="flex justify-center mt-6">
                         <button 
                             type="submit" 
                             class="border border-neutral-300 dark:border-neutral-600 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-primary-800 dark:text-white px-4 py-2 rounded transition-colors duration-200"

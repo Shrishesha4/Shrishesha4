@@ -19,7 +19,8 @@
     }
 
 
-        export let data: LayoutData;
+        // svelte-ignore export_let_unused
+                export let data: LayoutData;
 
     if (!dev) {
         injectSpeedInsights();

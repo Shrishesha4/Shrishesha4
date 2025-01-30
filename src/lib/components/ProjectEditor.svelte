@@ -83,10 +83,6 @@
         }
     }
 
-    function hasUnsavedChanges(): boolean {
-        return currentProjects.some((project, index) => isProjectModified(project, index)) || 
-               currentProjects.length !== JSON.parse(originalProjects).length;
-    }
     
     let expandedProjects: Set<number> = new Set();
 
@@ -128,17 +124,6 @@
                     <i class="fas fa-plus me-2"></i>
                 </button>
             </div>
-            {#if hasUnsavedChanges() && !isSaving}
-                <div class="flex justify-end mb-4">
-                    <button 
-                        on:click={saveProjects}
-                        class="bg-primary-800 dark:bg-primary-100 text-primary-800 dark:text-white border px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200 flex items-center"
-                    >
-                        <i class="fas fa-save mr-2"></i>
-                        Save Changes
-                    </button>
-                </div>
-            {/if}
 
             <div class="space-y-6">
                 {#each currentProjects as project, i}
