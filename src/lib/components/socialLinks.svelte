@@ -1,3 +1,24 @@
+<script lang="ts">
+    import { onMount } from 'svelte';
+
+    onMount(() => {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+        script.setAttribute('data-name', 'bmc-button');
+        script.setAttribute('data-slug', 'shrishesha4');
+        script.setAttribute('data-color', '#FF5F5F');
+        script.setAttribute('data-emoji', '');
+        script.setAttribute('data-font', 'Lato');
+        script.setAttribute('data-text', 'Buy me a coffee');
+        script.setAttribute('data-outline-color', '#000000');
+        script.setAttribute('data-font-color', '#ffffff');
+        script.setAttribute('data-coffee-color', '#FFDD00');
+        
+        document.head.appendChild(script);
+    });
+</script>
+
 <div>
     <div class="fixed bottom-8 left-8 hidden flex-col gap-8 md:flex">
         <a
@@ -74,6 +95,14 @@
         >
             <i class="fa-regular fa-envelope text-2xl"></i>
             <span class="sr-only">Email</span>
+        </a>
+        <a 
+            href="https://www.buymeacoffee.com/shrishesha4" 
+            target="_blank"
+            class="text-neutral-700 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
+        >
+            <i class="fa fa-coffee text-2xl text-[#FFA500]"></i>
+            <span class="sr-only">Buy me a coffee</span>
         </a>
     </div>
 </div>

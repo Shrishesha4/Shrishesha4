@@ -55,10 +55,39 @@
 
     onMount(() => {
         fetchData();
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+        script.setAttribute('data-name', 'bmc-button');
+        script.setAttribute('data-slug', 'shrishesha4');
+        script.setAttribute('data-color', '#FF5F5F');
+        script.setAttribute('data-emoji', '');
+        script.setAttribute('data-font', 'Lato');
+        script.setAttribute('data-text', 'Buy me a coffee');
+        script.setAttribute('data-outline-color', '#000000');
+        script.setAttribute('data-font-color', '#ffffff');
+        script.setAttribute('data-coffee-color', '#FFDD00');
+        
+        document.head.appendChild(script);
     });
 </script>
 
 <div class="min-h-screen p-4 pt-0">
+    <div class="group fixed top-4 right-4 z-50 mr-12 mt-5 hidden md:block">
+        <a 
+            href="https://www.buymeacoffee.com/shrishesha4" 
+            target="_blank"
+            class="text-neutral-700 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
+        >
+            <i class="fas fa-coffee text-2xl text-[#FFA500]"></i>
+            <span class="sr-only">Buy me a coffee</span>
+        </a>
+        <div class="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none opacity-0 group-hover:opacity-100 group-hover:-translate-x-2 transition-all duration-300 bg-white dark:bg-neutral-800 px-4 py-2 rounded-lg shadow-lg whitespace-nowrap">
+            <p class="text-sm text-neutral-800 dark:text-neutral-200">Buy me a coffee ☕</p>
+            <div class="absolute right-0 top-1/2 translate-x-1 -translate-y-1/2 w-2 h-2 bg-white dark:bg-neutral-800 rotate-45"></div>
+        </div>
+    </div>
     <SocialLinks/>
     <hr class="bg-gray m-5 dark:bg-neutral-800 md:hidden" />
     <div class="mx-auto max-w-4xl">
