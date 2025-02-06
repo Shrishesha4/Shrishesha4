@@ -186,6 +186,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="space-y-4">
+                    <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
+                        <div class="space-y-4 flex justify-center">
+                            <div class="shadow-xl rounded-full">
+                                <a 
+                                    href="https://www.buymeacoffee.com/shrishesha4" 
+                                    target="_blank"
+                                    class="inline-flex items-center gap-3 px-8 py-3bg-neutral-800 hover:bg-neutral-900 text-white rounded-full transition-colors duration-200"
+                                >
+                                    <i class="fas fa-coffee text-m text-[#FFA500]"></i>
+                                    <span class="text-m text-[#FFA500]">Buy Me A Coffee</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         {/if}
     </div>

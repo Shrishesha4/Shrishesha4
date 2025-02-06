@@ -182,10 +182,12 @@
         {:else}
             <div class="p-4 md:p-8">
                 <div class="bg-neutral-200 dark:bg-neutral-900/80 rounded-lg shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
-                    <div class="bg-white/80 dark:bg-neutral-700 p-2 flex items-center space-x-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div class="bg-white/80 dark:bg-neutral-700 backdrop-blur-sm p-2 flex items-center ">
+                        <div class="flex space-x-2">
+                            <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
+                            <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
+                            <button class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors duration-150"></button>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                         {#each $projects as project, index}
