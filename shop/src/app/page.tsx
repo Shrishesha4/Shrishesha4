@@ -1,16 +1,16 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function Home() {
-  const phrases = [
-    "we're launching soon",
+  const phrases = useMemo(() => [
+    "we&apos;re launching soon",
     "exciting things await",
     "something special coming",
     "stay tuned for more",
-    "we're getting there",
-    "we're just a few steps away",
-    "we're getting closer",
-    "we're just a few more steps",
+    "we&apos;re getting there",
+    "we&apos;re just a few steps away",
+    "we&apos;re getting closer",
+    "we&apos;re just a few more steps",
     "almost ready to launch",
     "the countdown begins",
     "preparing something amazing",
@@ -23,8 +23,8 @@ export default function Home() {
     "excellence takes time",
     "worth the wait",
     "transformation underway"
-  ];
-
+  ], []);
+  
   const [currentPhrase, setCurrentPhrase] = useState(phrases[0]);
   const [isAnimating, setIsAnimating] = useState(true);
 
@@ -41,7 +41,7 @@ export default function Home() {
     }, 2000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [phrases]); // Added phrases to dependency array
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-8 text-center relative overflow-hidden">
@@ -53,7 +53,7 @@ export default function Home() {
           Coming Soon
         </h1>
         <p className="text-lg sm:text-xl mb-12 text-foreground/80 font-[family-name:var(--font-geist-sans)]">
-          We're working on something exciting! Our shop will be launching soon.
+          We&apos;re working on something exciting! Our shop will be launching soon.
         </p>
         
         <p className={`text-sm mt-8 text-foreground/60 font-[family-name:var(--font-geist-mono)] transition-all duration-500 ${isAnimating ? 'animate-bounce' : ''}`}>
