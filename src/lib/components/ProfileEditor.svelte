@@ -107,19 +107,6 @@
                             <LoadingSpinner />
                         </div>
                     {/if}
-
-                    <div class="mb-6">
-                        <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Favicon</label>
-                        <div class="max-w-auto">
-                            <ImageUpload
-                                currentImage={currentProfile.favicon}
-                                onImageUploaded={(url) => currentProfile.favicon = url}
-                            />
-                        </div>
-                        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                            Recommended size: 32x32 or 64x64 pixels (PNG format)
-                        </p>
-                    </div>
                     <div class="mb-6">
                         <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Profile Image</label>
                         <div class="max-w-auto">
