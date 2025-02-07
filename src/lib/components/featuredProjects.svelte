@@ -67,6 +67,7 @@
                                 rel="noopener noreferrer"
                                 class="block rounded-md bg-neutral-800 px-4 py-2 text-center text-sm text-white transition-colors duration-200 hover:bg-neutral-700 dark:bg-neutral-600 dark:hover:bg-neutral-500"
                             >
+                                <i class="fab fa-github mr-1"></i>
                                 GitHub
                             </a>
                             {#if project.url}
@@ -76,6 +77,7 @@
                                     rel="noopener noreferrer"
                                     class="block rounded-md border border-neutral-800 px-4 py-2 text-center text-sm text-neutral-800 transition-colors duration-200 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700"
                                 >
+                                    <i class="fas fa-globe mr-1"></i>
                                     Visit
                                 </a>
                             {/if}
