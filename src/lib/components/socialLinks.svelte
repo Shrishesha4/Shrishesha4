@@ -2,6 +2,12 @@
     import { onMount } from 'svelte';
 
     onMount(() => {
+        // Create container first
+        const container = document.createElement('div');
+        container.className = 'bmc-btn-container';
+        document.body.appendChild(container);
+
+        // Then load the script
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
@@ -15,7 +21,21 @@
         script.setAttribute('data-font-color', '#ffffff');
         script.setAttribute('data-coffee-color', '#FFDD00');
         
+        script.onload = () => {
+            // @ts-ignore
+            if (window.BmcButton) {
+                // @ts-ignore
+                window.BmcButton.init();
+            }
+        };
+
         document.head.appendChild(script);
+
+        return () => {
+            // Cleanup on component unmount
+            container.remove();
+            script.remove();
+        };
     });
 </script>
 

@@ -4,6 +4,7 @@
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { db } from '$lib/firebase/config';
     import { collection, addDoc } from 'firebase/firestore';
+	import BuyMeCoffee from '$lib/components/BuyMeCoffee.svelte';
 
     let formData = {
         name: '',
@@ -94,23 +95,27 @@
                     {/if}
 
                     <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"> <!-- Added grid for name and email -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Name</label>
                                 <input
                                     type="text"
                                     id="name"
+                                    name="name"
+                                    autocomplete="name"
                                     bind:value={formData.name}
                                     required
                                     class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
-
+                            
                             <div>
                                 <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</label>
                                 <input
                                     type="email"
                                     id="email"
+                                    name="email"
+                                    autocomplete="email"
                                     bind:value={formData.email}
                                     required
                                     class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
@@ -123,6 +128,8 @@
                             <input
                                 type="text"
                                 id="subject"
+                                name="subject"
+                                autocomplete="off"
                                 bind:value={formData.subject}
                                 required
                                 class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
@@ -133,6 +140,8 @@
                             <label for="message" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Message</label>
                             <textarea
                                 id="message"
+                                name="message"
+                                autocomplete="off"
                                 bind:value={formData.message}
                                 required
                                 rows="4"
@@ -186,20 +195,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="space-y-4">
-                    <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
-                        <div class="space-y-4 flex justify-center">
-                            <div class="shadow-xl rounded-full">
-                                <a 
-                                    href="https://www.buymeacoffee.com/shrishesha4" 
-                                    target="_blank"
-                                    class="inline-flex items-center gap-3 px-8 py-3bg-neutral-800 hover:bg-neutral-900 text-white rounded-full transition-colors duration-200"
-                                >
-                                    <i class="fas fa-coffee text-m text-[#FFA500]"></i>
-                                    <span class="text-m text-[#FFA500]">Buy Me A Coffee</span>
-                                </a>
-                            </div>
-                        </div>
+                <div class="space-y-4 ">
+                    <div class="bg-neutral-200 hover:bg-neutral-700 dark:hover:bg-neutral-700 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
+                            <BuyMeCoffee mode='minimal'/>
                     </div>
                 </div>
             </div>

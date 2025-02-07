@@ -28,25 +28,15 @@
 </script>
 
 {#if error}
-    <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg shadow-sm">
-        <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">
-            Oops! Something went wrong
-        </h3>
-        <p class="text-red-600 dark:text-red-400 mb-4">
-            {errorDetails}
-        </p>
-        <div class="flex gap-3">
+    <div class="min-h-[200px] flex items-center justify-center">
+        <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg text-center">
+            <h3 class="text-red-600 dark:text-red-400 font-medium mb-2">Something went wrong</h3>
+            <p class="text-red-500 dark:text-red-300 text-sm">{error.message}</p>
             <button 
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm"
-                on:click={handleRetry}
+                class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                on:click={() => window.location.reload()}
             >
-                Try Again
-            </button>
-            <button 
-                class="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm"
-                on:click={() => window.history.back()}
-            >
-                Go Back
+                Reload Page
             </button>
         </div>
     </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BuyMeCoffee from '$lib/components/BuyMeCoffee.svelte';
     import { profile } from '$lib/stores/profile';
     import { onMount } from 'svelte';
 
@@ -48,15 +49,8 @@
                                 <i class="fas fa-arrow-right text-m"></i>
                             </a>
                         </div>
-                        <div class="shadow-xl rounded-full">
-                            <a 
-                                href="https://www.buymeacoffee.com/shrishesha4" 
-                                target="_blank"
-                                class="inline-flex items-center gap-3 px-8 py-3 mt-4 bg-neutral-800 hover:bg-neutral-900 text-white rounded-full transition-colors duration-200"
-                            >
-                                <i class="fas fa-coffee text-m text-[#FFA500]"></i>
-                                <span class="text-m text-[#FFA500]">Buy Me A Coffee</span>
-                            </a>
+                        <div class="rounded-full mt-5 flex justify-center">
+                            <BuyMeCoffee mode='icon'/>
                         </div>
                     </div>
                 </div>

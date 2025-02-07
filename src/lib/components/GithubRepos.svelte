@@ -4,6 +4,7 @@
     import { spring } from 'svelte/motion';
     import axios from 'axios';
     import { createEventDispatcher } from 'svelte';
+    import { githubService } from '$lib/services/github';
 
     const dispatch = createEventDispatcher();
 
@@ -31,8 +32,8 @@
 
     async function loadRepositories() {
         try {
-            const response = await axios.get('https://api.github.com/users/shrishesha4/repos');
-            repos = response.data.sort((a: any, b: any) => b.stargazers_count - a.stargazers_count);
+            repos = await githubService.getRepositories();
+            repos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
             loading = false;
         } catch (err) {
             console.error('Error fetching repositories:', err);
@@ -111,7 +112,7 @@
             {:else}
                 {#if isMobile}
                     <div 
-                        class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible "
+                        class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible"
                         on:touchstart|passive={handleTouchStart}
                         on:touchmove|passive={handleTouchMove}
                         on:touchend|passive={handleTouchEnd}
@@ -144,18 +145,62 @@
                                         rel="noopener noreferrer"
                                         class="w-full block text-center px-4 py-2 bg-neutral-800 dark:bg-neutral-600 text-white rounded-md hover:bg-neutral-700 dark:hover:bg-neutral-500 transition-colors duration-200"
                                     >
-                                        View Repository
+                                        <i class="fab fa-github mr-1"></i>
+                                        View Repo
                                     </a>
                                 </div>
                             </div>
                             
-                            <!-- Page Indicator -->
-                            <div class="flex gap-2 mt-6">
-                                {#each repos as _, i}
-                                    <div 
-                                        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
-                                    ></div>
-                                {/each}
+                            <!-- Navigation and Page Indicator -->
+                            <div class="flex items-center justify-center gap-4 mt-6">
+                                <!-- Left Button -->
+                                {#if currentIndex > 0}
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                        on:click={() => {
+                                            opacity.set(0.7);
+                                            scale.set(0.95);
+                                            deltaX.set(window.innerWidth / 2);
+                                            setTimeout(() => {
+                                                currentIndex--;
+                                                deltaX.set(0);
+                                                opacity.set(1);
+                                                scale.set(1);
+                                            }, 150);
+                                        }}
+                                    >
+                                        <i class="fas fa-chevron-left text-sm"></i>
+                                    </button>
+                                {/if}
+
+                                <!-- Page Indicator -->
+                                <div class="flex gap-2">
+                                    {#each repos as _, i}
+                                        <div 
+                                            class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                        ></div>
+                                    {/each}
+                                </div>
+
+                                <!-- Right Button -->
+                                {#if currentIndex < repos.length - 1}
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                        on:click={() => {
+                                            opacity.set(0.7);
+                                            scale.set(0.95);
+                                            deltaX.set(-window.innerWidth / 2);
+                                            setTimeout(() => {
+                                                currentIndex++;
+                                                deltaX.set(0);
+                                                opacity.set(1);
+                                                scale.set(1);
+                                            }, 150);
+                                        }}
+                                    >
+                                        <i class="fas fa-chevron-right text-sm"></i>
+                                    </button>
+                                {/if}
                             </div>
                         {/if}
                     </div>
@@ -202,7 +247,8 @@
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         class="mt-3 inline-flex items-center text-xs px-3 py-1.5 bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-white rounded-md transition-colors duration-200"
-                                    >
+                                    >   
+                                        <i class="fab fa-github mr-2"></i>
                                         View  
                                         <i class="pl-2 fas fa-arrow-right text-xs text-white group-hover:text-primary-500 transition-colors duration-200"></i>
                                     </a>

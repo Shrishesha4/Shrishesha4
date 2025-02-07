@@ -96,6 +96,7 @@
 </script>
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <!-- svelte-ignore element_invalid_self_closing_tag -->
+ <!-- svelte-ignore a11y_click_events_have_key_events -->
 {#if loading}
     <LoadingSpinner />
 {:else}
@@ -146,7 +147,7 @@
                                 {#if $projects[currentIndex].url}
                                     <button 
                                         on:click={() => openProject($projects[currentIndex].url)}
-                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm"
+                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-black dark:text-white rounded-lg transition-colors text-sm"
                                     >
                                         <i class="fas fa-globe"></i>
                                         <span>Visit</span>
@@ -165,17 +166,59 @@
                         </div>
                     </div>
 
-                    <!-- page index -->
-                    <div class="mt-6 mb-0 flex gap-2 items-center justify-center">
-                        {#each Array(Math.min($projects.length, 5)) as _, i}
-                            <button 
-                                class="w-2 h-2 rounded-full transition-all duration-120 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-400'}"
-                                on:click={() => currentIndex = i}
-                            />
-                        {/each}
-                        <!-- {#if $projects.length > 5}
-                            <span class="text-neutral-400 text-sm"></span>
-                        {/if} -->
+                    <!-- Navigation and Page Indicator -->
+                    <div class="flex items-center justify-center gap-4 mt-6">
+                        <!-- Left Button -->
+                        {#if currentIndex > 0}
+                            <button
+                                class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                on:click={() => {
+                                    opacity.set(0.7);
+                                    scale.set(0.95);
+                                    deltaX.set(window.innerWidth / 2);
+                                    setTimeout(() => {
+                                        currentIndex--;
+                                        deltaX.set(0);
+                                        opacity.set(1);
+                                        scale.set(1);
+                                    }, 150);
+                                }}
+                            >
+                                <i class="fas fa-chevron-left text-sm"></i>
+                            </button>
+                        {/if}
+
+                        <!-- Page Indicator -->
+                        <div class="flex gap-2">
+                            {#each Array(Math.min($projects.length, 5)) as _, i}
+                                <div 
+                                    class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                    on:click={() => currentIndex = i}
+                                    role="button"
+                                    tabindex="0"
+                                ></div>
+                            {/each}
+                        </div>
+
+                        <!-- Right Button -->
+                        {#if currentIndex < $projects.length - 1}
+                            <button
+                                class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                on:click={() => {
+                                    opacity.set(0.7);
+                                    scale.set(0.95);
+                                    deltaX.set(-window.innerWidth / 2);
+                                    setTimeout(() => {
+                                        currentIndex++;
+                                        deltaX.set(0);
+                                        opacity.set(1);
+                                        scale.set(1);
+                                    }, 150);
+                                }}
+                            >
+                                <i class="fas fa-chevron-right text-sm"></i>
+                            </button>
+                        {/if}
                     </div>
                 {/if}
             </div>
@@ -226,9 +269,10 @@
                                                 href={project.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="text-sm px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-md"
+                                                class="text-sm px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-black dark:text-white rounded-md"
                                             >
-                                                Visit Site
+                                            <i class="fas fa-globe"></i>
+                                                Visit
                                             </a>
                                         {/if}
                                         {#if project.github}
@@ -238,6 +282,7 @@
                                                 rel="noopener noreferrer"
                                                 class="text-sm px-3 py-1.5 bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-white rounded-md"
                                             >
+                                                <i class="fab fa-github"></i>
                                                 View Code
                                             </a>
                                         {/if}
