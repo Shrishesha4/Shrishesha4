@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /wordpress/
+Disallow: /*.php$
+
+Sitemap: https://www.shrishesha.online/sitemap.xml

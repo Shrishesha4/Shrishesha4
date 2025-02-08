@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /wordpress/
+Disallow: /*.php$
+
+Sitemap: https://shop.shrishesha.online/sitemap.xml
