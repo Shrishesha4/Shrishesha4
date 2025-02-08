@@ -42,7 +42,7 @@
                         <div class="shadow-xl rounded-full">
                             <a 
                                 href="https://cal.com/shrishesha-n"
-                                class="inline-flex items-center gap-3 px-8 py-3 mt-4 bg-neutral-800 hover:bg-neutral-900 text-white rounded-full transition-colors duration-200"
+                                class="glass-button inline-flex items-center gap-3 px-8 py-3 mt-4 bg-neutral-800/90 hover:bg-neutral-900/90 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
                             >
                                 <i class="fas fa-calendar text-m"></i>
                                 <span class="text-m">Schedule a call</span>
@@ -64,7 +64,9 @@
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-neutral-100 mt-6">Skills</h3>
                         <div class="flex flex-wrap gap-2 mt-2">
                             {#each $profile.skills as skill}
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-neutral-700 rounded-full text-sm">{skill}</span>
+                                <span class="glass-button px-3 py-1 bg-gray-200/30 dark:bg-neutral-700/30 rounded-full text-sm backdrop-blur-sm">
+                                    {skill}
+                                </span>
                             {/each}
                         </div>
 
@@ -85,7 +87,7 @@
                             {#each $profile.education as edu}
                                 <div class="flex flex-col items-center w-64">
                                     <div class="w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full mb-4"></div>
-                                    <div class="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-lg w-full">
+                                    <div class="bg-white/10 dark:bg-neutral-800/10 p-4 rounded-lg shadow-lg w-full backdrop-blur-sm">
                                         <h4 class="font-semibold text-gray-900 dark:text-neutral-100">{edu.year}</h4>
                                         <p class="text-gray-700 dark:text-neutral-300 font-medium">{edu.degree}</p>
                                         <p class="text-gray-600 dark:text-neutral-400 text-sm">{edu.institution}</p>

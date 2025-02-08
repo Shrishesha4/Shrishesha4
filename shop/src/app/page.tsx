@@ -3,14 +3,14 @@ import { useState, useEffect, useMemo } from 'react';
 
 export default function Home() {
   const phrases = useMemo(() => [
-    "were launching soon",
+    "we&apos;re launching soon",
     "exciting things await",
     "something special coming",
     "stay tuned for more",
-    "we're getting there",
-    "we're just a few steps away",
-    "we're getting closer",
-    "we're just a few more steps",
+    "we&apos;re getting there",
+    "we&apos;re just a few steps away",
+    "we&apos;re getting closer",
+    "we&apos;re just a few more steps",
     "almost ready to launch",
     "the countdown begins",
     "preparing something amazing",
@@ -23,8 +23,8 @@ export default function Home() {
     "excellence takes time",
     "worth the wait",
     "transformation underway"
-  ], []);
-  
+  ], []); // Empty dependency array since phrases never change
+
   const [currentPhrase, setCurrentPhrase] = useState(phrases[0]);
   const [isAnimating, setIsAnimating] = useState(true);
 
@@ -41,7 +41,7 @@ export default function Home() {
     }, 2000);
 
     return () => clearInterval(timer);
-  }, [phrases]);
+  }, [phrases]); // Added phrases to dependency array
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-8 text-center relative overflow-hidden">

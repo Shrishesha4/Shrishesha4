@@ -2,7 +2,6 @@
     import { onMount, onDestroy } from 'svelte';
     import Typed from 'typed.js';
     import { profile } from '$lib/stores/profile';
-    import { auth } from '$lib/firebase/config';
 
     let typed: Typed;
     let element: HTMLElement;
@@ -33,7 +32,6 @@
         profile.cleanup();
     });
 
-    // React to profile store changes
     $: if (element && $profile.typingStrings && $profile.typingStrings.length > 0) {
         initTyped($profile.typingStrings);
     }

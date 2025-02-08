@@ -16,10 +16,11 @@
 </script>
 
 <div>
-    <h1 class="mb-6 text-6xl font-bold text-neutral-900 dark:text-neutral-100">
-        Hi, I'm {$profile.name || ''}
+    <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100">
+        <span class="text-3xl">Hi, I'm</span>
+        <span class="text-6xl">{$profile.name || ''}</span>
     </h1>
-    <div class="mb-8 text-5xl text-neutral-700 dark:text-neutral-300">
+    <div class="mb-8 text-3xl text-neutral-700 dark:text-neutral-300">
         I'm <span class="font-comic text-red-600 dark:text-red-400"><Typinganimation /></span>
     </div>
     <p class="mb-8 text-lg text-neutral-600 dark:text-neutral-400">

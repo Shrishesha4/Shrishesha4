@@ -21,7 +21,7 @@
     {:else if posts.length > 0}
         <div class="space-y-6">
             {#each posts.slice(0, 4) as post}
-                <a href={`/blogs/${post.slug}`} class="block rounded-xl bg-neutral-200 p-6 transition hover:shadow-md dark:bg-neutral-900">
+                <a href={`/blogs/${post.slug}`} class="glass-card glass-card-hover block p-6">
                     <div class="flex items-start justify-between">
                         <div>
                             <h3 class="mb-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">

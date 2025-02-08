@@ -74,7 +74,7 @@
 
 <div class="min-h-screen p-4 pb-24">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl sm:text-3xl font-bold text-gray-900 dark:text-neutral-100 mb-6">Contact Me</h1>
+        <h1 class="text-4xl sm:text-3xl font-bold text-neutral-900 dark:text-white mb-6">Contact Me</h1>
         
         {#if loading}
             <div class="flex justify-center">
@@ -83,13 +83,13 @@
         {:else}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Contact Form -->
-                <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl"> <!-- Reduced padding on mobile -->
+                <div class="glass-card glass-card-hover p-6 backdrop-blur-lg">
                     <div class="flex justify-center">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">Send a Message</h2>
+                        <h2 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Send a Message</h2>
                     </div>
                     
                     {#if error}
-                        <div class="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-3 rounded-lg mb-4">
+                        <div class="bg-red-500/10 backdrop-blur-sm text-red-600 dark:text-red-400 p-3 rounded-lg mb-4">
                             {error}
                         </div>
                     {/if}
@@ -97,7 +97,7 @@
                     <form on:submit|preventDefault={handleSubmit} class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Name</label>
+                                <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Name</label>
                                 <input
                                     type="text"
                                     id="name"
@@ -105,7 +105,7 @@
                                     autocomplete="name"
                                     bind:value={formData.name}
                                     required
-                                    class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
+                                    class="w-full px-3 py-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
                             
@@ -152,16 +152,16 @@
                             <button
                                 type="submit"
                                 disabled={sending}
-                                class="px-4 py-2 border border-neutral-900 dark:border-neutral-700 text-black dark:text-white rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-600 transition-colors duration-200 disabled:opacity-50"
+                                class="glass-button px-6 py-2 rounded-lg flex items-center gap-2 hover:scale-105 transition-all duration-200"
                             >
-                                {sending ? 'Sending...' : ''}
-                                <i class="fa fa-paper-plane px-2" aria-hidden="true"></i>
+                                {sending ? 'Sending...' : 'Send'}
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
                             </button>
                         </div>
                     </form>
 
                     {#if success}
-                        <div class="mt-6 bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 p-3 rounded-lg">
+                        <div class="mt-6 bg-green-500/10 backdrop-blur-sm text-green-600 dark:text-green-400 p-3 rounded-lg">
                             Message sent successfully!
                         </div>
                     {/if}
@@ -169,11 +169,11 @@
 
                 <!-- Contact Information -->
                 <div class="space-y-4">
-                    <div class="bg-neutral-200 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
-                        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">Contact Info</h2>
+                    <div class="glass-card glass-card-hover p-6 backdrop-blur-lg">
+                        <h2 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-white mb-4">Contact Info</h2>
                         <div class="space-y-4">
                             {#if $contact.email}
-                                <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
                                     <i class="fa-regular fa-envelope text-lg sm:text-xl"></i>
                                     <span class="text-sm sm:text-base break-all">{$contact.email}</span>
                                 </div>
@@ -194,10 +194,9 @@
                             {/if}
                         </div>
                     </div>
-                </div>
-                <div class="space-y-4 ">
-                    <div class="bg-neutral-200 hover:bg-neutral-700 dark:hover:bg-neutral-700 dark:bg-neutral-900 p-3 sm:p-6 rounded-2xl shadow-2xl">
-                            <BuyMeCoffee mode='minimal'/>
+                    
+                    <div class="glass-card glass-card-hover p-6 backdrop-blur-lg hover:scale-105 transition-all duration-200">
+                        <BuyMeCoffee mode='minimal'/>
                     </div>
                 </div>
             </div>

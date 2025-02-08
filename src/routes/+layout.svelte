@@ -50,14 +50,17 @@
     });
 </script>
 
-<div class="min-h-screen bg-white dark:bg-primary-dark transition-colors duration-200">
+<div class="min-h-screen relative">
+    <div class="gradient-bg absolute inset-0 -z-10 blur-3xl"></div>
+    <div class="absolute inset-0 bg-background/50 -z-10"></div>
+    
     <Navbar/>
     <main class="pt-8 md:pt-28 px-4">
         <slot />
     </main>
     <Toast />
     <LoadingSpinner />
-    <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700">
+    <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
         <div class="container mx-auto flex justify-center items-center">
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
                 © {new Date().getFullYear()} . Shrishesha

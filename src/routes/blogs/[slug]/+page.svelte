@@ -2,16 +2,24 @@
     import { blogs } from '$lib/stores/blogs';
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
+    import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 
     let currentBlog: typeof $blogs[0] | undefined;
+    let loading = true;
 
     onMount(async () => {
-        await blogs.load();
-        currentBlog = $blogs.find(blog => blog.slug === $page.params.slug);
+        try {
+            await blogs.load();
+            currentBlog = $blogs.find(blog => blog.slug === $page.params.slug);
+        } finally {
+            loading = false;
+        }
     });
 </script>
 
-{#if currentBlog}
+{#if loading}
+    <LoadingSpinner />
+{:else if currentBlog}
     <article class="min-h-screen p-4">
         <div class="max-w-3xl mx-auto">
             <a href="/blogs" class="inline-flex items-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 mb-8">
@@ -24,7 +32,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex gap-2">
                         {#each currentBlog.tags as tag}
-                            <span class="px-3 py-1 bg-neutral-200 dark:bg-neutral-700 rounded-full text-sm">
+                            <span class="px-3 py-1 glass-button dark:bg-neutral-800 rounded-full text-sm">
                                 {tag}
                             </span>
                         {/each}

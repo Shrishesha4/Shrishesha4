@@ -16,7 +16,7 @@
     }
 </script>
 
-<div>
+<div >
     <h2 class="mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100">Featured Projects</h2>
     {#if error}
         <div class="mb-8 rounded-lg bg-red-50 p-4 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400">
@@ -28,7 +28,7 @@
     {:else if projects.length > 0}
         <div class="grid gap-6 md:grid-cols-2 ">
             {#each projects.slice(0, 4) as project}
-                <div class="rounded-xl  p-6 shadow-sm transition hover:shadow-md bg-neutral-200 dark:bg-neutral-800">
+                <div class="glass-card glass-card-hover p-6">
                     {#if project.image}
                     <img 
                         src={optimizeImage(project.image, { width: 800, format: 'webp' })}
@@ -54,7 +54,7 @@
                         {#if project.technologies && project.technologies.length > 0}
                             <div class="flex flex-wrap gap-2">
                                 {#each project.technologies as tech}
-                                    <span class="rounded-full bg-neutral-300 px-2 py-1 text-xs dark:bg-neutral-700">
+                                    <span class="glass-button rounded-full bg-neutral-300/30 dark:bg-neutral-700/30 px-2 py-1 text-xs backdrop-blur-sm">
                                         {tech}
                                     </span>
                                 {/each}
@@ -65,21 +65,21 @@
                                 href={project.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="block rounded-md bg-neutral-800 px-4 py-2 text-center text-sm text-white transition-colors duration-200 hover:bg-neutral-700 dark:bg-neutral-600 dark:hover:bg-neutral-500"
+                                class="glass-button block rounded-md bg-neutral-800/90 px-4 py-2 text-center text-sm text-white transition-all duration-200 hover:bg-neutral-700/90 dark:hover:bg-neutral-500/90 backdrop-blur-sm"
                             >
                                 <i class="fab fa-github mr-1"></i>
                                 GitHub
                             </a>
                             {#if project.url}
-                                <a
-                                    href={project.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="block rounded-md border border-neutral-800 px-4 py-2 text-center text-sm text-neutral-800 transition-colors duration-200 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700"
-                                >
-                                    <i class="fas fa-globe mr-1"></i>
-                                    Visit
-                                </a>
+                            <a
+                                href={project.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="glass-button block rounded-md bg-neutral-800/90 px-4 py-2 text-center text-sm text-white transition-all duration-200 hover:bg-neutral-700/90 dark:hover:bg-neutral-500/90 backdrop-blur-sm"
+                            >
+                                <i class="fas fa-globe mr-1"></i>
+                                Visit
+                            </a>
                             {/if}
                         </div>
                     </div>

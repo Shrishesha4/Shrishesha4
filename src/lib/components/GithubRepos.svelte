@@ -111,25 +111,23 @@
                 <div class="text-red-500 text-center">{error}</div>
             {:else}
                 {#if isMobile}
-                    <div 
-                        class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible"
+                    <div class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible"
                         on:touchstart|passive={handleTouchStart}
                         on:touchmove|passive={handleTouchMove}
                         on:touchend|passive={handleTouchEnd}
                     >
                         {#if repos[currentIndex]}
-                            <div 
-                                class="w-full h-[500px] bg-neutral-200 dark:bg-neutral-800 rounded-xl shadow-lg transition-transform"
+                            <div class="w-full h-[500px] glass-card glass-card-hover transition-transform"
                                 style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
                             >
                                 <div class="p-6">
-                                    <h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+                                    <h3 class="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                                         {repos[currentIndex].name}
                                     </h3>
-                                    <p class="text-neutral-600 dark:text-neutral-300 mb-4">
+                                    <p class="text-neutral-700 dark:text-neutral-200 mb-4">
                                         {repos[currentIndex].description || 'No description available'}
                                     </p>
-                                    <div class="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+                                    <div class="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-300 mb-4">
                                         {#if repos[currentIndex].language}
                                             <span class="flex items-center">
                                                 <span class="w-3 h-3 rounded-full bg-primary-500 mr-2"></span>
@@ -139,11 +137,10 @@
                                         <span>⭐ {repos[currentIndex].stargazers_count}</span>
                                         <span>🍴 {repos[currentIndex].forks_count}</span>
                                     </div>
-                                    <a
-                                        href={repos[currentIndex].html_url}
+                                    <a href={repos[currentIndex].html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="w-full block text-center px-4 py-2 bg-neutral-800 dark:bg-neutral-600 text-white rounded-md hover:bg-neutral-700 dark:hover:bg-neutral-500 transition-colors duration-200"
+                                        class="glass-button w-full block text-center px-4 py-2 dark:hover:bg-primary-500/80 text-black dark:text-white rounded-md transition-all duration-200"
                                     >
                                         <i class="fab fa-github mr-1"></i>
                                         View Repo
@@ -156,7 +153,7 @@
                                 <!-- Left Button -->
                                 {#if currentIndex > 0}
                                     <button
-                                        class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                        class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 dark:hover:scale-105 rounded-full text-black/90 dark:text-white transition-all duration-200"
                                         on:click={() => {
                                             opacity.set(0.7);
                                             scale.set(0.95);
@@ -177,7 +174,7 @@
                                 <div class="flex gap-2">
                                     {#each repos as _, i}
                                         <div 
-                                            class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                            class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-white dark:bg-neutral-700'}"
                                         ></div>
                                     {/each}
                                 </div>
@@ -185,7 +182,7 @@
                                 <!-- Right Button -->
                                 {#if currentIndex < repos.length - 1}
                                     <button
-                                        class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                        class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 dark:hover:scale-105 rounded-full text-black/90 dark:text-white transition-all duration-200"
                                         on:click={() => {
                                             opacity.set(0.7);
                                             scale.set(0.95);
@@ -205,9 +202,8 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="w-full max-w-5xl bg-neutral-200 dark:bg-neutral-900/80 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20 transform -translate-x-0">
-                        <!-- Enhanced Finder-like header -->
-                        <div class="bg-white/80 dark:bg-neutral-700 backdrop-blur-sm p-2 flex items-center ">
+                    <div class="glass-card overflow-hidden">
+                        <div class="bg-white/20 dark:bg-black/30 backdrop-blur-sm p-2 flex items-center">
                             <div class="flex space-x-2">
                                 <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
                                 <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
@@ -215,10 +211,9 @@
                             </div>
                         </div>
                         
-                        <!-- Enhanced Finder-like content -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-neutral-200 dark:bg-neutral-800/50">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-transparent">
                             {#each repos as repo}
-                                <div class="group bg-white/90 dark:bg-neutral-700/90 backdrop-blur-sm rounded-lg p-4 hover:bg-white dark:hover:bg-neutral-600 transition-all duration-200 border border-neutral-200/50 dark:border-neutral-600/50 hover:shadow-md">
+                                <div class="glass-card glass-card-hover p-4">
                                     <div class="flex items-start space-x-3">
                                         <div class="flex-shrink-0">
                                             <i class="fas fa-file text-4xl text-neutral-400 group-hover:text-primary-500 transition-colors duration-200"></i>
@@ -242,15 +237,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <a
-                                        href={repo.html_url}
+                                    <a href={repo.html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="mt-3 inline-flex items-center text-xs px-3 py-1.5 bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-white rounded-md transition-colors duration-200"
+                                        class="glass-button mt-3 inline-flex items-center text-xs px-3 py-1.5 rounded-md hover:bg-neutral-900 dark:hover:bg-neutral-500 text-black dark:text-white hover:text-white"
                                     >   
                                         <i class="fab fa-github mr-2"></i>
                                         View  
-                                        <i class="pl-2 fas fa-arrow-right text-xs text-white group-hover:text-primary-500 transition-colors duration-200"></i>
+                                        <i class="pl-2 fas fa-arrow-right text-xs group-hover:text-white transition-colors duration-200"></i>
                                     </a>
                                 </div>
                             {/each}

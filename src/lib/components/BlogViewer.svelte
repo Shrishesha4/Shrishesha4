@@ -18,7 +18,7 @@
             href="/blogs/{blog.slug}"
             class="block group"
         >
-            <article class="bg-neutral-200 dark:bg-neutral-800 p-3 sm:p-6 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 hover:shadow-sm">
+            <article class="glass-card glass-card-hover p-3 sm:p-6">
                 {#if blog.image}
                     <img
                         src={blog.image}
@@ -39,7 +39,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex gap-2">
                             {#each blog.tags as tag}
-                                <span class="px-2 py-1 bg-neutral-200 dark:bg-neutral-700 rounded-full text-xs">
+                                <span class="px-2 py-1 glass-button dark:bg-neutral-900 rounded-full text-xs">
                                     {tag}
                                 </span>
                             {/each}

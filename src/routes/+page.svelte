@@ -64,7 +64,7 @@
         <BuyMeCoffee mode="button" />
     </div>
     <SocialLinks/>
-    <hr class="bg-gray m-5 dark:bg-neutral-800 md:hidden" />
+    <hr class="border-t border-neutral-600 dark:border-neutral-400 m-5 md:hidden" />
     <div class="mx-auto max-w-4xl">
         <section class="mb-16">
             {#if Hero}

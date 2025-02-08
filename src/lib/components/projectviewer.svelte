@@ -110,7 +110,7 @@
             >
                 {#if $projects[currentIndex]}
                     <div 
-                        class="w-[85vw] h-auto min-h-[50vh] bg-neutral-200 dark:bg-neutral-800 rounded-2xl shadow-lg transition-all duration-200 overflow-hidden"
+                        class="w-[85vw] h-auto min-h-[50vh] glass-card glass-card-hover rounded-2xl"
                         style="transform: translateX({$deltaX * 0.5}px) translateY({$deltaY * 0.3}px) rotate({$deltaX * 0.05}deg) scale({$scale}); opacity: {$opacity};"
                     >
                         <div class="relative w-full h-48">
@@ -124,7 +124,7 @@
                                 srcset={getResponsiveImageSrcSet($projects[currentIndex].image)}
                                 sizes="(max-width: 768px) 100vw, 800px"
                                 alt={$projects[currentIndex].title}
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover rounded-2xl"
                                 on:load={() => handleImageLoad(currentIndex)}
                                 on:loadstart={() => handleImageLoadStart(currentIndex)}
                             />
@@ -138,7 +138,7 @@
                             </p>
                             <div class="flex flex-wrap gap-2 mt-4">
                                 {#each $projects[currentIndex].technologies as tech}
-                                    <span class="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs">
+                                    <span class="glass-button bg-primary-100/30 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs backdrop-blur-sm">
                                         {tech}
                                     </span>
                                 {/each}
@@ -147,7 +147,7 @@
                                 {#if $projects[currentIndex].url}
                                     <button 
                                         on:click={() => openProject($projects[currentIndex].url)}
-                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-black dark:text-white rounded-lg transition-colors text-sm"
+                                        class="glass-button flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 text-black dark:text-white rounded-lg transition-all duration-200 backdrop-blur-sm"
                                     >
                                         <i class="fas fa-globe"></i>
                                         <span>Visit</span>
@@ -156,10 +156,10 @@
                                 {#if $projects[currentIndex].github}
                                     <button 
                                         on:click={() => openProject($projects[currentIndex].github)}
-                                        class="flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-900 dark:hover:bg-neutral-600 text-white rounded-lg transition-colors text-sm"
+                                        class="glass-button flex items-center justify-center gap-2 flex-1 text-center px-4 py-2.5 text-black dark:text-white rounded-lg transition-all duration-200 backdrop-blur-sm"
                                     >
                                         <i class="fab fa-github"></i>
-                                        <span>View Code</span>
+                                        <span>View Repo</span>
                                     </button>
                                 {/if}
                             </div>
@@ -171,7 +171,7 @@
                         <!-- Left Button -->
                         {#if currentIndex > 0}
                             <button
-                                class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 dark:hover:scale-105 rounded-full text-black/90 dark:text-white transition-all duration-200"
                                 on:click={() => {
                                     opacity.set(0.7);
                                     scale.set(0.95);
@@ -192,7 +192,7 @@
                         <div class="flex gap-2">
                             {#each Array(Math.min($projects.length, 5)) as _, i}
                                 <div 
-                                    class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-neutral-300 dark:bg-neutral-600'}"
+                                    class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-white dark:bg-neutral-700'}"
                                     on:click={() => currentIndex = i}
                                     role="button"
                                     tabindex="0"
@@ -203,7 +203,7 @@
                         <!-- Right Button -->
                         {#if currentIndex < $projects.length - 1}
                             <button
-                                class="w-8 h-8 flex items-center justify-center bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-700 dark:hover:bg-neutral-500 rounded-full text-white transition-all duration-200"
+                                class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 dark:hover:scale-105 rounded-full text-black/90 dark:text-white transition-all duration-200"
                                 on:click={() => {
                                     opacity.set(0.7);
                                     scale.set(0.95);
@@ -224,8 +224,8 @@
             </div>
         {:else}
             <div class="p-4 md:p-8">
-                <div class="bg-neutral-200 dark:bg-neutral-900/80 rounded-lg shadow-lg overflow-hidden border border-white/20 dark:border-neutral-600/20">
-                    <div class="bg-white/80 dark:bg-neutral-700 backdrop-blur-sm p-2 flex items-center ">
+                <div class="glass-card overflow-hidden">
+                    <div class="bg-white/20 dark:bg-black/30 backdrop-blur-sm p-2 flex items-center">
                         <div class="flex space-x-2">
                             <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
                             <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
@@ -234,9 +234,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                         {#each $projects as project, index}
-                            <div 
-                                class="group relative cursor-pointer bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                            >
+                            <div class="glass-card glass-card-hover group relative cursor-pointer">
                                 <div class="relative w-full aspect-video">
                                     {#if imageLoading[index]}
                                         <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
@@ -269,7 +267,7 @@
                                                 href={project.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="text-sm px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-black dark:text-white rounded-md"
+                                                class="glass-button text-sm px-3 py-1.5 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-black dark:text-white hover:text-white rounded-md"
                                             >
                                             <i class="fas fa-globe"></i>
                                                 Visit
@@ -280,7 +278,7 @@
                                                 href={project.github}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="text-sm px-3 py-1.5 bg-neutral-800 dark:bg-neutral-600 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-white rounded-md"
+                                                class="glass-button text-sm px-3 py-1.5 hover:bg-neutral-900 dark:hover:bg-neutral-500 text-black dark:text-white hover:text-white rounded-md"
                                             >
                                                 <i class="fab fa-github"></i>
                                                 View Code
