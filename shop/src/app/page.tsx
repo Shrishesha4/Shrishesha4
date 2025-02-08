@@ -41,7 +41,7 @@ export default function Home() {
     }, 2000);
 
     return () => clearInterval(timer);
-  }, [phrases]); // Added phrases to dependency array
+  }, [phrases]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-8 text-center relative overflow-hidden">
