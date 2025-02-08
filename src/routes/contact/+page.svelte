@@ -105,7 +105,7 @@
                                     autocomplete="name"
                                     bind:value={formData.name}
                                     required
-                                    class="w-full px-3 py-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                    class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
                             
@@ -118,7 +118,7 @@
                                     autocomplete="email"
                                     bind:value={formData.email}
                                     required
-                                    class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
+                                    class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                                 autocomplete="off"
                                 bind:value={formData.subject}
                                 required
-                                class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
+                                class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             />
                         </div>
 
@@ -145,7 +145,7 @@
                                 bind:value={formData.message}
                                 required
                                 rows="4"
-                                class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
+                                class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             ></textarea>
                         </div>
                         <div class="flex justify-center">
@@ -175,7 +175,9 @@
                             {#if $contact.email}
                                 <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
                                     <i class="fa-regular fa-envelope text-lg sm:text-xl"></i>
-                                    <span class="text-sm sm:text-base break-all">{$contact.email}</span>
+                                    <a href="mailto:{$contact.email}" target="_blank">
+                                        <span class="text-sm sm:text-base break-all">{$contact.email}</span>
+                                    </a>
                                 </div>
                             {/if}
                             
