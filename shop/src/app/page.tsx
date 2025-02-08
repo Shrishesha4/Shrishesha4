@@ -3,14 +3,14 @@ import { useState, useEffect, useMemo } from 'react';
 
 export default function Home() {
   const phrases = useMemo(() => [
-    "we&apos;re launching soon",
+    "were launching soon",
     "exciting things await",
     "something special coming",
     "stay tuned for more",
-    "we&apos;re getting there",
-    "we&apos;re just a few steps away",
-    "we&apos;re getting closer",
-    "we&apos;re just a few more steps",
+    "we're getting there",
+    "we're just a few steps away",
+    "we're getting closer",
+    "we're just a few more steps",
     "almost ready to launch",
     "the countdown begins",
     "preparing something amazing",
