@@ -31,14 +31,14 @@
         </div>
     </div>
 {:else}
-    <div>
+    <div class="mt-12 hover:scale-120 transition-all duration-200">
         <a 
             href="https://www.buymeacoffee.com/shrishesha4" 
             target="_blank"
             rel="noopener noreferrer"
-            class="text-[#FFA500]"
+            class="glass-card glass-card-hover p-6 backdrop-blur-lg hover:bg-[#FFA500]/70 dark:hover:bg-[#FFA500]/80 bg-[#FFA700] dark:bg-[#FFA700] dark:text-black  hover:text-black dark:hover:text-white "    
         >
-            <i class="fas fa-coffee text-lg"></i>
+            <i class="fas fa-coffee text-lg "></i>
             <span class="text-lg">Buy Me A Coffee</span>
         </a>
     </div>

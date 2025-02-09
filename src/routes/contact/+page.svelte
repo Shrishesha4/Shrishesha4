@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asClassComponent } from 'svelte/legacy';
     import { onMount } from 'svelte';
     import { contact } from '$lib/stores/contact';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
@@ -72,10 +73,12 @@
     }
 </script>
 
-<div class="min-h-screen p-4 pb-24">
+<div class="min-h-screen p-4">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl sm:text-3xl font-bold text-neutral-900 dark:text-white mb-6">Contact Me</h1>
-        
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-4xl font-bold">Contact Me</h1>
+            <BuyMeCoffee mode="button"/>
+        </div>
         {#if loading}
             <div class="flex justify-center">
                 <LoadingSpinner />
@@ -197,9 +200,9 @@
                         </div>
                     </div>
                     
-                    <div class="glass-card glass-card-hover p-6 backdrop-blur-lg hover:scale-105 transition-all duration-200">
+                    <!-- <div>
                         <BuyMeCoffee mode='minimal'/>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         {/if}
