@@ -106,6 +106,10 @@
             const rect = element.getBoundingClientRect();
             if (currentTouchY && currentTouchY >= rect.top && currentTouchY <= rect.bottom) {
                 dragOverIndex = index;
+                // Add visual feedback
+                element.classList.add('drag-over');
+            } else {
+                element.classList.remove('drag-over');
             }
         });
     }
@@ -196,7 +200,7 @@
             <div class="space-y-6">
                 {#each currentProjects as project, i}
                     <div 
-                        class="project-card glass-card px-4 py-4 rounded-xl p-4 rounded-lg shadow hover:glass-card-hover md:hover:glass-card-hover {dragOverIndex === i ? 'border-2 border-primary-500' : ''}"
+                        class="project-card glass-card px-4 py-4 rounded-xl p-4 rounded-lg shadow hover:glass-card-hover md:hover:glass-card-hover {dragOverIndex === i ? 'drag-over' : ''}"
                         draggable="true"
                         on:dragstart={(e) => handleDragStart(e, i)}
                         on:dragover={(e) => handleDragOver(e, i)}
@@ -295,3 +299,12 @@
         </div>
     </div>
 {/if}
+```
+
+<style>
+    :global(.drag-over) {
+        border: 2px solid var(--primary-color);
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+    }
+</style>

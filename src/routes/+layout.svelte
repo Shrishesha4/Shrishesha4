@@ -13,6 +13,9 @@
     import { dev } from '$app/environment';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
+    import { page } from '$app/stores';
+    
+    $: isAdminPage = $page.url.pathname.startsWith('/admin');
 
     let lightVideo: HTMLVideoElement;
     let darkVideo: HTMLVideoElement;
@@ -27,6 +30,7 @@
         injectSpeedInsights();
         injectAnalytics();
     }
+
 
     onMount(async () => {
         theme.init();
@@ -58,11 +62,12 @@
 </script>
 
 <div class="min-h-screen relative">
-    
-    <div class="absolute inset-0 bg-background/50 -z-10"></div>
+    <div class="absolute inset-0 bg-background/80 -z-10"></div>
+    <div class="absolute inset-0 bg-neutral-100/40 dark:bg-transparent backdrop-blur-[3px] -z-10"></div>
+    <div class="absolute inset-0 bg-white/20 dark:bg-transparent mix-blend-overlay -z-10"></div>
     <video
         bind:this={lightVideo}
-        class="video-bg light"
+        class="video-bg light opacity-40"
         autoplay
         loop
         muted
@@ -85,7 +90,9 @@
     </video>
 
     <div class="video-overlay"></div>
-    <Navbar/>
+    {#if !isAdminPage}
+        <Navbar/>
+    {/if}
     <main class="pt-8 md:pt-28 px-4">
         <slot />
     </main>
@@ -99,3 +106,40 @@
         </div>
     </footer>
 </div>
+
+<style>
+    .video-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        opacity: 0.3;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    @media (min-width: 768px) {
+        .video-bg {
+            transform: rotate(0deg);
+            transform-origin: center;
+            object-position: center;
+        }
+    }
+
+    .video-bg.light {
+        display: block;
+    }
+
+    .video-bg.dark {
+        display: none;
+    }
+
+    .dark .video-bg.light {
+        display: none;
+    }
+
+    .dark .video-bg.dark {
+        display: block;
+    }
+</style>

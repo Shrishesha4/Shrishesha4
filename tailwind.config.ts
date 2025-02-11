@@ -12,13 +12,13 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    light: '#f5f5f5',    // dull white/gray
+                    light: '#f5f5f5',
                     medium: '#1a1a1a',
                     dark: '#0a0a0a',
                 },
-                dark: '#171717',    // neutral-900
-                medium: '#262626',   // neutral-800
-                light: '#404040'     // neutral-700
+                dark: '#171717',
+                medium: '#262626',
+                light: '#404040'
             }
         }
     },

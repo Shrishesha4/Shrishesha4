@@ -228,7 +228,7 @@
             <button
                 type="submit"
                 form="blogForm"
-                class="px-4 py-2 bg-primary-600 text-whit border border-black dark:border-white dark:border-bg-primary rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors"
+                class="px-4 py-2 glass-button transition-all duration-200 hover:scale-105 text-black dark:text-white border border-gray-400/60 dark:border-white dark:border-bg-primary rounded-lg"
             >
                 <i class="fas fa-save mr-2"></i>
                 {editingBlog.id ? 'Update' : 'Create'}
@@ -516,7 +516,7 @@
                     <button
                         type="button"
                         on:click={addTag}
-                        class="glass-button px-4 py-2 rounded-lg"
+                        class="glass-button px-4 py-2 mt-2 transition-all duration-200 hover:scale-105 border border-black dark:border-gray-700/30 rounded-lg"
                     >
                         Add
                     </button>
@@ -525,7 +525,7 @@
             <div class="flex justify-center">
                 <button
                     type="submit"
-                    class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-black dark:text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-20"
+                    class="glass-button hover:scale-105 transition-all duration-200 px-6 py-2 border border-gray-400/60 dark:border-gray-700/30 text-black dark:text-white rounded-lg"
                 >
                     {editingBlog.id ? 'Update Blog Post' : 'Create Blog Post'}
                 </button>
