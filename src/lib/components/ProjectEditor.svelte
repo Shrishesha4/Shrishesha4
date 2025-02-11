@@ -187,7 +187,7 @@
                 <h1 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 "></h1>
                 <button 
                     on:click={addProject}
-                    class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
+                    class="bg-primary-600 text-black dark:text-white px-4 py-2 rounded hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
                 >
                     <i class="fas fa-plus me-2"></i>
                 </button>
