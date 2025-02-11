@@ -83,6 +83,74 @@
         }
     }
 
+    let draggedIndex: number | null = null;
+    let dragOverIndex: number | null = null;
+    let touchStartY: number | null = null;
+    let currentTouchY: number | null = null;
+
+    function handleTouchStart(e: TouchEvent, index: number) {
+        draggedIndex = index;
+        touchStartY = e.touches[0].clientY;
+        const target = e.currentTarget as HTMLElement;
+        target.classList.add('dragging');
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        e.preventDefault();
+        if (draggedIndex === null || touchStartY === null) return;
+        
+        currentTouchY = e.touches[0].clientY;
+        const elements = document.querySelectorAll('.project-card');
+        
+        elements.forEach((element, index) => {
+            const rect = element.getBoundingClientRect();
+            if (currentTouchY && currentTouchY >= rect.top && currentTouchY <= rect.bottom) {
+                dragOverIndex = index;
+            }
+        });
+    }
+
+    function handleTouchEnd(e: TouchEvent) {
+        if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+            const projects = [...currentProjects];
+            const [movedProject] = projects.splice(draggedIndex, 1);
+            projects.splice(dragOverIndex, 0, movedProject);
+            currentProjects = projects;
+            saveProjects();
+        }
+        
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('dragging');
+        draggedIndex = null;
+        dragOverIndex = null;
+        touchStartY = null;
+        currentTouchY = null;
+    }
+
+    function handleDragStart(e: DragEvent, index: number) {
+        draggedIndex = index;
+        if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+        }
+    }
+
+    function handleDragOver(e: DragEvent, index: number) {
+        e.preventDefault();
+        dragOverIndex = index;
+    }
+
+    function handleDrop(e: DragEvent, index: number) {
+        e.preventDefault();
+        if (draggedIndex !== null && draggedIndex !== index) {
+            const projects = [...currentProjects];
+            const [movedProject] = projects.splice(draggedIndex, 1);
+            projects.splice(index, 0, movedProject);
+            currentProjects = projects;
+            saveProjects();
+        }
+        draggedIndex = null;
+        dragOverIndex = null;
+    }
     
     let expandedProjects: Set<number> = new Set();
 
@@ -127,19 +195,31 @@
 
             <div class="space-y-6">
                 {#each currentProjects as project, i}
-                    <div class="glass-card px-4 py-4 rounded-xl p-4 rounded-lg shadow hover:glass-card-hover md:hover:glass-card-hover">
+                    <div 
+                        class="project-card glass-card px-4 py-4 rounded-xl p-4 rounded-lg shadow hover:glass-card-hover md:hover:glass-card-hover {dragOverIndex === i ? 'border-2 border-primary-500' : ''}"
+                        draggable="true"
+                        on:dragstart={(e) => handleDragStart(e, i)}
+                        on:dragover={(e) => handleDragOver(e, i)}
+                        on:drop={(e) => handleDrop(e, i)}
+                        on:touchstart={(e) => handleTouchStart(e, i)}
+                        on:touchmove|preventDefault={handleTouchMove}
+                        on:touchend={handleTouchEnd}
+                    >
                         <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-4 cursor-pointer" on:click={() => toggleProject(i)}>
-                                <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>
-                                <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-                                    {project.title || `Project ${i + 1}`}
-                                </h2>
+                            <div class="flex items-center gap-4">
+                                <i class="fas fa-grip-vertical cursor-move text-neutral-500 mt-1"></i>
+                                <div class="flex items-center gap-2 cursor-pointer" on:click={() => toggleProject(i)}>
+                                    <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>
+                                    <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                                        {project.title || `Project ${i + 1}`}
+                                    </h2>
+                                </div>
                             </div>
-                            <div class="flex gap-2">
+                            <div class="flex items-center gap-2">
                                 {#if isProjectModified(project, i)}
                                     <button 
                                         on:click={() => saveProject(project, i)}
-                                        class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 mr-5"
+                                        class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 mr-2"
                                         title="Save changes"
                                     >
                                         <i class="fas fa-save"></i>
