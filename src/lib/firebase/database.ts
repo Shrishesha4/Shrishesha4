@@ -130,12 +130,12 @@ export async function initializeFirestore(userId: string) {
             const defaultProjects = {
                 projects: [
                             {
-                                id: 'dino',
-                                title: 'Chrome Dino',
-                                description: 'A recreation of the popular Chrome browser dinosaur game with enhanced features',
-                                image: '/images/portfolio/portfolio-1.jpg',
-                                technologies: ['JavaScript', 'HTML5', 'CSS3', 'Game Development'],
-                                github: 'https://github.com/Shrishesha4/chrome-dino/tree/main'
+                                id: '',
+                                title: '',
+                                description: '',
+                                image: '',
+                                technologies: [''],
+                                github: ''
                             }
                 ]
             };
@@ -153,10 +153,8 @@ export async function debugFirestore() {
     try {
         console.log('Testing Firestore connection...');
         
-        // Check auth state
         console.log('Current user:', auth.currentUser?.uid);
         
-        // Check if collections exist
         const profileRef = collection(db, 'profiles');
         const projectsRef = collection(db, 'projects');
         
