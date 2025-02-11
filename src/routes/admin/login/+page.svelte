@@ -41,6 +41,23 @@
 
 <div class="min-h-screen flex justify-center py-4 px-4 pb-32 md:pb-4 sm:px-6 lg:px-8"> 
     <div class="max-w-md w-full">
+        <!-- svelte-ignore a11y_consider_explicit_label -->
+        <div class="flex-1 mb-16">
+            <button
+                type="button"
+                on:click={() => goto('/')}
+                class="text-sm ml-3 mt-4 text-primary-600 hover:text-primary-500"
+            >
+                <i class="fa fa-arrow-left"></i>
+            </button>
+            <button
+                type="button"
+                on:click={() => goto('/')}
+                class="text-2xl ml-3 mt-4 text-primary-600 hover:text-primary-500"
+            >
+                <i class="fa fa-home"></i>
+            </button>
+        </div>
         <div class="glass-card p-12 rounded-3xl">
             <div class="flex justify-center items-center">
                 <h2 class="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-neutral-100">
@@ -56,6 +73,7 @@
                 {/if}
                 
                 <div class="rounded-md shadow-sm -space-y-px">
+                    
                     <div>
                         <label for="username" class="sr-only">Email</label>
                         <input
@@ -87,6 +105,7 @@
                 </div>
     
                 <div class="flex flex-col items-center gap-4">
+                    
                     {#if isLoading}
                         <div class="flex items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-black dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
