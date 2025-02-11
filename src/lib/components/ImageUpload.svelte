@@ -44,7 +44,7 @@
 
 <div class="flex flex-col items-center gap-4">
     {#if previewUrl}
-        <div class="relative group">
+        <div class="relative group glass-card-hover">
             <img
                 src={previewUrl}
                 alt="Preview"
@@ -65,9 +65,9 @@
             on:click={() => fileInput.click()}
         >
             <div class="text-center">
-                <i class="fas fa-cloud-upload-alt text-2xl mb-2"></i>
-                <p>Click to upload image</p>
-                <p class="text-sm text-neutral-500">Max size: 10MB</p>
+                <i class="fas fa-cloud-upload-alt text-white text-2xl mb-2"></i>
+                <p class="text-white">Click to upload image</p>
+                <p class="text-sm text-neutral-100">Max size: 10MB</p>
             </div>
         </button>
     {/if}

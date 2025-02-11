@@ -179,12 +179,18 @@
 
         <div class="space-y-4">
             {#each $blogs as blog}
-                <div class="flex items-center gap-4 p-4 bg-neutral-200 dark:bg-neutral-800 rounded-lg">
+                <div class="glass-card flex items-center gap-4 p-4 rounded-lg hover:glass-card-hover md:hover:glass-card-hover">
                     <input
                         type="checkbox"
                         checked={selectedBlogs.includes(blog.id)}
                         on:change={() => toggleSelect(blog.id)}
-                        class="w-5 h-5"
+                        class="w-5 h-5 rounded border-2 border-neutral-300 dark:border-neutral-600 
+                               text-primary-600 focus:ring-primary-500
+                               checked:bg-primary-600 checked:border-primary-600
+                               transition-colors duration-200 ease-in-out
+                               cursor-pointer hover:border-primary-500
+                               dark:checked:bg-primary-500 dark:checked:border-primary-500
+                               dark:focus:ring-primary-400"
                     />
                     <div class="flex-1">
                         <h3 class="text-lg font-semibold">{blog.title}</h3>
@@ -228,14 +234,14 @@
                 {editingBlog.id ? 'Update' : 'Create'}
             </button>
         </div>
-        <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-6 bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
+        <form id="blogForm" on:submit|preventDefault={handleSubmit} class="glass-card space-y-6 px-4 py-4 rounded-xl">
             <div>
                 <label class="block text-sm font-medium mb-2">Title</label>
                 <input
                     type="text"
                     bind:value={editingBlog.title}
                     required
-                    class="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                    class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                 />
             </div>
 
@@ -245,7 +251,7 @@
                     bind:value={editingBlog.description}
                     required
                     rows="3"
-                    class="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                    class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                 ></textarea>
             </div>
 
@@ -487,7 +493,7 @@
                 <label class="block text-sm font-medium mb-2">Tags</label>
                 <div class="flex gap-2 mb-2">
                     {#each editingBlog.tags as tag}
-                        <span class="px-2 py-1 bg-neutral-400/80 dark:bg-neutral-700 rounded-full text-sm flex items-center gap-1">
+                        <span class="glass-button px-2 py-1 rounded-full text-sm flex items-center gap-1">
                             {tag}
                             <button
                                 type="button"
@@ -505,12 +511,12 @@
                         bind:value={tagInput}
                         on:keydown={handleTagKeydown}
                         placeholder="Add a tag"
-                        class="flex-1 px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                     />
                     <button
                         type="button"
                         on:click={addTag}
-                        class="px-4 py-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg"
+                        class="glass-button px-4 py-2 rounded-lg"
                     >
                         Add
                     </button>

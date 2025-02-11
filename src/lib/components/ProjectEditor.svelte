@@ -127,7 +127,7 @@
 
             <div class="space-y-6">
                 {#each currentProjects as project, i}
-                    <div class="bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl p-4 rounded-lg shadow">
+                    <div class="glass-card px-4 py-4 rounded-xl p-4 rounded-lg shadow hover:glass-card-hover md:hover:glass-card-hover">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-4 cursor-pointer" on:click={() => toggleProject(i)}>
                                 <i class="fas fa-chevron-{expandedProjects.has(i) ? 'down' : 'right'} text-neutral-500"></i>
@@ -163,14 +163,14 @@
                                         <input 
                                             type="text" 
                                             bind:value={project.title}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
                                     <div>
                                         <label class="block mb-1 text-neutral-700 dark:text-neutral-300">Description</label>
                                         <textarea 
                                             bind:value={project.description}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                             rows="3"
                                         ></textarea>
                                     </div>
@@ -186,7 +186,7 @@
                                         <input 
                                             type="url" 
                                             bind:value={project.url}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
                                     <div>
@@ -194,7 +194,7 @@
                                         <input 
                                             type="url" 
                                             bind:value={project.github}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
                                     <div>
@@ -202,7 +202,7 @@
                                         <input 
                                             type="text" 
                                             bind:value={project.technologies}
-                                            class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                             placeholder="React, TypeScript, Node.js"
                                         />
                                     </div>

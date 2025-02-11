@@ -45,7 +45,7 @@
 </script>
 <!-- svelte-ignore a11y_label_has_associated_control -->
 <div class="min-h-screen p-4">
-    <div class="max-w-2xl mx-auto bg-neutral-200 dark:bg-neutral-800 px-4 py-4 rounded-xl">
+    <div class="glass-card max-w-2xl mx-auto px-4 py-4 rounded-xl">
         {#if loading}
             <div class="flex justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -55,13 +55,13 @@
         {:else}
             <form class="space-y-6" on:submit|preventDefault={saveConfig}>
                 <div>
-                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Google Spreadsheet URL</label>
+                    <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Google Apps Script Link</label>
                     <input 
                         type="url" 
                         bind:value={currentConfig.spreadsheetUrl}
                         required
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
-                        placeholder="https://docs.google.com/spreadsheets/d/..."
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                        placeholder=""
                     />
                 </div>
 
@@ -71,7 +71,7 @@
                         type="email" 
                         bind:value={currentConfig.email}
                         required
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                     />
                 </div>
 
@@ -80,7 +80,7 @@
                     <input 
                         type="tel" 
                         bind:value={currentConfig.phone}
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                     />
                 </div>
 
@@ -89,13 +89,13 @@
                     <input 
                         type="text" 
                         bind:value={currentConfig.location}
-                        class="w-full p-2 border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-primary-500 focus:border-primary-500"
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                     />
                 </div>
                 <div class="flex justify-center">
                     <button 
                         type="submit"
-                        class="px-6 py-2 border border-black dark:border-white bg-primary-600 text-black dark:text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
+                        class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                     >
                         Save Changes
                     </button>

@@ -29,13 +29,13 @@
     <div class="flex gap-4">
         <a
             href="/aboutme"
-            class="inline-flex items-center rounded-lg bg-neutral-900 px-6 py-3 text-white transition hover:bg-neutral-800 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+            class="glass-card-hover inline-flex items-center rounded-lg bg-neutral-900 px-6 py-3 text-white transition hover:bg-neutral-800 dark:bg-neutral-800 dark:hover:bg-neutral-700"
         >
             Know Me
         </a>
         <a
             href="/contact"
-            class="inline-flex items-center rounded-lg border border-neutral-300 px-6 py-3 text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            class="glass-card-hover inline-flex items-center rounded-lg border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
         >
             Contact Me
         </a>

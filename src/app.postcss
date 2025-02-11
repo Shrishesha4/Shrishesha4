@@ -7,40 +7,53 @@
         @apply bg-neutral-50 dark:bg-primary-dark text-gray-900 dark:text-neutral-100 transition-colors duration-200;
     }
 }
+/* Remove or comment out the existing gradient-bg styles */
 
-@keyframes gradient {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 100% 0%; }
-    50% { background-position: 100% 100%; }
-    75% { background-position: 0% 100%; }
-    100% { background-position: 0% 50%; }
-}
-
-.gradient-bg {
+.video-bg {
     position: fixed;
     inset: 0;
     z-index: -3;
-    background: radial-gradient(circle at 50% 50%,
-        rgba(229, 231, 235, 0.85),
-        rgba(156, 163, 175, 0.8),
-        rgba(75, 85, 99, 0.75),
-        rgba(31, 41, 55, 0.85)
-    );
-    background-size: 200% 200%;
-    animation: gradient 20s ease-in-out infinite;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+    transition: opacity 0.3s ease-in-out;
 }
 
-.dark .gradient-bg {
-    background: linear-gradient(-45deg, 
-        rgba(31, 41, 55, 0.65),    /* increased opacity */
-        rgba(17, 24, 39, 0.65),
-        rgba(3, 7, 18, 0.65),
-        rgba(24, 24, 27, 0.65)
-    );
+.video-bg.light {
+    display: block;
 }
 
-.dark .gradient-bg::after {
-    opacity: 0.1;
+.video-bg.dark {
+    display: none;
+}
+
+.dark .video-bg.light {
+    display: none;
+}
+
+.dark .video-bg.dark {
+    display: block;
+}
+
+.video-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: radial-gradient(
+        circle at center,
+        transparent 0%,
+        rgba(255, 252, 248, 0.3) 100%
+    );
+    pointer-events: none;
+}
+
+.dark .video-overlay {
+    background: radial-gradient(
+        circle at center,
+        transparent 0%,
+        rgba(17, 24, 39, 0.3) 100%
+    );
 }
 
 @layer components {
@@ -54,17 +67,17 @@
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/10 dark:bg-black/10 backdrop-blur-lg border border-white/20 dark:border-neutral-700/30 rounded-xl shadow-xl;
-  }
+    .glass-card {
+        @apply bg-white/10 dark:bg-black/10 backdrop-blur-lg border border-white/20 dark:border-neutral-700/30 rounded-xl shadow-xl;
+    }
 
-  .glass-card-hover {
-    @apply hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02];
-  }
+    .glass-card-hover {
+        @apply hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02];
+    }
 
-  .glass-button {
-    @apply bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-neutral-700/30 
-           hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 
-           text-neutral-800 dark:text-neutral-200 shadow-lg hover:shadow-xl;
-  }
+    .glass-button {
+        @apply bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-neutral-700/30 
+               hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 
+               text-neutral-800 dark:text-neutral-200 shadow-lg hover:shadow-xl;
+    }
 }

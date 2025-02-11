@@ -108,7 +108,7 @@
                                     autocomplete="name"
                                     bind:value={formData.name}
                                     required
-                                    class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                    class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
                             
@@ -121,7 +121,7 @@
                                     autocomplete="email"
                                     bind:value={formData.email}
                                     required
-                                    class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                    class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
                         </div>
@@ -135,7 +135,7 @@
                                 autocomplete="off"
                                 bind:value={formData.subject}
                                 required
-                                class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             />
                         </div>
 
@@ -148,7 +148,7 @@
                                 bind:value={formData.message}
                                 required
                                 rows="4"
-                                class="w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             ></textarea>
                         </div>
                         <div class="flex justify-center">

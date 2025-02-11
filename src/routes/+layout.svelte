@@ -14,13 +14,14 @@
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
+    let lightVideo: HTMLVideoElement;
+    let darkVideo: HTMLVideoElement;
+
     interface LayoutData {
         children: any;
     }
-
-
         // svelte-ignore export_let_unused
-                export let data: LayoutData;
+        export let data: LayoutData;
 
     if (!dev) {
         injectSpeedInsights();
@@ -35,6 +36,12 @@
             'updateFavicon' in window && $profile.favicon) {
             (window as any).updateFavicon($profile.favicon);
         }
+
+        const lightVideo = document.querySelector('.video-bg.light') as HTMLVideoElement;
+        const darkVideo = document.querySelector('.video-bg.dark') as HTMLVideoElement;
+
+        if (lightVideo) lightVideo.playbackRate = 1;
+        if (darkVideo) darkVideo.playbackRate = 0.7;
     });
 
     $: if (browser && typeof window !== 'undefined' && 
@@ -51,9 +58,33 @@
 </script>
 
 <div class="min-h-screen relative">
-    <div class="gradient-bg absolute inset-0 -z-10 blur-3xl"></div>
-    <div class="absolute inset-0 bg-background/50 -z-10"></div>
     
+    <div class="absolute inset-0 bg-background/50 -z-10"></div>
+    <video
+        bind:this={lightVideo}
+        class="video-bg light"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="/light-poster.jpg"
+    >
+        <source src="/videos/light-bg.mp4" type="video/mp4">
+    </video>
+
+    <video
+        bind:this={darkVideo}
+        class="video-bg dark"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="/dark-poster.jpg"
+    >
+        <source src="/videos/dark-bg.mp4" type="video/mp4">
+    </video>
+
+    <div class="video-overlay"></div>
     <Navbar/>
     <main class="pt-8 md:pt-28 px-4">
         <slot />

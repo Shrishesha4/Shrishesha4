@@ -54,7 +54,9 @@
 					skills: [],
 					experience: [],
 					education: [],
-					typingStrings: []
+					typingStrings: [],
+					favicon: '',
+					profileImage: ''
 				}),
                 contact.set({
                     spreadsheetUrl: '',

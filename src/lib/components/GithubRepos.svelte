@@ -216,10 +216,10 @@
                                 <div class="glass-card glass-card-hover p-4">
                                     <div class="flex items-start space-x-3">
                                         <div class="flex-shrink-0">
-                                            <i class="fas fa-file text-4xl text-neutral-400 group-hover:text-primary-500 transition-colors duration-200"></i>
+                                            <i class="fas fa-file text-4xl text-black-400 group-hover:text-primary-500 transition-colors duration-200"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-500 transition-colors duration-200">
+                                            <h3 class="text-m font-bold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-500 transition-colors duration-200">
                                                 {repo.name}
                                             </h3>
                                             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
@@ -240,11 +240,11 @@
                                     <a href={repo.html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="glass-button mt-3 inline-flex items-center text-xs px-3 py-1.5 rounded-md hover:bg-neutral-900 dark:hover:bg-neutral-500 text-black dark:text-white hover:text-white"
+                                        class="glass-button mt-3 rounded-md px-3 py-2.5 inline-flex items-center justify-center gap-2 text-xs text-black dark:text-white transition-all duration-200 hover:bg-neutral-700/10 dark:hover:bg-neutral-500/10 hover:backdrop-blur-lg backdrop-blur-sm hover:shadow-lg hover:scale-105"
                                     >   
-                                        <i class="fab fa-github mr-2"></i>
-                                        View  
-                                        <i class="pl-2 fas fa-arrow-right text-xs group-hover:text-white transition-colors duration-200"></i>
+                                        <i class="fab fa-github"></i>
+                                        <span>View</span>
+                                        <i class="fas fa-arrow-right text-xs group-hover:text-white transition-colors duration-200"></i>
                                     </a>
                                 </div>
                             {/each}

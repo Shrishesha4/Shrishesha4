@@ -65,7 +65,7 @@
                                 href={project.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="glass-button block rounded-md bg-neutral-800/90 px-4 py-2 text-center text-sm text-white transition-all duration-200 hover:bg-neutral-700/90 dark:hover:bg-neutral-500/90 backdrop-blur-sm"
+                                class="glass-button block rounded-md px-4 py-2 text-center text-sm text-black dark:text-white transition-all duration-200 hover:bg-neutral-700/10 dark:hover:bg-neutral-500/10 hover:backdrop-blur-lg backdrop-blur-sm hover:shadow-lg hover:scale-105"
                             >
                                 <i class="fab fa-github mr-1"></i>
                                 GitHub
@@ -75,7 +75,7 @@
                                 href={project.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="glass-button block rounded-md bg-neutral-800/90 px-4 py-2 text-center text-sm text-white transition-all duration-200 hover:bg-neutral-700/90 dark:hover:bg-neutral-500/90 backdrop-blur-sm"
+                                class="glass-button block rounded-md px-4 py-2 text-center text-sm text-black dark:text-white transition-all duration-200 hover:bg-neutral-700/10 dark:hover:bg-neutral-500/10 hover:backdrop-blur-lg backdrop-blur-sm hover:shadow-lg hover:scale-105"
                             >
                                 <i class="fas fa-globe mr-1"></i>
                                 Visit

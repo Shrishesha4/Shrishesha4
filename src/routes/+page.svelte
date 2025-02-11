@@ -25,7 +25,7 @@
             import('$lib/components/hero.svelte'),
             import('$lib/components/newBlogPosts.svelte'),
             import('$lib/components/featuredProjects.svelte'),
-            import('$lib/components/GithubRepos.svelte')
+            import('$lib/components/featureGithub.svelte')
         ]);
 
         Hero = heroMod.default as typeof SvelteComponentTyped<any>;

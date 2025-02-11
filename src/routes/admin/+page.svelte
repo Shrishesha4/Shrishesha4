@@ -76,28 +76,28 @@
             </div>
             
             <div class="mb-6">
-                <div class="border-b border-gray-200">
+                <div class="border-b border-gray-600">
                     <nav class="-mb-px flex space-x-8">
                         <button
-                            class="py-2 px-1 {activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
+                            class="py-2 px-1 {activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-400'}"
                             on:click={() => setActiveTab('profile')}
                         >
                             <i class="fas fa-user me-2"></i>Edit Profile
                         </button>
                         <button
-                            class="py-2 px-1 {activeTab === 'projects' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
+                            class="py-2 px-1 {activeTab === 'projects' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-400'}"
                             on:click={() => setActiveTab('projects')}
                         >
                             <i class="fas fa-code me-2"></i>Manage Projects
                         </button>
                         <button
-                            class="py-2 px-1 {activeTab === 'blogs' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
+                            class="py-2 px-1 {activeTab === 'blogs' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-400'}"
                             on:click={() => setActiveTab('blogs')}
                         >
                             <i class="fas fa-blog me-2"></i>Manage Blogs
                         </button>
                         <button
-                            class="py-2 px-1 {activeTab === 'contact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}"
+                            class="py-2 px-1 {activeTab === 'contact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-400'}"
                             on:click={() => setActiveTab('contact')}
                         >
                             <i class="fas fa-address-card me-2"></i>Contact Info
