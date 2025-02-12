@@ -18,7 +18,6 @@
     $: isAdminPage = $page.url.pathname.startsWith('/admin');
 
     let lightVideo: HTMLVideoElement;
-    let darkVideo: HTMLVideoElement;
 
     interface LayoutData {
         children: any;

@@ -107,6 +107,7 @@
                                     name="name"
                                     autocomplete="name"
                                     bind:value={formData.name}
+                                    placeholder="Your name"
                                     required
                                     class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
@@ -120,6 +121,7 @@
                                     name="email"
                                     autocomplete="email"
                                     bind:value={formData.email}
+                                    placeholder="Your email"
                                     required
                                     class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                                 />
@@ -134,8 +136,9 @@
                                 name="subject"
                                 autocomplete="off"
                                 bind:value={formData.subject}
+                                placeholder="Subject"
                                 required
-                                class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                class="glass-card transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             />
                         </div>
 
@@ -146,6 +149,7 @@
                                 name="message"
                                 autocomplete="off"
                                 bind:value={formData.message}
+                                placeholder="Write your message here"
                                 required
                                 rows="4"
                                 class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
@@ -155,7 +159,7 @@
                             <button
                                 type="submit"
                                 disabled={sending}
-                                class="glass-button px-6 py-2 rounded-lg flex items-center gap-2 hover:scale-105 transition-all duration-200"
+                                class="glass-card-hover inline-flex items-center rounded-lg border border-neutral-300 dark:border-neutral-700 px-6 py-3 text-white transition hover:bg-neutral-800 gap-2"
                             >
                                 {sending ? 'Sending...' : 'Send'}
                                 <i class="fa fa-paper-plane" aria-hidden="true"></i>

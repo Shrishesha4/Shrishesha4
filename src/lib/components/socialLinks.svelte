@@ -40,7 +40,7 @@
 </script>
 
 <div>
-    <div class="fixed bottom-8 left-8 hidden flex-col gap-8 md:flex">
+    <!-- <div class="fixed bottom-8 left-8 hidden flex-col gap-8 md:flex">
         <a
             href="https://github.com/shrishesha4"
             target="_blank"
@@ -76,7 +76,7 @@
             <i class="fa-regular fa-envelope text-2xl"></i>
             <span class="sr-only">Email</span>
         </a>
-    </div>
+    </div> -->
 
     <!-- Add mobile view social links -->
     <div class="mb-3 flex justify-center gap-8 md:hidden">

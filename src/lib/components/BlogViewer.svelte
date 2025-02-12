@@ -37,9 +37,9 @@
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
                             {#each blog.tags as tag}
-                                <span class="px-2 py-1 glass-button dark:bg-neutral-900 rounded-full text-xs">
+                                <span class="glass-button text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs backdrop-blur-sm">
                                     {tag}
                                 </span>
                             {/each}

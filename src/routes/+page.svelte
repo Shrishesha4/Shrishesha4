@@ -85,18 +85,18 @@
             </div>
         {:else}
             <section class="mb-16">
-                {#if NewBlogPosts}
-                    <svelte:component this={NewBlogPosts} 
-                        posts={blogPosts} 
+                {#if FeaturedProjects}
+                    <svelte:component this={FeaturedProjects}
+                        projects={projectsList} 
                         {error} 
                         onRetry={() => { error = ''; fetchData(); }} 
                     />
                 {/if}
             </section>
             <section class="mb-16">
-                {#if FeaturedProjects}
-                    <svelte:component this={FeaturedProjects}
-                        projects={projectsList} 
+                {#if NewBlogPosts}
+                    <svelte:component this={NewBlogPosts} 
+                        posts={blogPosts} 
                         {error} 
                         onRetry={() => { error = ''; fetchData(); }} 
                     />

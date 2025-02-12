@@ -13,24 +13,83 @@ export interface Profile {
     name: string;
     title: string;
     bio: string;
+    h_bio: string;
     skills: string[];
     experience: string[];
     education: Education[];
     typingStrings: string[];
     favicon: string;
     profileImage: string;
+    techStack: string[]; // Add this line
 }
+
+export  const techMap: { [key: string]: string } = {
+    // Programming Languages
+   "javascript": "devicon-javascript-plain colored",
+   "typescript": "devicon-typescript-plain colored",
+   "python": "devicon-python-plain colored",
+   "java": "devicon-java-plain colored",
+   "c++": "devicon-cplusplus-plain colored",
+   "c#": "devicon-csharp-plain colored",
+   "ruby": "devicon-ruby-plain colored",
+   "go": "devicon-go-plain colored",
+   "rust": "devicon-rust-plain colored",
+
+   // Frontend
+   "react": "devicon-react-original colored",
+   "vue": "devicon-vuejs-plain colored",
+   "angular": "devicon-angularjs-plain colored",
+   "svelte": "devicon-svelte-plain colored",
+   "next.js": "devicon-nextjs-original colored",
+   "tailwind": "devicon-tailwindcss-plain colored",
+   "html": "devicon-html5-plain colored",
+   "css": "devicon-css3-plain colored",
+   "sass": "devicon-sass-original colored",
+   "bootstrap": "devicon-bootstrap-plain colored",
+
+   // Backend
+   "node": "devicon-nodejs-plain colored",
+   "express": "devicon-express-original colored",
+   "django": "devicon-django-plain colored",
+   "flask": "devicon-flask-original colored",
+   "spring": "devicon-spring-original colored",
+   "laravel": "devicon-laravel-plain colored",
+
+   // Databases
+   "mongodb": "devicon-mongodb-plain colored",
+   "mysql": "devicon-mysql-plain colored",
+   "postgresql": "devicon-postgresql-plain colored",
+   "redis": "devicon-redis-plain colored",
+
+   // Cloud & DevOps
+   "aws": "devicon-amazonwebservices-original colored",
+   "azure": "devicon-azure-plain colored",
+   "docker": "devicon-docker-plain colored",
+   "kubernetes": "devicon-kubernetes-plain colored",
+   "jenkins": "devicon-jenkins-plain colored",
+
+   // Tools & Others
+   "git": "devicon-git-plain colored",
+   "github": "devicon-github-original colored",
+   "vscode": "devicon-vscode-plain colored",
+   "linux": "devicon-linux-plain colored",
+   "nginx": "devicon-nginx-original colored",
+   "firebase": "devicon-firebase-plain colored",
+   "default": "fas fa-code"
+};
 
 export const defaultProfile: Profile = {
     name: "",
     title: "",
     bio: "",
+    h_bio: "",
     skills: [],
     experience: [],
     education: [],
     typingStrings: [''],
     favicon: "",
-    profileImage: "" 
+    profileImage: "",
+    techStack: [], // Add this line
 };
 
 function createProfileStore() {
