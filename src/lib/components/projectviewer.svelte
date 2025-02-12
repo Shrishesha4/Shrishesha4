@@ -125,7 +125,7 @@
                             />
                         </div>
                         <div class="p-5">
-                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+                            <h2 class="text-2xl font-bold text-white dark:text-neutral-100 mb-3">
                                 {$projects[currentIndex].title}
                             </h2>
                             <p class="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
@@ -133,7 +133,7 @@
                             </p>
                             <div class="flex flex-wrap gap-2 mt-4">
                                 {#each $projects[currentIndex].technologies as tech}
-                                    <span class="glass-button bg-primary-100/30 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs backdrop-blur-sm">
+                                    <span class="glass-button text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-xs backdrop-blur-sm">
                                         {tech}
                                     </span>
                                 {/each}

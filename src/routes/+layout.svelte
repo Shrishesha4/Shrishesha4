@@ -76,19 +76,6 @@
     >
         <source src="/videos/light-bg.mp4" type="video/mp4">
     </video>
-
-    <video
-        bind:this={darkVideo}
-        class="video-bg dark"
-        autoplay
-        loop
-        muted
-        playsinline
-        poster="/dark-poster.jpg"
-    >
-        <source src="/videos/dark-bg.mp4" type="video/mp4">
-    </video>
-
     <div class="video-overlay"></div>
     {#if !isAdminPage}
         <Navbar/>
