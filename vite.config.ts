@@ -16,7 +16,7 @@ export default defineConfig({
         }
     },
     ssr: {
-        noExternal: ['@melt-ui/svelte']
+        noExternal: ['@melt-ui/svelte', '@vercel/analytics', '@vercel/speed-insights']
     },
     resolve: {
         alias: {

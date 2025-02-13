@@ -22,9 +22,14 @@
     interface LayoutData {
         children: any;
     }
-        // svelte-ignore export_let_unused
-        export let data: LayoutData;
+    // svelte-ignore export_let_unused
+    export let data: LayoutData;
 
+    if (browser) {
+        injectAnalytics();
+        injectSpeedInsights();
+    }
+    
     if (!dev) {
         injectSpeedInsights();
         injectAnalytics();
