@@ -81,3 +81,15 @@
                text-neutral-800 dark:text-neutral-200 shadow-lg hover:shadow-xl;
     }
 }
+.video-bg {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .video-bg {
+        display: none;
+    }
+}

@@ -3,6 +3,8 @@
     import { profile, techMap } from '$lib/stores/profile';
     import { loading } from '$lib/stores/loading';
     import { onMount, onDestroy } from 'svelte';
+    
+    let isLoading = true;
 
     function getTechIcon(tech: string): string {
         const key = tech.toLowerCase().trim();
@@ -12,7 +14,12 @@
 
     onMount(async () => {
         loading.show();
-        await profile.load();
+        isLoading = true;
+        try {
+            await profile.load();
+        } finally {
+            isLoading = false;
+        }
         loading.hide();
     });
 
@@ -23,6 +30,7 @@
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <div>
+    {#if !isLoading}
     <div class="flex items-center justify-between">
         <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100 flex flex-col">
             <span class="text-3xl mb-2">Hi, I'm</span>
@@ -93,4 +101,9 @@
             Contact Me
         </a>
     </div>
+    {:else}
+    <div class="animate-pulse">
+        <!-- skeleton loading UI -->
+    </div>
+    {/if}
 </div>

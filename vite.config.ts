@@ -22,5 +22,8 @@ export default defineConfig({
         alias: {
             crypto: 'crypto-js'
         }
+    },
+    optimizeDeps: {
+        include: ['@melt-ui/svelte']
     }
 });

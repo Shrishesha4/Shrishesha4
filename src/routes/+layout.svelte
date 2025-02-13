@@ -117,15 +117,4 @@
         display: block;
     }
 
-    .video-bg.dark {
-        display: none;
-    }
-
-    .dark .video-bg.light {
-        display: none;
-    }
-
-    .dark .video-bg.dark {
-        display: block;
-    }
 </style>
