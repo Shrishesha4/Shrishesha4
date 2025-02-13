@@ -198,7 +198,7 @@
                             {#if $contact.location}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-solid fa-location-dot text-xl"></i>
-                                    <span>{$contact.location}</span>
+                                    <span><a href="https://www.google.com/maps/place/{$contact.location}" target="_blank">{$contact.location}</a></span>
                                 </div>
                             {/if}
                         </div>
