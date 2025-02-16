@@ -73,7 +73,15 @@
         };
     }
 
-    function animate() {
+    // Add these variables at the top of the script
+    let lastTime = 0;
+    let deltaTime = 0;
+
+    function animate(currentTime: number) {
+        // Calculate delta time for smooth animation
+        deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+        lastTime = currentTime;
+
         clearContext();
         circles.forEach((circle, i) => {
             const edge = [
@@ -139,6 +147,14 @@
             }
         });
         animationFrame = requestAnimationFrame(animate);
+    }
+
+    // Update the init function to start animation with proper timing
+    function init() {
+        resizeCanvas();
+        drawParticles();
+        lastTime = performance.now();
+        animate(lastTime);
     }
 
     function drawCircle(circle: Circle, update = false) {
@@ -272,7 +288,7 @@
         const init = async () => {
             context = canvas.getContext('2d');
             checkMobile();
-            animate();
+            animate(performance.now());
 
             if (isMobile && DeviceOrientationEvent) {
                 try {
