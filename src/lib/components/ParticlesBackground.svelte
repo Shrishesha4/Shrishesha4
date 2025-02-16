@@ -53,14 +53,14 @@
         const size = Math.floor(Math.random() * 2) + 0.1;
         const alpha = 0;
         const isComet = Math.random() < 0.0008;
-        const trail = isComet ? Math.floor(Math.random() * 40) + 45 : 0;
-        const baseSpeed = isComet ? 2 + Math.random() * 3 : 0.1 + Math.random() * 0.15;
-        const adjustedSpeed = baseSpeed * speed; // Apply speed multiplier
+        const trail = isComet ? Math.floor(Math.random() * 60) + 65 : 0; // Longer trail for faster comets
+        const baseSpeed = isComet ? 8 + Math.random() * 7 : 0.1 + Math.random() * 0.15;  // Much faster comets
+        const adjustedSpeed = baseSpeed * speed;
         const angle = Math.random() * Math.PI * 2;
         const dx = Math.cos(angle) * adjustedSpeed;
         const dy = Math.sin(angle) * adjustedSpeed;
         const targetAlpha = isComet ? 1 : parseFloat((Math.random() * 0.6 + 0.1).toFixed(1));
-        const magnetism = 0.3 + Math.random() * 1.5; // Reduced magnetism for slower mouse interaction
+        const magnetism = 0.3 + Math.random() * 1.5;
         
         const twinkleSpeed = Math.random() * 0.01 + 0.005;
         const twinklePhase = Math.random() * Math.PI * 2;
@@ -73,12 +73,11 @@
         };
     }
 
-    // Add these variables at the top of the script
     let lastTime = 0;
     let deltaTime = 0;
 
     function animate(currentTime: number) {
-        // Calculate delta time for smooth animation
+
         deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
         lastTime = currentTime;
 
