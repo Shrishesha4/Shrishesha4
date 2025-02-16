@@ -23,7 +23,7 @@
     }
 
     function getParticleCount() {
-        return isMobile ? Math.floor(quantity / 5) : quantity;
+        return isMobile ? Math.floor(quantity / 2) : quantity;
     }
 
     type Circle = {
@@ -234,17 +234,79 @@
         }
     }
 
-    onMount(() => {
-        context = canvas.getContext('2d');
-        checkMobile(); // Check initial screen size
-        animate();
+    let gyroEnabled = false;
+    let gyroMouse = { x: 0, y: 0 };
+
+    function handleDeviceOrientation(event: DeviceOrientationEvent) {
+        if (!isMobile) return;
         
-        window.addEventListener('resize', checkMobile);
-        window.addEventListener('mousemove', handleMouseMove);
+        // Convert gamma (-90 to 90) and beta (-180 to 180) to normalized coordinates
+        const x = (event.gamma || 0) / 45; // Normalize to roughly -2 to 2
+        const y = (event.beta || 0) / 90;  // Normalize to roughly -2 to 2
+        
+        // Update virtual mouse position based on device orientation
+        gyroMouse = {
+            x: (canvasSize.w / 2) + (x * canvasSize.w / 4),
+            y: (canvasSize.h / 2) + (y * canvasSize.h / 4)
+        };
+    }
+
+    // Modify handleMouseMove to incorporate gyroscope data
+    function handleMouseMove(event: MouseEvent) {
+        if (canvas) {
+            const rect = canvas.getBoundingClientRect();
+            if (!isMobile || !gyroEnabled) {
+                mouse = {
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top
+                };
+            } else {
+                mouse = gyroMouse;
+            }
+        }
+    }
+
+    // Update onMount to request and handle device orientation
+    // Update onMount to handle async properly
+    onMount(() => {
+        const init = async () => {
+            context = canvas.getContext('2d');
+            checkMobile();
+            animate();
+
+            if (isMobile && DeviceOrientationEvent) {
+                try {
+                    const DeviceOrientationEventiOS = DeviceOrientationEvent as unknown as {
+                        requestPermission?: () => Promise<'granted' | 'denied' | 'default'>;
+                    };
+
+                    if (typeof DeviceOrientationEventiOS.requestPermission === 'function') {
+                        const permission = await DeviceOrientationEventiOS.requestPermission();
+                        gyroEnabled = permission === 'granted';
+                    } else {
+                        gyroEnabled = true;
+                    }
+
+                    if (gyroEnabled) {
+                        window.addEventListener('deviceorientation', handleDeviceOrientation);
+                    }
+                } catch (error) {
+                    console.log('Gyroscope not available');
+                }
+            }
+            
+            window.addEventListener('resize', checkMobile);
+            window.addEventListener('mousemove', handleMouseMove);
+        };
+
+        init();
 
         return () => {
             window.removeEventListener('resize', checkMobile);
             window.removeEventListener('mousemove', handleMouseMove);
+            if (gyroEnabled) {
+                window.removeEventListener('deviceorientation', handleDeviceOrientation);
+            }
         };
     });
 
@@ -259,16 +321,16 @@
         return remapped > 0 ? remapped : 0;
     }
 
-    function handleMouseMove(event: MouseEvent) {
-        if (canvas) {
-            const rect = canvas.getBoundingClientRect();
-            // Update mouse position relative to canvas
-            mouse = {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top
-            };
-        }
-    }
+    // function handleMouseMove(event: MouseEvent) {
+    //     if (canvas) {
+    //         const rect = canvas.getBoundingClientRect();
+    //         // Update mouse position relative to canvas
+    //         mouse = {
+    //             x: event.clientX - rect.left,
+    //             y: event.clientY - rect.top
+    //         };
+    //     }
+    // }
 
     onDestroy(() => {
         if (animationFrame) {

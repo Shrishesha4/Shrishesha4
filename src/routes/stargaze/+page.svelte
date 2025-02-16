@@ -1,11 +1,7 @@
-<script>
-    import ParticlesBackground from "$lib/components/ParticlesBackground.svelte";
+<script lang="ts">
+    import ConstellationMap from "$lib/components/ConstellationMap.svelte";
 </script>
 
-<ParticlesBackground 
-    quantity={1000}
-    staticity={1200}
-    ease={500}
-/>
-
-<div class="min-h-screen relative" ></div>
+<div class="min-h-screen">
+    <ConstellationMap/>
+</div>
