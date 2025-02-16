@@ -157,9 +157,45 @@
         animate(lastTime);
     }
 
+    // Add these variables at the top of the script
+    let lastPositions: { [key: number]: { x: number; y: number } } = {};
+
     function drawCircle(circle: Circle, update = false) {
         if (context) {
             const { x, y, translateX, translateY, size, alpha, isComet, trail } = circle;
+            
+            // Improved motion blur effect
+            if (lastPositions[circles.indexOf(circle)]) {
+                const lastPos = lastPositions[circles.indexOf(circle)];
+                const speed = Math.sqrt(
+                    Math.pow(x - lastPos.x, 2) + 
+                    Math.pow(y - lastPos.y, 2)
+                );
+                
+                if (speed > 0.1) {
+                    // Draw multiple segments for smoother trails
+                    const steps = isComet ? 8 : 4;
+                    for (let i = 0; i < steps; i++) {
+                        const t = i / steps;
+                        const trailX = lastPos.x + (x - lastPos.x) * t;
+                        const trailY = lastPos.y + (y - lastPos.y) * t;
+                        
+                        context.beginPath();
+                        context.arc(
+                            trailX + translateX,
+                            trailY + translateY,
+                            isComet ? size * 2 : size * 0.5,
+                            0,
+                            2 * Math.PI
+                        );
+                        context.fillStyle = `rgba(255, 255, 255, ${(alpha * 0.1 * (1 - t))})`; 
+                        context.fill();
+                    }
+                }
+            }
+
+            // Store current position for next frame
+            lastPositions[circles.indexOf(circle)] = { x, y };
             
             if (isComet && trail) {
                 context.save();
@@ -237,7 +273,9 @@
 
     function clearContext() {
         if (context) {
-            context.clearRect(0, 0, canvasSize.w, canvasSize.h);
+            // Adjust alpha value for better trail persistence
+            context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            context.fillRect(0, 0, canvasSize.w, canvasSize.h);
         }
     }
 
@@ -336,17 +374,6 @@
         const remapped = ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
         return remapped > 0 ? remapped : 0;
     }
-
-    // function handleMouseMove(event: MouseEvent) {
-    //     if (canvas) {
-    //         const rect = canvas.getBoundingClientRect();
-    //         // Update mouse position relative to canvas
-    //         mouse = {
-    //             x: event.clientX - rect.left,
-    //             y: event.clientY - rect.top
-    //         };
-    //     }
-    // }
 
     onDestroy(() => {
         if (animationFrame) {
