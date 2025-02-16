@@ -2,26 +2,60 @@
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { profile } from '$lib/stores/profile';
+    import { loading } from '$lib/stores/loading';
 
     let showName = true;
     let showContent = false;
     let zoomPhase = 'start';
+    let audio: HTMLAudioElement;
+    let isProfileLoaded = false;
+
+    async function startAnimation() {
+        try {
+            await profile.load();
+            isProfileLoaded = true;
+            
+            // Initialize audio after profile is loaded
+            audio = new Audio('/sounds/cinematic-whoosh.mp3');
+            audio.volume = 0.4;
+            audio.preload = 'auto';
+
+            // Start animation sequence
+            setTimeout(() => {
+                audio?.play().catch(() => {/* ignore audio errors */});
+                zoomPhase = 'zooming';
+                setTimeout(() => {
+                    zoomPhase = 'end';
+                    setTimeout(() => {
+                        showName = false;
+                        showContent = true;
+                    }, 800);
+                }, 2000);
+            }, 800);
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            // Fallback to show content if profile loading fails
+            showName = false;
+            showContent = true;
+        }
+    }
 
     onMount(() => {
-        setTimeout(() => {
-            zoomPhase = 'zooming';
-            setTimeout(() => {
-                zoomPhase = 'end';
-                setTimeout(() => {
-                    showName = false;
-                    showContent = true;
-                }, 800);
-            }, 2000);
-        }, 800);
+        loading.show();
+        startAnimation().finally(() => {
+            loading.hide();
+        });
+
+        return () => {
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        };
     });
 </script>
 
-{#if showName}
+{#if showName && isProfileLoaded}
     <div 
         class="fixed inset-0 bg-neutral-900 dark:bg-black z-[100] flex items-center justify-center overflow-hidden"
         transition:fade={{ duration: 2500 }}
