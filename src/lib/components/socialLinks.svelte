@@ -20,21 +20,26 @@
         script.setAttribute('data-outline-color', '#000000');
         script.setAttribute('data-font-color', '#ffffff');
         script.setAttribute('data-coffee-color', '#FFDD00');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.head.appendChild(script);
+        });
         
         script.onload = () => {
-            // @ts-ignore
-            if (window.BmcButton) {
+            setTimeout(() => {
                 // @ts-ignore
-                window.BmcButton.init();
-            }
+                if (window.BmcButton) {
+                    // @ts-ignore
+                    window.BmcButton.init();
+                }
+            }, 100);
         };
 
-        document.head.appendChild(script);
 
         return () => {
             // Cleanup on component unmount
-            container.remove();
-            script.remove();
+            container?.remove();
+            script?.remove();
         };
     });
 </script>

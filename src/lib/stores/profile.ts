@@ -20,7 +20,7 @@ export interface Profile {
     typingStrings: string[];
     favicon: string;
     profileImage: string;
-    techStack: string[]; // Add this line
+    techStack: string[];
 }
 
 export  const techMap: { [key: string]: string } = {
@@ -40,7 +40,7 @@ export  const techMap: { [key: string]: string } = {
    "vue": "devicon-vuejs-plain colored",
    "angular": "devicon-angularjs-plain colored",
    "svelte": "devicon-svelte-plain colored",
-   "next.js": "devicon-nextjs-original colored",
+   "nextjs": "devicon-nextjs-original-wordmark",
    "tailwind": "devicon-tailwindcss-plain colored",
    "html": "devicon-html5-plain colored",
    "css": "devicon-css3-plain colored",

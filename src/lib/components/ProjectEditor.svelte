@@ -299,7 +299,6 @@
         </div>
     </div>
 {/if}
-```
 
 <style>
     :global(.drag-over) {

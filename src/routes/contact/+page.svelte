@@ -191,14 +191,28 @@
                             {#if $contact.phone}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-solid fa-phone text-xl"></i>
-                                    <span>{$contact.phone}</span>
+                                    <a 
+                                        href="tel:{$contact.phone.replace(/\s+/g, '')}" 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <span class="text-sm sm:text-base">{$contact.phone}</span>
+                                    </a>
                                 </div>
                             {/if}
                             
                             {#if $contact.location}
                                 <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
                                     <i class="fa-solid fa-location-dot text-xl"></i>
-                                    <span><a href="https://www.google.com/maps/place/{$contact.location}" target="_blank">{$contact.location}</a></span>
+                                    <span>
+                                        <a 
+                                            href="https://www.google.com/maps/search/?api=1&query={encodeURIComponent($contact.location)}" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                        >
+                                            {$contact.location}
+                                        </a>
+                                    </span>
                                 </div>
                             {/if}
                         </div>

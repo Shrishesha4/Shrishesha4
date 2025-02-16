@@ -33,7 +33,7 @@
     {#if !isLoading}
     <div class="flex items-center justify-between">
         <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100 flex flex-col">
-            <span class="text-3xl mb-2">Hi, I'm</span>
+            <!-- <span class="text-3xl mb-2">Hi, I'm</span> -->
             <span class="text-6xl">{$profile.name || ''}</span>
         </h1>
         <!-- Social Links for Desktop -->
@@ -71,8 +71,9 @@
             </a>
         </div>
     </div>
-    <div class="mb-8 text-3xl text-neutral-700 dark:text-neutral-300">
-        I'm <span class="font-comic text-red-600 dark:text-red-400"><Typinganimation /></span>
+    <div class="mb-8 ml-2 text-lg text-neutral-700 dark:text-neutral-300">
+        <!-- I'm <span class="font-comic text-red-600 dark:text-red-400"><Typinganimation /></span> -->
+         Fullstack Developer
     </div>
     <div class="mb-8 text-lg text-neutral-600 dark:text-neutral-400">
         <div class="flex flex-wrap gap-6 items-center">
