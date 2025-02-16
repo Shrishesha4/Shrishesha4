@@ -4,6 +4,7 @@
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
+    import ParticlesBackground from '$lib/components/ParticlesBackground.svelte';
     import '../app.postcss';
     import Navbar from '$lib/components/navbar.svelte';
     import Toast from '$lib/components/Toast.svelte';
@@ -15,10 +16,8 @@
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
     
-    $: isAdminPage = $page.url.pathname.startsWith('/admin');
-
-    let lightVideo: HTMLVideoElement;
-
+    $: isStargaze = $page.url.pathname.startsWith('/stargaze');
+    
     interface LayoutData {
         children: any;
     }
@@ -66,24 +65,26 @@
 </script>
 
 <div class="min-h-screen relative">
-    <div class="absolute inset-0 bg-background/80 -z-10"></div>
-    <div class="absolute inset-0 bg-neutral-100/40 dark:bg-transparent backdrop-blur-[3px] -z-10"></div>
-    <div class="absolute inset-0 bg-white/20 dark:bg-transparent mix-blend-overlay -z-10"></div>
-    <video
-        bind:this={lightVideo}
-        class="video-bg light opacity-40"
-        autoplay
-        loop
-        muted
-        playsinline
-        poster="/light-poster.jpg"
-    >
-        <source src="/videos/light-bg.mp4" type="video/mp4">
-    </video>
-    <div class="video-overlay"></div>
-    {#if !isAdminPage}
+    {#if isStargaze}
+        <ParticlesBackground
+            quantity={400}
+            staticity={2000}
+            ease={500}
+            speed={0.000000000000000001}
+        />
+    {:else}
+        <ParticlesBackground
+            quantity={1000}
+            staticity={20}
+            ease={10}
+            speed={1}
+        />
+    {/if}
+
+    {#if !$page.url.pathname.includes('admin')}
         <Navbar/>
     {/if}
+
     <main class="pt-8 md:pt-28 px-4">
         <slot />
     </main>
@@ -97,29 +98,3 @@
         </div>
     </footer>
 </div>
-
-<style>
-    .video-bg {
-        position: fixed;
-        inset: 0;
-        z-index: -3;
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover;
-        opacity: 0.3;
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    @media (min-width: 768px) {
-        .video-bg {
-            transform: rotate(0deg);
-            transform-origin: center;
-            object-position: center;
-        }
-    }
-
-    .video-bg.light {
-        display: block;
-    }
-
-</style>
