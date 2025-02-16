@@ -62,7 +62,6 @@
         const targetAlpha = isComet ? 1 : parseFloat((Math.random() * 0.6 + 0.1).toFixed(1));
         const magnetism = 0.3 + Math.random() * 1.5; // Reduced magnetism for slower mouse interaction
         
-        // Initialize twinkle properties
         const twinkleSpeed = Math.random() * 0.01 + 0.005;
         const twinklePhase = Math.random() * Math.PI * 2;
     

@@ -15,8 +15,10 @@
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
+    import CinematicIntro from '$lib/components/CinematicIntro.svelte';
     
     $: isStargaze = $page.url.pathname.startsWith('/stargaze');
+    $: isAdminPage = $page.url.pathname.includes('admin');
     
     interface LayoutData {
         children: any;
@@ -64,37 +66,75 @@
     });
 </script>
 
-<div class="min-h-screen relative">
-    {#if isStargaze}
-        <ParticlesBackground
-            quantity={400}
-            staticity={2000}
-            ease={500}
-            speed={0.000000000000000001}
-        />
-    {:else}
-        <ParticlesBackground
-            quantity={1000}
-            staticity={20}
-            ease={10}
-            speed={1}
-        />
-    {/if}
+{#if !isAdminPage}
+    <CinematicIntro>
+        <div class="min-h-screen relative">
+            {#if isStargaze}
+                <ParticlesBackground
+                    quantity={400}
+                    staticity={2000}
+                    ease={500}  
+                />
+            {:else}
+                <ParticlesBackground
+                    quantity={1000}
+                    staticity={20}
+                    ease={10}  
+                />
+            {/if}
 
-    {#if !$page.url.pathname.includes('admin')}
-        <Navbar/>
-    {/if}
+            {#if !$page.url.pathname.includes('admin')}
+                <Navbar/>
+            {/if}
 
-    <main class="pt-8 md:pt-28 px-4">
-        <slot />
-    </main>
-    <Toast />
-    <LoadingSpinner />
-    <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
-        <div class="container mx-auto flex justify-center items-center">
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                © {new Date().getFullYear()} . Shrishesha
-            </p>
+            <main class="pt-8 md:pt-28 px-4">
+                <slot />
+            </main>
+            <Toast />
+            <LoadingSpinner />
+            <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
+                <div class="container mx-auto flex justify-center items-center">
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        © {new Date().getFullYear()} . Shrishesha
+                    </p>
+                </div>
+            </footer>
         </div>
-    </footer>
-</div>
+    </CinematicIntro>
+{:else}
+    <!-- Admin page content without intro -->
+    <div class="min-h-screen relative">
+        {#if isStargaze}
+            <ParticlesBackground
+                quantity={400}
+                staticity={2000}
+                ease={500}
+                speed={0.000000000000000001}
+            />
+        {:else}
+            <ParticlesBackground
+                quantity={1000}
+                staticity={20}
+                ease={10}
+                speed={1}
+            />
+        {/if}
+
+        {#if !$page.url.pathname.includes('admin')}
+            <Navbar/>
+        {/if}
+
+        <main class="pt-8 md:pt-28 px-4">
+            <slot />
+        </main>
+        <Toast />
+        <LoadingSpinner />
+        <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
+            <div class="container mx-auto flex justify-center items-center">
+                <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                    © {new Date().getFullYear()} . Shrishesha
+                </p>
+            </div>
+        </footer>
+    </div>
+{/if}
