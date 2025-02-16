@@ -1,5 +1,4 @@
 <script lang='ts'>
-    import Typinganimation from "./typinganimation.svelte";
     import { profile, techMap } from '$lib/stores/profile';
     import { loading } from '$lib/stores/loading';
     import { onMount, onDestroy } from 'svelte';
@@ -71,10 +70,17 @@
             </a>
         </div>
     </div>
-    <div class="mb-8 ml-2 text-lg text-neutral-700 dark:text-neutral-300">
+    <div class="mb-4 ml-2 text-lg text-neutral-700 dark:text-neutral-300">
         <!-- I'm <span class="font-comic text-red-600 dark:text-red-400"><Typinganimation /></span> -->
-         Fullstack Developer
+        {#each $profile.sub_title as st}
+            <h2>
+                {st}
+            </h2>
+        {/each}
     </div>
+    <p class="mb-8 p-2 text-lg text-neutral-600 dark:text-neutral-400">
+        {$profile.location || ''}
+    </p>
     <div class="mb-8 text-lg text-neutral-600 dark:text-neutral-400">
         <div class="flex flex-wrap gap-6 items-center">
             {#each $profile.techStack as tech}
@@ -84,9 +90,6 @@
                 </div>
             {/each}
         </div>
-        <p class="mb-8 mt-5 p-2 text-lg text-neutral-600 dark:text-neutral-400">
-            {$profile.h_bio || ''}
-        </p>
     </div>
     <div class="flex gap-4">
         <a

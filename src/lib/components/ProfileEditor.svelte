@@ -21,7 +21,7 @@
     async function loadProfileData() {
         try {
             if (!auth.currentUser) {
-                goto('/admin/login');
+                goto('/admin/login', { replaceState: true });
                 return;
             }
     
@@ -37,8 +37,9 @@
             currentProfile = {
                 name: profileData.name || '',
                 title: profileData.title || '',
+                sub_title: profileData.sub_title || '',
                 bio: profileData.bio || '',
-                h_bio:profileData.h_bio || '',
+                location:profileData.location || '',
                 skills: profileData.skills || [],
                 experience: profileData.experience || [],
                 education: profileData.education || [],
@@ -139,7 +140,38 @@
                             class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
-    
+                    
+                    <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Subtitle</label>
+                    <div class="space-y-2 mb-3">
+                        {#each currentProfile.sub_title as string, i}
+                            <div class="flex gap-2 w-min">
+                                <input 
+                                    type="text" 
+                                    bind:value={currentProfile.sub_title[i]}
+                                    class="flex-1 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                />
+                                <button 
+                                    type="button"
+                                    on:click={() => {
+                                        currentProfile.sub_title = currentProfile.sub_title.filter((_, index) => index !== i);
+                                    }}
+                                    class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        {/each}
+                        <button 
+                            type="button"
+                            on:click={() => {
+                                currentProfile.sub_title = [...currentProfile.sub_title, ''];
+                            }}
+                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                        >
+                            + Add More
+                        </button>
+                    </div>
+
                     <div>
                         <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Bio</label>
                         <textarea 
@@ -150,12 +182,11 @@
                     </div>
 
                     <div>
-                        <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Hero Bio</label>
-                        <textarea 
-                            bind:value={currentProfile.h_bio} 
+                        <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Location</label>
+                        <input
+                            bind:value={currentProfile.location} 
                             class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                            rows="4"
-                        ></textarea>
+                        />
                     </div>
     
                     <div>

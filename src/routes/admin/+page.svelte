@@ -1,7 +1,7 @@
 <script lang="ts">
     import { isAuthenticated } from '$lib/stores/auth';
     import { onMount, onDestroy } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { goto, pushState } from '$app/navigation';
     import { signOut } from 'firebase/auth';
     import { auth } from '$lib/firebase/config';
     import ProjectEditor from '$lib/components/ProjectEditor.svelte';
@@ -18,7 +18,7 @@
 
     function setActiveTab(tab: string) {
         activeTab = tab;
-        window.location.hash = tab;
+        pushState(`/admin?tab=${tab}`, { tab });
     }
 
     onMount(async () => {
@@ -27,9 +27,12 @@
             return;
         }
 
-        const hash = window.location.hash.replace('#', '');
-        if (['profile', 'projects', 'blogs', 'contact'].includes(hash)) {
-            activeTab = hash;
+        // Get initial tab from URL params instead of hash
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab && ['profile', 'projects', 'blogs', 'contact'].includes(tab)) {
+            activeTab = tab;
+            pushState(`/admin?tab=${tab}`, { tab });
         }
 
         await Promise.all([

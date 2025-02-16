@@ -3,7 +3,7 @@
     import { projects, type Project } from '$lib/stores/projects';
     import { auth } from '$lib/firebase/config';
     import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { goto, pushState } from '$app/navigation';
     import { toast } from '$lib/stores/toast';
     import ProjectModal from './ProjectModal.svelte';
     import { slide } from 'svelte/transition';
@@ -20,7 +20,7 @@
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             try {
                 if (!user) {
-                    goto('/admin/login');
+                    goto('/admin/login', { replaceState: true });
                     return;
                 }
                 await projects.load();

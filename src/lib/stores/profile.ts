@@ -12,8 +12,9 @@ export interface Education {
 export interface Profile {
     name: string;
     title: string;
+    sub_title: string[];
     bio: string;
-    h_bio: string;
+    location: string;
     skills: string[];
     experience: string[];
     education: Education[];
@@ -81,8 +82,9 @@ export  const techMap: { [key: string]: string } = {
 export const defaultProfile: Profile = {
     name: "",
     title: "",
+    sub_title: [''],
     bio: "",
-    h_bio: "",
+    location: "",
     skills: [],
     experience: [],
     education: [],
