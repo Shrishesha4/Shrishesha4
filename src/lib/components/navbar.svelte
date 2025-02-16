@@ -74,7 +74,7 @@
         </a>
         <a 
             href="/stargaze" 
-            class="flex items-center gap-2 {$page.url.pathname === '/contact' ? 'text-black/90 dark:text-white' : 'text-black/60 dark:text-neutral-400'} hover:text-black dark:hover:text-white transition-colors"
+            class="flex items-center gap-2 {$page.url.pathname === '/stargaze' ? 'text-black/90 dark:text-white' : 'text-black/60 dark:text-neutral-400'} hover:text-black dark:hover:text-white transition-colors"
         >
             <i class="fas fa-star"></i>
             {#if !isMobile}<span>Stargaze</span>{/if}
