@@ -86,7 +86,7 @@
         {:else}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Contact Form -->
-                <div class="glass-card glass-card-hover p-6 backdrop-blur-lg">
+                <div class="glass-card glass-card-hover p-6">
                     <div class="flex justify-center">
                         <h2 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Send a Message</h2>
                     </div>
@@ -176,7 +176,7 @@
 
                 <!-- Contact Information -->
                 <div class="space-y-4">
-                    <div class="glass-card glass-card-hover p-6 backdrop-blur-lg">
+                    <div class="glass-card glass-card-hover p-6">
                         <h2 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-white mb-4">Contact Info</h2>
                         <div class="space-y-4">
                             {#if $contact.email}
@@ -217,10 +217,6 @@
                             {/if}
                         </div>
                     </div>
-                    
-                    <!-- <div>
-                        <BuyMeCoffee mode='minimal'/>
-                    </div> -->
                 </div>
             </div>
         {/if}
