@@ -23,7 +23,7 @@
     }
 
     function getParticleCount() {
-        return isMobile ? Math.floor(quantity / 2) : quantity;
+        return isMobile ? Math.floor(quantity / 10) : quantity;
     }
 
     type Circle = {

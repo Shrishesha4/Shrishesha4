@@ -9,6 +9,7 @@ export interface Education {
     institution: string;
 }
 
+
 export interface Profile {
     name: string;
     title: string;
@@ -22,10 +23,10 @@ export interface Profile {
     favicon: string;
     profileImage: string;
     techStack: string[];
+    particlesQuantity: number;
 }
 
 export  const techMap: { [key: string]: string } = {
-    // Programming Languages
    "javascript": "devicon-javascript-plain colored",
    "typescript": "devicon-typescript-plain colored",
    "python": "devicon-python-plain colored",
@@ -36,7 +37,6 @@ export  const techMap: { [key: string]: string } = {
    "go": "devicon-go-plain colored",
    "rust": "devicon-rust-plain colored",
 
-   // Frontend
    "react": "devicon-react-original colored",
    "vue": "devicon-vuejs-plain colored",
    "angular": "devicon-angularjs-plain colored",
@@ -48,7 +48,6 @@ export  const techMap: { [key: string]: string } = {
    "sass": "devicon-sass-original colored",
    "bootstrap": "devicon-bootstrap-plain colored",
 
-   // Backend
    "node": "devicon-nodejs-plain colored",
    "express": "devicon-express-original colored",
    "django": "devicon-django-plain colored",
@@ -56,20 +55,17 @@ export  const techMap: { [key: string]: string } = {
    "spring": "devicon-spring-original colored",
    "laravel": "devicon-laravel-plain colored",
 
-   // Databases
    "mongodb": "devicon-mongodb-plain colored",
    "mysql": "devicon-mysql-plain colored",
    "postgresql": "devicon-postgresql-plain colored",
    "redis": "devicon-redis-plain colored",
 
-   // Cloud & DevOps
    "aws": "devicon-amazonwebservices-original colored",
    "azure": "devicon-azure-plain colored",
    "docker": "devicon-docker-plain colored",
    "kubernetes": "devicon-kubernetes-plain colored",
    "jenkins": "devicon-jenkins-plain colored",
 
-   // Tools & Others
    "git": "devicon-git-plain colored",
    "github": "devicon-github-original colored",
    "vscode": "devicon-vscode-plain colored",
@@ -91,7 +87,8 @@ export const defaultProfile: Profile = {
     typingStrings: [''],
     favicon: "",
     profileImage: "",
-    techStack: [], // Add this line
+    techStack: [],
+    particlesQuantity: 1000
 };
 
 function createProfileStore() {

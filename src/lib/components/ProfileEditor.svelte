@@ -18,6 +18,7 @@
         typing: false
     };
 
+
     async function loadProfileData() {
         try {
             if (!auth.currentUser) {
@@ -46,7 +47,8 @@
                 typingStrings: profileData.typingStrings || '',
                 favicon:profileData.favicon || '',
                 profileImage:profileData.profileImage || '',
-                techStack:profileData.techStack || ''
+                techStack:profileData.techStack || '',
+                particlesQuantity:profileData.particlesQuantity || 100
             };
     
             await profile.set(currentProfile);
@@ -121,6 +123,15 @@
                         <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                             Recommended size: 256x256 pixels (Square format)
                         </p>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Particle Quantity</label>
+                        <input 
+                            type="text" 
+                            bind:value={$profile.particlesQuantity} 
+                            class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                        />
                     </div>
 
                     <div>

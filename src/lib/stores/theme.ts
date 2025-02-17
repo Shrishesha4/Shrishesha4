@@ -14,7 +14,6 @@ const createThemeStore = () => {
             }
         },
         toggle: () => {
-            // Disable theme toggle functionality
             return;
         }
     };

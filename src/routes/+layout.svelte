@@ -71,13 +71,13 @@
         <div class="min-h-screen relative">
             {#if isStargaze}
                 <ParticlesBackground
-                    quantity={400}
+                    quantity={$profile.particlesQuantity/3}
                     staticity={2000}
                     ease={500}  
                 />
             {:else}
                 <ParticlesBackground
-                    quantity={1000}
+                    quantity={$profile.particlesQuantity}
                     staticity={20}
                     ease={10}  
                 />
