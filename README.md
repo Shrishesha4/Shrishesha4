@@ -7,7 +7,7 @@ I'm an independent developer who is gradually transforming the digital world in
    <p align="left">
       <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1">
          <img alt="youtube" title="My Works and all" src="https://custom-icon-badges.demolab.com/youtube/channel/subscribers/UCD-43OtkpyVEswAgfS1u_xQ?color=%23E05D44&label=Subscribe&logo=video&logoColor=white&style=for-the-badge&labelColor=CE4630"/></a> 
-      <a href="https://shrishesha4.web.app/">
+      <a href="https://shrishesha.online/">
          <img alt="Website" title="portfolio" src="https://img.shields.io/website?url=https%3A%2F%2Fshrishesha.online&up_message=go&style=for-the-badge&label=Shrishesha&labelColor=red&color=black">
 </a> 
       <a href="https://github.com/Shrishesha4?tab=followers">
