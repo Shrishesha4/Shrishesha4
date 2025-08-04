@@ -5,14 +5,14 @@
 I'm an independent developer who is gradually transforming the digital world into my own vision. All coding initiatives begin with planning and design and end with solving real-world problems with my ideas.
 
    <p align="left">
-      <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1">
+      <a href="https://www.youtube.com/@shrishesha4?sub_confirmation=1" target="_blank">
          <img alt="youtube" title="My Works and all" src="https://custom-icon-badges.demolab.com/youtube/channel/subscribers/UCD-43OtkpyVEswAgfS1u_xQ?color=%23E05D44&label=Subscribe&logo=video&logoColor=white&style=for-the-badge&labelColor=CE4630"/></a> 
-      <a href="https://shrishesha.online/">
+      <a href="https://shrishesha.online/" target="_blank">
          <img alt="Website" title="portfolio" src="https://img.shields.io/website?url=https%3A%2F%2Fshrishesha.online&up_message=go&style=for-the-badge&label=Shrishesha&labelColor=red&color=black">
 </a> 
-      <a href="https://github.com/Shrishesha4?tab=followers">
+      <a href="https://github.com/Shrishesha4?tab=followers" target="_blank">
          <img alt="followers" title="Follow me on Github" src="https://img.shields.io/github/followers/Shrishesha4?style=for-the-badge&labelColor=%2386cbfc&color=%230078cf"/></a>
-      <a href="https://github.com/Shrishesha4?tab=repositories&sort=stargazers">
+      <a href="https://github.com/Shrishesha4?tab=repositories&sort=stargazers" target="_blank">
          <img alt="total stars" title="Total stars on GitHub" src="https://img.shields.io/github/stars/Shrishesha4?style=for-the-badge&labelColor=%23f27f77&color=red"/></a>
    </p>
 
