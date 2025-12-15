@@ -73,7 +73,7 @@ export const techMap: { [key: string]: string } = {
    "git": "devicon-git-plain colored",
    "github": "devicon-github-original colored",
    "vscode": "devicon-vscode-plain colored",
-   "linux": "devicon-linux-plain colored",
+   "linux": "devicon-linux-plain",
    "nginx": "devicon-nginx-original colored",
    "firebase": "devicon-firebase-plain colored",
    "default": "fas fa-code"
