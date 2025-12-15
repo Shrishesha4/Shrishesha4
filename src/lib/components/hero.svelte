@@ -4,6 +4,8 @@
     import { onMount, onDestroy } from 'svelte';
     
     let isLoading = true;
+    let showBadgeModal = false;
+    let selectedBadgeIndex = 0;
 
     function getTechIcon(tech: string): string {
         const key = tech.toLowerCase().trim();
@@ -12,6 +14,27 @@
 
     function isImageUrl(iconValue: string): boolean {
         return iconValue.startsWith('http://') || iconValue.startsWith('https://');
+    }
+
+    function openBadgeModal(index: number) {
+        selectedBadgeIndex = index;
+        showBadgeModal = true;
+    }
+
+    function closeBadgeModal() {
+        showBadgeModal = false;
+    }
+
+    function nextBadge() {
+        if ($profile.badges) {
+            selectedBadgeIndex = (selectedBadgeIndex + 1) % $profile.badges.length;
+        }
+    }
+
+    function prevBadge() {
+        if ($profile.badges) {
+            selectedBadgeIndex = (selectedBadgeIndex - 1 + $profile.badges.length) % $profile.badges.length;
+        }
     }
 
     onMount(async () => {
@@ -35,14 +58,14 @@
     {#if !isLoading}
     <div class="flex items-center justify-between">
         <div class="relative flex items-start">
-            <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100 flex flex-col">
+            <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100 flex flex-col relative z-10">
                 <!-- <span class="text-3xl mb-2">Hi, I'm</span> -->
-                <span class="text-6xl">{$profile.name || ''}</span>
+                <span class="text-6xl" style="text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);">{$profile.name || ''}</span>
             </h1>
             
             <!-- Certification Badges (Dynamic - Fanned Card Deck Style) -->
             {#if $profile.badges && $profile.badges.length > 0}
-                <div class="hidden md:flex absolute -left-6 -top-20 z-10" style="width: 240px; height: 200px;">
+                <div class="flex absolute -left-6 -top-10 md:-top-20 z-0" style="width: 240px; height: 200px;">
                     {#each $profile.badges as badge, i}
                         {@const totalBadges = $profile.badges.length}
                         {@const rotationStep = 40}
@@ -52,7 +75,8 @@
                         <img 
                             src={badge.imageUrl} 
                             alt={badge.title}
-                            class="absolute w-20 h-20 object-contain hover:scale-125 hover:z-20 transition-all duration-300 shadow-lg"
+                            on:click={() => openBadgeModal(i)}
+                            class="absolute w-16 h-16 md:w-28 md:h-28 object-contain hover:scale-125 transition-all duration-300 shadow-lg cursor-pointer"
                             style="
                                 left: {i * 15}px;
                                 top: {yOffset}px;
@@ -153,3 +177,62 @@
     </div>
     {/if}
 </div>
+
+<!-- Badge Modal -->
+{#if showBadgeModal && $profile.badges && $profile.badges.length > 0}
+    <div 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
+        on:click={closeBadgeModal}
+        role="button"
+        tabindex="0"
+        on:keydown={(e) => e.key === 'Escape' && closeBadgeModal()}
+    >
+        <div 
+            class="relative max-w-2xl w-full mx-4 glass-card p-8"
+            on:click|stopPropagation
+            role="dialog"
+            aria-modal="true"
+        >
+            <button 
+                on:click={closeBadgeModal}
+                class="absolute top-4 right-4 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white text-2xl"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="flex items-center justify-center mb-6">
+                <img 
+                    src={$profile.badges[selectedBadgeIndex].imageUrl}
+                    alt={$profile.badges[selectedBadgeIndex].title}
+                    class="max-w-full max-h-96 object-contain"
+                />
+            </div>
+            
+            <h3 class="text-2xl font-bold text-center text-neutral-900 dark:text-neutral-100 mb-4">
+                {$profile.badges[selectedBadgeIndex].title}
+            </h3>
+            
+            {#if $profile.badges.length > 1}
+                <div class="flex justify-between items-center mt-6">
+                    <button 
+                        on:click={prevBadge}
+                        class="glass-button px-4 py-2 rounded-lg hover:scale-110 transition-transform"
+                    >
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    
+                    <div class="text-neutral-700 dark:text-neutral-300">
+                        {selectedBadgeIndex + 1} / {$profile.badges.length}
+                    </div>
+                    
+                    <button 
+                        on:click={nextBadge}
+                        class="glass-button px-4 py-2 rounded-lg hover:scale-110 transition-transform"
+                    >
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            {/if}
+        </div>
+    </div>
+{/if}
