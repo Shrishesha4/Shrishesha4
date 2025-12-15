@@ -72,6 +72,8 @@
                         {@const startRotation = -((totalBadges - 1) * rotationStep) / 2}
                         {@const rotation = startRotation + (i * rotationStep)}
                         {@const yOffset = Math.abs(rotation) * 0.2}
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                         <img 
                             src={badge.imageUrl} 
                             alt={badge.title}
@@ -138,17 +140,24 @@
     <div class="flex gap-4 mb-8 justify-center md:justify-start">
         <a
             href="/aboutme"
-            class="glass-card-hover inline-flex items-center rounded-lg border border-neutral-300 dark:border-neutral-700 px-6 py-3 text-white transition hover:bg-neutral-800"
+            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 dark:border-neutral-700 px-6 py-3 text-white transition hover:bg-neutral-800"
         >
             Know Me
         </a>
         <a
             href="/contact"
-            class="glass-card-hover inline-flex items-center rounded-lg border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
+            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
         >
             Contact Me
         </a>
+        <a
+            href="https://cal.com/shrishesha-n"
+            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
+        >
+            Schedule a Call
+        </a>
     </div>
+
     <div class="mb-8 text-lg text-neutral-600 dark:text-neutral-400">
         <div class="grid grid-cols-4 md:flex md:flex-wrap gap-4 md:gap-6 items-center">
             {#each $profile.techStack as tech}
@@ -179,6 +188,9 @@
 </div>
 
 <!-- Badge Modal -->
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 {#if showBadgeModal && $profile.badges && $profile.badges.length > 0}
     <div 
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
