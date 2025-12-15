@@ -26,7 +26,7 @@ export interface Profile {
     particlesQuantity: number;
 }
 
-export  const techMap: { [key: string]: string } = {
+export const techMap: { [key: string]: string } = {
    "javascript": "devicon-javascript-plain colored",
    "typescript": "devicon-typescript-plain colored",
    "python": "devicon-python-plain colored",
@@ -35,7 +35,11 @@ export  const techMap: { [key: string]: string } = {
    "c#": "devicon-csharp-plain colored",
    "ruby": "devicon-ruby-plain colored",
    "go": "devicon-go-plain colored",
-   "rust": "devicon-rust-plain colored",
+   "rust": "devicon-rust-plain",  // Removed 'colored' for dark bg visibility
+
+   "blender": "devicon-blender-original colored",
+   "unity3d": "devicon-unity-original colored",
+   "fastapi": "devicon-fastapi-plain colored",
 
    "react": "devicon-react-original colored",
    "vue": "devicon-vuejs-plain colored",
@@ -74,6 +78,7 @@ export  const techMap: { [key: string]: string } = {
    "firebase": "devicon-firebase-plain colored",
    "default": "fas fa-code"
 };
+
 
 export const defaultProfile: Profile = {
     name: "",
