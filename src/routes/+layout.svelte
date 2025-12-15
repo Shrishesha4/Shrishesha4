@@ -15,9 +15,14 @@
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
+    import { beforeNavigate, afterNavigate } from '$app/navigation';
     
     $: isStargaze = $page.url.pathname.startsWith('/stargaze');
     $: isAdminPage = $page.url.pathname.includes('admin');
+    
+    let showWarpTransition = false;
+    let warpDirection: 'in' | 'out' = 'in';
+    let contentZoom = '';
     
     interface LayoutData {
         children: any;
@@ -35,6 +40,31 @@
         injectAnalytics();
     }
 
+    beforeNavigate(({ to, from }) => {
+        const toStargaze = to?.url.pathname.startsWith('/stargaze');
+        const fromStargaze = from?.url.pathname.startsWith('/stargaze');
+        
+        if (toStargaze && !fromStargaze) {
+            // Entering stargaze
+            warpDirection = 'in';
+            contentZoom = 'zoom-out';
+            showWarpTransition = true;
+        } else if (!toStargaze && fromStargaze) {
+            // Exiting stargaze
+            warpDirection = 'out';
+            contentZoom = 'zoom-in';
+            showWarpTransition = true;
+        }
+    });
+
+    afterNavigate(() => {
+        if (showWarpTransition) {
+            setTimeout(() => {
+                showWarpTransition = false;
+                contentZoom = '';
+            }, 1800);
+        }
+    });
 
     onMount(async () => {
         theme.init();
@@ -65,7 +95,7 @@
     });
 </script>
 
-<div class="min-h-screen relative">
+<div class="min-h-screen relative {contentZoom}">
     {#if isStargaze}
         <ParticlesBackground
             quantity={$profile.particlesQuantity/3}
@@ -97,3 +127,178 @@
         </div>
     </footer>
 </div>
+
+<!-- Warp Speed Transition -->
+{#if showWarpTransition}
+    <div class="fixed inset-0 z-[9999] pointer-events-none overflow-hidden bg-black warp-container {warpDirection}">
+        <div class="warp-speed">
+            {#each Array(250) as _, i}
+                {@const angle = (i / 250) * Math.PI * 2 + (Math.random() * 0.1)}
+                {@const delay = Math.random() * 0.15}
+                {@const duration = 0.6 + Math.random() * 0.3}
+                {@const brightness = 0.7 + Math.random() * 0.3}
+                {@const length = 80 + Math.random() * 120}
+                <div 
+                    class="star-streak"
+                    style="
+                        left: 50%;
+                        top: 50%;
+                        animation-delay: {delay}s;
+                        animation-duration: {duration}s;
+                        --brightness: {brightness};
+                        --angle: {angle}rad;
+                        --length: {length}vh;
+                        transform: rotate({angle}rad);
+                    "
+                ></div>
+            {/each}
+        </div>
+        <div class="center-flash"></div>
+    </div>
+{/if}
+
+<style>
+    .zoom-out {
+        animation: pageZoomOut 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .zoom-in {
+        animation: pageZoomIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes pageZoomOut {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(3);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes pageZoomIn {
+        0% {
+            transform: scale(0.1);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(0.5);
+            opacity: 0.3;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .warp-container {
+        animation: containerFade 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .warp-container.out {
+        animation: containerFadeReverse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes containerFade {
+        0% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    
+    @keyframes containerFadeReverse {
+        0% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .warp-speed {
+        position: absolute;
+        inset: 0;
+    }
+
+    .center-flash {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 60px 30px rgba(255, 255, 255, 0.8),
+                    0 0 100px 60px rgba(255, 255, 255, 0.4);
+        animation: flashPulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .out .center-flash {
+        animation: flashPulseReverse 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes flashPulse {
+        0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        30% { opacity: 1; transform: translate(-50%, -50%) scale(3); }
+        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    }
+    
+    @keyframes flashPulseReverse {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+        30% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+        70% { opacity: 1; transform: translate(-50%, -50%) scale(3); }
+        100% { opacity: 1; transform: translate(-50%, -50%) scale(15); }
+    }
+
+    .star-streak {
+        position: absolute;
+        width: 2px;
+        height: 0;
+        transform-origin: center top;
+        background: linear-gradient(to bottom, 
+            rgba(255, 255, 255, 1) 0%,
+            rgba(200, 220, 255, 0.8) 30%,
+            rgba(150, 180, 255, 0.4) 70%,
+            rgba(100, 150, 255, 0) 100%
+        );
+        opacity: var(--brightness);
+    }
+
+    .warp-container.in .star-streak {
+        animation: streakOut 1.5s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+    }
+
+    .warp-container.out .star-streak {
+        animation: streakIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes streakOut {
+        0% {
+            height: 0;
+            opacity: 0;
+        }
+        15% {
+            opacity: var(--brightness);
+        }
+        100% {
+            height: var(--length);
+            opacity: 0;
+        }
+    }
+
+    @keyframes streakIn {
+        0% {
+            height: var(--length);
+            opacity: 0;
+        }
+        25% {
+            opacity: var(--brightness);
+        }
+        100% {
+            height: 0;
+            opacity: 1;
+        }
+    }
+</style>
