@@ -55,7 +55,7 @@ export const techMap: { [key: string]: string } = {
    "node": "devicon-nodejs-plain colored",
    "express": "devicon-express-original colored",
    "django": "devicon-django-plain colored",
-   "flask": "devicon-flask-original colored",
+   "flask": "devicon-flask-original",
    "spring": "devicon-spring-original colored",
    "laravel": "devicon-laravel-plain colored",
 
