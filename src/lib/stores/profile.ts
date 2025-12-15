@@ -37,7 +37,7 @@ export const techMap: { [key: string]: string } = {
    "go": "devicon-go-plain colored",
    "rust": "devicon-rust-plain",  // Removed 'colored' for dark bg visibility
 
-   "blender": "devicon-blender-original colored",
+   "blender": "devicon-blender-plain colored",
    "unity3d": "devicon-unity-original colored",
    "fastapi": "devicon-fastapi-plain colored",
 
