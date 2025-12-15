@@ -7,6 +7,10 @@
     import { githubService } from '$lib/services/github';
 
     const dispatch = createEventDispatcher();
+    
+    export let searchQuery = '';
+    export let selectedFilter = 'all';
+    export let categorizeProject: (title: string, description: string, technologies: string[]) => string[];
 
     let repos: any[] = [];
     let loading = true;
@@ -18,6 +22,9 @@
     let startY: number;
     let opacity = spring(1);
     let scale = spring(1);
+    let visibleCards: Set<number> = new Set();
+    let observer: IntersectionObserver | null = null;
+    let activeCard: number | null = null;
 
     onMount(() => {
         checkMobile();
@@ -26,15 +33,49 @@
         loadRepositories();
 
         return () => {
+            if (observer) {
+                observer.disconnect();
+            }
             window.removeEventListener('resize', checkMobile);
         };
     });
+
+    function setupScrollObserver() {
+        if (!isMobile && repos.length > 0) {
+            // On desktop, use Intersection Observer
+            observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const index = parseInt(entry.target.getAttribute('data-index') || '0');
+                            visibleCards = new Set([...visibleCards, index]);
+                        }
+                    });
+                },
+                { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+            );
+
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.repo-card');
+                cards.forEach((card) => observer?.observe(card));
+            }, 200);
+        }
+    }
+
+    // Make all cards visible on mobile, or first few on desktop
+    // Make all cards visible on mobile, let observer handle desktop
+    $: if (repos.length > 0 && isMobile) {
+        // On mobile, show all cards immediately without animations
+        const allIndices = Array.from({ length: repos.length }, (_, i) => i);
+        visibleCards = new Set(allIndices);
+    }
 
     async function loadRepositories() {
         try {
             repos = await githubService.getRepositories();
             repos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
             loading = false;
+            setTimeout(() => setupScrollObserver(), 200);
         } catch (err) {
             console.error('Error fetching repositories:', err);
             error = 'Failed to load repositories';
@@ -45,6 +86,10 @@
 
     function checkMobile() {
         isMobile = window.innerWidth < 768;
+    }
+
+    function toggleModal(index: number) {
+        activeCard = activeCard === index ? null : index;
     }
 
     function handleTouchStart(e: TouchEvent) {
@@ -64,11 +109,27 @@
         scale.set(1 - Math.min(distance / 2000, 0.05));
     }
 
+    // Filter repos based on search query and selected filter
+    $: filteredRepos = repos.filter(repo => {
+        // Search filter
+        const matchesSearch = !searchQuery || 
+            repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (repo.description && repo.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (repo.language && repo.language.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        // Category filter - use intelligent categorization
+        const matchesFilter = selectedFilter === 'all' || 
+            categorizeProject(repo.name, repo.description || '', repo.language ? [repo.language] : [])
+                .includes(selectedFilter);
+        
+        return matchesSearch && matchesFilter;
+    });
+    
     function handleTouchEnd() {
         if (!isMobile || startX === undefined) return;
         const threshold = 80;
 
-        if ($deltaX < -threshold && currentIndex < repos.length - 1) {
+        if ($deltaX < -threshold && currentIndex < filteredRepos.length - 1) {
             opacity.set(0.7);
             scale.set(0.95);
             deltaX.set(-window.innerWidth / 2);
@@ -102,7 +163,7 @@
 {:else}
     <h2 class="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-6 py-1 mt-6">GitHub Repositories</h2>
     <section class="py-2 overflow-visible">
-        <div class="w-[85vw] max-w-7xl mx-auto overflow-visible">  
+        <div class="w-full overflow-visible">  
             {#if loading}
                 <div class="flex justify-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-500"></div>
@@ -110,148 +171,133 @@
             {:else if error}
                 <div class="text-red-500 text-center">{error}</div>
             {:else}
-                {#if isMobile}
-                    <div class="h-[40vh] w-[85vw] flex flex-col items-center justify-center relative overflow-visible"
-                        on:touchstart|passive={handleTouchStart}
-                        on:touchmove|passive={handleTouchMove}
-                        on:touchend|passive={handleTouchEnd}
-                    >
-                        {#if repos[currentIndex]}
-                            <div class="w-full h-[500px] glass-card glass-card-hover transition-transform"
-                                style="transform: translateX({$deltaX}px) rotate({$deltaX * 0.1}deg)"
+                <div class="w-full space-y-8">
+                    {#each filteredRepos as repo, index}
+                            <div 
+                                data-index={index}
+                                on:click={() => toggleModal(index)}
+                                on:keydown={(e) => e.key === 'Enter' && toggleModal(index)}
+                                role="button"
+                                tabindex="0"
+                                class="repo-card group relative overflow-hidden rounded-2xl backdrop-blur-sm bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col md:flex-row {index % 2 === 1 ? 'md:flex-row-reverse' : ''} cursor-pointer"
+                                class:opacity-0={!isMobile && !visibleCards.has(index)}
+                                class:animate-slide-in-left={!isMobile && visibleCards.has(index) && index % 2 === 0}
+                                class:animate-slide-in-right={!isMobile && visibleCards.has(index) && index % 2 === 1}
                             >
-                                <div class="p-6">
-                                    <h3 class="text-xl font-semibold text-white mb-2">
-                                        {repos[currentIndex].name}
+                                <!-- Icon/Header Section -->
+                                <div class="relative w-full md:w-1/2 h-64 md:h-96 bg-gradient-to-br from-primary-500/20 to-primary-700/30 flex items-center justify-center overflow-hidden">
+                                    <i class="fab fa-github text-9xl text-white/30 group-hover:text-white/50 transition-all duration-500 group-hover:scale-110"></i>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+                                    <h3 class="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-4 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">
+                                        {repo.name}
                                     </h3>
-                                    <p class="text-neutral-200 mb-4">
-                                        {repos[currentIndex].description || 'No description available'}
+                                    <p class="text-neutral-700 dark:text-neutral-300 mb-6 leading-relaxed text-lg">
+                                        {repo.description || 'No description available'}
                                     </p>
-                                    <div class="flex items-center gap-4 text-sm text-neutral-300 mb-4">
-                                        {#if repos[currentIndex].language}
-                                            <span class="flex items-center">
-                                                <span class="w-3 h-3 rounded-full bg-primary-500 mr-2"></span>
-                                                {repos[currentIndex].language}
+
+                                    <!-- Stats -->
+                                    <div class="flex flex-wrap gap-6 mb-8 text-base">
+                                        {#if repo.language}
+                                            <span class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                <span class="w-4 h-4 rounded-full bg-primary-500"></span>
+                                                {repo.language}
                                             </span>
                                         {/if}
-                                        <span>⭐ {repos[currentIndex].stargazers_count}</span>
-                                        <span>🍴 {repos[currentIndex].forks_count}</span>
+                                        <span class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                            ⭐ {repo.stargazers_count}
+                                        </span>
+                                        <span class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                            🍴 {repo.forks_count}
+                                        </span>
                                     </div>
-                                    <a href={repos[currentIndex].html_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="glass-button w-full block text-center px-4 py-2 text-white rounded-md transition-all duration-200"
-                                    >
-                                        <i class="fab fa-github mr-1"></i>
-                                        View Repo
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <!-- Navigation and Page Indicator -->
-                            <div class="flex items-center justify-center gap-4 mt-6">
-                                <!-- Left Button -->
-                                {#if currentIndex > 0}
-                                    <button
-                                        class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 rounded-full text-white transition-all duration-200"
-                                        on:click={() => {
-                                            opacity.set(0.7);
-                                            scale.set(0.95);
-                                            deltaX.set(window.innerWidth / 2);
-                                            setTimeout(() => {
-                                                currentIndex--;
-                                                deltaX.set(0);
-                                                opacity.set(1);
-                                                scale.set(1);
-                                            }, 150);
-                                        }}
-                                    >
-                                        <i class="fas fa-chevron-left text-sm"></i>
-                                    </button>
-                                {/if}
-
-                                <!-- Page Indicator -->
-                                <div class="flex gap-2">
-                                    {#each repos as _, i}
-                                        <div 
-                                            class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-white w-4 border border-black dark:border-white' : 'bg-white dark:bg-neutral-700'}"
-                                        ></div>
-                                    {/each}
                                 </div>
 
-                                <!-- Right Button -->
-                                {#if currentIndex < repos.length - 1}
-                                    <button
-                                        class="glass-button w-8 h-8 flex items-center justify-center hover:scale-105 dark:hover:scale-105 rounded-full text-black/90 dark:text-white transition-all duration-200"
-                                        on:click={() => {
-                                            opacity.set(0.7);
-                                            scale.set(0.95);
-                                            deltaX.set(-window.innerWidth / 2);
-                                            setTimeout(() => {
-                                                currentIndex++;
-                                                deltaX.set(0);
-                                                opacity.set(1);
-                                                scale.set(1);
-                                            }, 150);
-                                        }}
-                                    >
-                                        <i class="fas fa-chevron-right text-sm"></i>
-                                    </button>
-                                {/if}
-                            </div>
-                        {/if}
-                    </div>
-                {:else}
-                    <div class="glass-card overflow-hidden">
-                        <div class="bg-white/20 dark:bg-black/30 backdrop-blur-sm p-2 flex items-center">
-                            <div class="flex space-x-2">
-                                <button class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors duration-150"></button>
-                                <button class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors duration-150"></button>
-                                <button class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors duration-150"></button>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-transparent">
-                            {#each repos as repo}
-                                <div class="glass-card glass-card-hover p-4">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0">
-                                            <i class="fas fa-file text-4xl text-black-400 group-hover:text-primary-500 transition-colors duration-200"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <h3 class="text-m font-bold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-500 transition-colors duration-200">
-                                                {repo.name}
-                                            </h3>
-                                            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
-                                                {repo.description || 'No description available'}
-                                            </p>
-                                            <div class="flex items-center gap-3 mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                                                {#if repo.language}
-                                                    <span class="flex items-center">
-                                                        <span class="w-2 h-2 rounded-full bg-primary-500 mr-1"></span>
-                                                        {repo.language}
-                                                    </span>
-                                                {/if}
-                                                <span class="flex items-center">⭐ {repo.stargazers_count}</span>
-                                                <span class="flex items-center">🍴 {repo.forks_count}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a href={repo.html_url}
+                                <!-- Action Button Modal Overlay -->
+                                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-all duration-500 flex items-center justify-center z-10 {activeCard === index ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}">
+                                    <a 
+                                        href={repo.html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="glass-button mt-3 rounded-md px-3 py-2.5 inline-flex items-center justify-center gap-2 text-xs text-white transition-all duration-200 hover:scale-105"
-                                    >   
-                                        <i class="fab fa-github"></i>
-                                        <span>View</span>
-                                        <i class="fas fa-arrow-right text-xs group-hover:text-white transition-colors duration-200"></i>
+                                        on:click|stopPropagation
+                                        class="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-neutral-800 hover:bg-neutral-900 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white font-semibold transition-all duration-300 transform hover:scale-110 shadow-2xl min-w-[200px] {activeCard === index ? 'scale-100' : 'scale-75'}"
+                                    >
+                                        <i class="fab fa-github text-xl"></i>
+                                        <span>View Repository</span>
                                     </a>
                                 </div>
-                            {/each}
+
+                                <!-- Decorative element -->
+                                <div class="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl -z-10 group-hover:bg-primary-500/20 transition-all duration-500"></div>
                         </div>
-                    </div>
-                {/if}
+                    {/each}
+                </div>
             {/if}
         </div>
     </section>
 {/if}
+
+<style>
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-100px) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+     
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.8s ease-out forwards;
+    }
+
+    .animate-slide-in-right {
+        animation: slideInRight 0.8s ease-out forwards;
+    }   }
+    }
+
+    .repo-card {
+        position: relative;
+    }
+
+    .repo-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 1rem;
+        padding: 2px;
+        background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .repo-card:hover::before {
+        opacity: 1;
+    }
+
+    :global(.dark) .repo-card::before {
+        background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    }
+</style>

@@ -12,7 +12,7 @@
 </script>
 
 <div>
-    <h2 class="mt-6 mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100">Latest Posts</h2>
+    <h2 class="mt-6 mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100 md:text-right">Latest Posts</h2>
     {#if error}
         <div class="mb-8 rounded-lg bg-red-50 p-4 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400">
             {error}

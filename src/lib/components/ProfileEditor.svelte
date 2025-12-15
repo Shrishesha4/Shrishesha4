@@ -48,7 +48,8 @@
                 favicon:profileData.favicon || '',
                 profileImage:profileData.profileImage || '',
                 techStack:profileData.techStack || '',
-                particlesQuantity:profileData.particlesQuantity || 100
+                particlesQuantity:profileData.particlesQuantity || 100,
+                badges: profileData.badges || []
             };
     
             await profile.set(currentProfile);
@@ -350,6 +351,50 @@
                                 class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                             >
                                 + Add Technology
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <label class="block mb-2 mt-6 font-bold text-neutral-700 dark:text-neutral-300">Certification Badges</label>
+                        <div class="space-y-4">
+                            {#each currentProfile.badges as badge, i}
+                                <div class="glass-card p-4 space-y-3">
+                                    <div class="flex justify-between items-start">
+                                        <input 
+                                            type="text" 
+                                            bind:value={badge.title}
+                                            class="flex-1 px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                            placeholder="Badge title (e.g., Oracle Certified Professional)"
+                                        />
+                                        <button 
+                                            type="button"
+                                            on:click={() => {
+                                                currentProfile.badges = currentProfile.badges.filter((_, index) => index !== i);
+                                            }}
+                                            class="ml-2 px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="max-w-xs">
+                                        <ImageUpload
+                                            currentImage={badge.imageUrl}
+                                            onImageUploaded={(url) => {
+                                                currentProfile.badges[i].imageUrl = url;
+                                                currentProfile.badges = currentProfile.badges;
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            {/each}
+                            <button 
+                                type="button"
+                                on:click={() => {
+                                    currentProfile.badges = [...currentProfile.badges, { title: '', imageUrl: '' }];
+                                }}
+                                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                            >
+                                + Add Badge
                             </button>
                         </div>
                     </div>

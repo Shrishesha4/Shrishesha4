@@ -65,13 +65,7 @@
     </div>
     <SocialLinks/>
     <hr class="border-t border-neutral-600 dark:border-neutral-400 m-5 md:hidden" />
-    <div class="mx-auto max-w-4xl">
-        <section class="mb-16">
-            {#if Hero}
-                <svelte:component this={Hero} />
-            {/if}
-        </section>
-
+    <div class="mx-auto max-w-7xl">
         {#if error}
             <div class="mb-8 rounded-lg bg-red-50 p-4 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400">
                 {error}
@@ -84,19 +78,26 @@
                 <LoadingSpinner/>
             </div>
         {:else}
+            <section class="mb-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    {#if Hero}
+                        <svelte:component this={Hero} />
+                    {/if}
+                </div>
+                <div>
+                    {#if NewBlogPosts}
+                        <svelte:component this={NewBlogPosts} 
+                            posts={blogPosts} 
+                            {error} 
+                            onRetry={() => { error = ''; fetchData(); }} 
+                        />
+                    {/if}
+                </div>
+            </section>
             <section class="mb-16">
                 {#if FeaturedProjects}
                     <svelte:component this={FeaturedProjects}
                         projects={projectsList} 
-                        {error} 
-                        onRetry={() => { error = ''; fetchData(); }} 
-                    />
-                {/if}
-            </section>
-            <section class="mb-16">
-                {#if NewBlogPosts}
-                    <svelte:component this={NewBlogPosts} 
-                        posts={blogPosts} 
                         {error} 
                         onRetry={() => { error = ''; fetchData(); }} 
                     />
