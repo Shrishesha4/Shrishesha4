@@ -65,11 +65,11 @@
             
             <!-- Certification Badges (Dynamic - Fanned Card Deck Style) -->
             {#if $profile.badges && $profile.badges.length > 0}
-                <div class="flex absolute -left-6 -top-10 md:-top-20 z-0" style="width: 240px; height: 200px;">
+                <div class="flex absolute -left-6 -top-14 md:-top-20 z-0" style="width: 240px; height: 200px;">
                     {#each $profile.badges as badge, i}
                         {@const totalBadges = $profile.badges.length}
                         {@const rotationStep = 40}
-                        {@const startRotation = -((totalBadges - 1) * rotationStep) / 2}
+                        {@const startRotation = -((totalBadges - 0.1) * rotationStep) / 2}
                         {@const rotation = startRotation + (i * rotationStep)}
                         {@const yOffset = Math.abs(rotation) * 0.2}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->
