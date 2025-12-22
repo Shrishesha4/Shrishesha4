@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.buymeacoffee.com/uploads/cover_images/2025/02/TFCu4SLLHtK5krCEAqGM3JRcptOjvte4koDMoVAb.jpg@2560w_0e.webp" alt="Shrishesha Banner" width="100%"/>
+  <img src="https://raw.githubusercontent.com/Shrishesha4/Shrishesha4/refs/heads/main/static/images/Background.png" alt="Shrishesha Banner" width="100%"/>
 </p>
 
 <div align="center">
