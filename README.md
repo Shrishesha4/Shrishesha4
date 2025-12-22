@@ -18,16 +18,19 @@
   <tr>
     <td style="padding:12px;vertical-align:top;width:33%;">
       <img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" alt="React" /><br/>
+      <img src="https://img.shields.io/badge/Next.js-61DAFB?style=flat&logo=next.js&logoColor=black" alt="NextJS" /><br/>
       <strong>Websites & Landing Pages</strong><br/>
       <small>React • Next.js • HTML/CSS</small>
     </td>
     <td style="padding:12px;vertical-align:top;width:33%;">
       <img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white" alt="Node.js" /><br/>
+      <img src="https://img.shields.io/badge/FastAPI-339933?style=flat&logo=fastapi&logoColor=white" alt="FastAPI" /><br/>
       <strong>Solutions & Integrations</strong><br/>
       <small>APIs • GraphQL • Webhooks</small>
     </td>
     <td style="padding:12px;vertical-align:top;width:33%;">
       <img src="https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Linux" /><br/>
+      <img src="https://img.shields.io/badge/Nginx-FCC624?style=flat&logo=nginx&logoColor=black" alt="Nginx" /><br/>
       <strong>Servers</strong><br/>
       <small>Docker • Nginx • Systemd</small>
     </td>
@@ -35,16 +38,19 @@
   <tr>
     <td style="padding:12px;vertical-align:top;">
       <img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white" alt="Grafana" /><br/>
+      <img src="https://img.shields.io/badge/Prometheus-F46800?style=flat&logo=prometheus&logoColor=white" alt="Prometheus" /><br/>
       <strong>Monitoring & Observability</strong><br/>
       <small>Grafana • Prometheus • Loki</small>
     </td>
     <td style="padding:12px;vertical-align:top;">
       <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /><br/>
+      <img src="https://img.shields.io/badge/Kubernetes-2496ED?style=flat&logo=kubernetes&logoColor=white" alt="K8s" /><br/>
       <strong>DevOps & CI/CD</strong><br/>
       <small>Docker • GitHub Actions • IaC</small>
     </td>
     <td style="padding:12px;vertical-align:top;">
       <img src="https://img.shields.io/badge/React_Native-61DAFB?style=flat&logo=react&logoColor=black" alt="React Native" /><br/>
+      <img src="https://img.shields.io/badge/Expo-61DAFB?style=flat&logo=expo&logoColor=black" alt="Expo" /><br/>
       <strong>Mobile App Development</strong><br/>
       <small>React Native • Expo • Three.js</small>
     </td>
