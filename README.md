@@ -8,7 +8,58 @@
 
 # Shrishesha Narmatesshvara
 
-> **SIH Hackathon Champion** 🏆 | Crafting resilient infrastructure from India 🌍
+<div align="center">
+    <strong>Crafting resilient infrastructure from India 🌍</strong> — Designing systems end‑to‑end.
+</div>
+
+<div align="center">
+    <svg width="720" height="140" viewBox="0 0 720 140" xmlns="http://www.w3.org/2000/svg" aria-label="Animated network diagram" style="max-width:100%;height:auto;">
+        <defs>
+            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#00D4AA"/><stop offset="1" stop-color="#7AF7C6"/></linearGradient>
+        </defs>
+        <g stroke="rgba(0,212,170,0.18)" stroke-width="2">
+            <line x1="80" y1="70" x2="240" y2="40"/>
+            <line x1="80" y1="70" x2="240" y2="100"/>
+            <line x1="240" y1="40" x2="400" y2="70"/>
+            <line x1="240" y1="100" x2="400" y2="70"/>
+            <line x1="400" y1="70" x2="560" y2="40"/>
+            <line x1="400" y1="70" x2="560" y2="100"/>
+        </g>
+        <g fill="url(#g)">
+            <circle cx="80"  cy="70"  r="6"><animate attributeName="r" values="6;12;6" dur="2.2s" repeatCount="indefinite" /></circle>
+            <circle cx="240" cy="40"  r="5"><animate attributeName="r" values="5;10;5" dur="1.9s" begin="0.2s" repeatCount="indefinite" /></circle>
+            <circle cx="240" cy="100" r="5"><animate attributeName="r" values="5;10;5" dur="1.9s" begin="0.5s" repeatCount="indefinite" /></circle>
+            <circle cx="400" cy="70"  r="7"><animate attributeName="r" values="7;14;7" dur="2.6s" begin="0.4s" repeatCount="indefinite" /></circle>
+            <circle cx="560" cy="40"  r="6"><animate attributeName="r" values="6;12;6" dur="2.0s" begin="0.8s" repeatCount="indefinite" /></circle>
+            <circle cx="560" cy="100" r="5"><animate attributeName="r" values="5;10;5" dur="1.7s" begin="1s" repeatCount="indefinite" /></circle>
+        </g>
+        <g font-family="Segoe UI, Roboto, Arial" font-size="11" fill="#8b949e" text-anchor="middle">
+            <text x="80"  y="90">Websites & Landing Pages</text>
+            <text x="240" y="20">Solutions & Integrations</text>
+            <text x="240" y="120">Servers</text>
+            <text x="400" y="90">Monitoring & Observability</text>
+            <text x="560" y="20">DevOps & CI/CD</text>
+            <text x="560" y="120">Mobile App Development</text>
+        </g>
+    </svg>
+</div>
+
+<div align="center" style="margin-top:12px;">
+    <svg width="720" height="90" viewBox="0 0 720 90" xmlns="http://www.w3.org/2000/svg" aria-label="Animated deployment pipeline" style="max-width:100%;height:auto;">
+        <defs>
+            <linearGradient id="pill" x1="0" x2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#181a1f"/></linearGradient>
+        </defs>
+        <g font-family="Segoe UI, Roboto, Arial" font-size="12" fill="#9aa5b1">
+            <rect x="40"  y="20" rx="12" ry="12" width="180" height="40" fill="url(#pill)" stroke="#222" />
+            <rect x="270" y="20" rx="12" ry="12" width="180" height="40" fill="url(#pill)" stroke="#222" />
+            <rect x="500" y="20" rx="12" ry="12" width="160" height="40" fill="url(#pill)" stroke="#222" />
+            <text x="130" y="45" text-anchor="middle" fill="#00D4AA">Dev</text>
+            <text x="360" y="45" text-anchor="middle" fill="#ffd166">Test</text>
+            <text x="580" y="45" text-anchor="middle" fill="#FF6B6B">Prod</text>
+        </g>
+    </svg>
+</div>
+
 
 <div align="center">
   <a href="https://shrishesha.space">
@@ -204,12 +255,64 @@
 </div>
 
 ## ![GitHub Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=Shrishesha4&theme=monokai)
-
-## 🔥 Active Projects — Kanban View
-
-|                                                                                                                                                                                                              Backlog                                                                                                                                                                                                              |                                                                                                                                                                                                                                                                                                                                                                                                                                            In Progress                                                                                                                                                                                                                                                                                                                                                                                                                                            |                                                                                                                                                                                     Live                                                                                                                                                                                      |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| **🎮 3D Mobile Studio** <br/>GLB model viewer<br/><img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React Native" /> <img src="https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white" alt="Three.js" /> <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" /> | **🏗️ Homelab Core** <br/>Media server + photo backup<br/><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /> <img src="https://img.shields.io/badge/Jellyfin-FFCC00?style=for-the-badge" alt="Jellyfin" /> <img src="https://img.shields.io/badge/Immich-00AEEF?style=for-the-badge" alt="Immich" /> <img src="https://img.shields.io/badge/Traefik-0db7ed?style=for-the-badge&logo=traefik&logoColor=white" alt="Traefik" /> <br/><br/> **🔐 ESP32 Sentinel** <br/>Network honeypot firewall<br/><img src="https://img.shields.io/badge/ESP32-3DDC84?style=for-the-badge" alt="ESP32" /> <img src="https://img.shields.io/badge/MicroPython-2D6C1B?style=for-the-badge" alt="MicroPython" /> <img src="https://img.shields.io/badge/Prometheus-3747B2?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" /> | **✅ API Observatory** <br/>Production monitoring<br/><img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" /> <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" /> <img src="https://img.shields.io/badge/Loki-4ECCA3?style=for-the-badge" alt="Loki" /> |
+<table style="width:100%; border-collapse:collapse;">
+    <thead>
+        <tr>
+            <th style="text-align:left; padding:8px; border-bottom:1px solid #444;">🔥 Set Aside</th>
+            <th style="text-align:left; padding:8px; border-bottom:1px solid #444;">🚧 In Progress</th>
+            <th style="text-align:left; padding:8px; border-bottom:1px solid #444;">✅ Done</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="vertical-align:top; padding:12px;">
+                <ul>
+                    <li>
+                        <strong>🎮 3D Mobile Studio</strong> — GLB model viewer<br/>
+                        <img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React Native" /> 
+                        <img src="https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white" alt="Three.js" /> 
+                        <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+                    </li>
+                    <li style="margin-top:8px;">
+                        <strong>🔐 ESP32 Sentinel</strong> — Network honeypot firewall<br/>
+                        <img src="https://img.shields.io/badge/ESP32-3DDC84?style=for-the-badge" alt="ESP32" /> 
+                        <img src="https://img.shields.io/badge/MicroPython-2D6C1B?style=for-the-badge" alt="MicroPython" /> 
+                        <img src="https://img.shields.io/badge/Prometheus-3747B2?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" />
+                    </li>
+                </ul>
+            </td>
+            <td style="vertical-align:top; padding:12px;">
+                <ul>
+                    <li>
+                        <strong>🏗️ Homelab Core</strong> — Media server + photo backup<br/>
+                        <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /> 
+                        <img src="https://img.shields.io/badge/Jellyfin-FFCC00?style=for-the-badge" alt="Jellyfin" /> 
+                        <img src="https://img.shields.io/badge/Immich-00AEEF?style=for-the-badge" alt="Immich" /> 
+                        <img src="https://img.shields.io/badge/Traefik-0db7ed?style=for-the-badge&logo=traefik&logoColor=white" alt="Traefik" />
+                    </li>
+                    <li style="margin-top:8px;">
+                        <strong>☁️ Distributed Cloud Scheduler & Resource Allocation Simulator</strong> — High-performance C++ core engine · Rust safety/orchestration layer · Web-based frontend GUI<br/>
+                        <img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++" /> 
+                        <img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" /> 
+                        <img src="https://img.shields.io/badge/Web%20GUI-0B3D91?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="Web GUI" />
+                    </li>
+                </ul>
+            </td>
+            <td style="vertical-align:top; padding:12px;">
+                <ul>
+                    <li>
+                        <strong>✅ API Observatory</strong> — Production monitoring<br/>
+                        <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" /> 
+                        <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" /> 
+                    </li>
+                    <li>
+                        <strong>Much more in the <a href="https://github.com/Shrishesha4?tab=repositories">/repos</a> page</strong>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 ---
 
