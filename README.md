@@ -13,51 +13,44 @@
 </div>
 
 <div align="center">
-    <svg width="720" height="140" viewBox="0 0 720 140" xmlns="http://www.w3.org/2000/svg" aria-label="Animated network diagram" style="max-width:100%;height:auto;">
-        <defs>
-            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#00D4AA"/><stop offset="1" stop-color="#7AF7C6"/></linearGradient>
-        </defs>
-        <g stroke="rgba(0,212,170,0.18)" stroke-width="2">
-            <line x1="80" y1="70" x2="240" y2="40"/>
-            <line x1="80" y1="70" x2="240" y2="100"/>
-            <line x1="240" y1="40" x2="400" y2="70"/>
-            <line x1="240" y1="100" x2="400" y2="70"/>
-            <line x1="400" y1="70" x2="560" y2="40"/>
-            <line x1="400" y1="70" x2="560" y2="100"/>
-        </g>
-        <g fill="url(#g)">
-            <circle cx="80"  cy="70"  r="6"><animate attributeName="r" values="6;12;6" dur="2.2s" repeatCount="indefinite" /></circle>
-            <circle cx="240" cy="40"  r="5"><animate attributeName="r" values="5;10;5" dur="1.9s" begin="0.2s" repeatCount="indefinite" /></circle>
-            <circle cx="240" cy="100" r="5"><animate attributeName="r" values="5;10;5" dur="1.9s" begin="0.5s" repeatCount="indefinite" /></circle>
-            <circle cx="400" cy="70"  r="7"><animate attributeName="r" values="7;14;7" dur="2.6s" begin="0.4s" repeatCount="indefinite" /></circle>
-            <circle cx="560" cy="40"  r="6"><animate attributeName="r" values="6;12;6" dur="2.0s" begin="0.8s" repeatCount="indefinite" /></circle>
-            <circle cx="560" cy="100" r="5"><animate attributeName="r" values="5;10;5" dur="1.7s" begin="1s" repeatCount="indefinite" /></circle>
-        </g>
-        <g font-family="Segoe UI, Roboto, Arial" font-size="11" fill="#8b949e" text-anchor="middle">
-            <text x="80"  y="90">Websites & Landing Pages</text>
-            <text x="240" y="20">Solutions & Integrations</text>
-            <text x="240" y="120">Servers</text>
-            <text x="400" y="90">Monitoring & Observability</text>
-            <text x="560" y="20">DevOps & CI/CD</text>
-            <text x="560" y="120">Mobile App Development</text>
-        </g>
-    </svg>
-</div>
 
-<div align="center" style="margin-top:12px;">
-    <svg width="720" height="90" viewBox="0 0 720 90" xmlns="http://www.w3.org/2000/svg" aria-label="Animated deployment pipeline" style="max-width:100%;height:auto;">
-        <defs>
-            <linearGradient id="pill" x1="0" x2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#181a1f"/></linearGradient>
-        </defs>
-        <g font-family="Segoe UI, Roboto, Arial" font-size="12" fill="#9aa5b1">
-            <rect x="40"  y="20" rx="12" ry="12" width="180" height="40" fill="url(#pill)" stroke="#222" />
-            <rect x="270" y="20" rx="12" ry="12" width="180" height="40" fill="url(#pill)" stroke="#222" />
-            <rect x="500" y="20" rx="12" ry="12" width="160" height="40" fill="url(#pill)" stroke="#222" />
-            <text x="130" y="45" text-anchor="middle" fill="#00D4AA">Dev</text>
-            <text x="360" y="45" text-anchor="middle" fill="#ffd166">Test</text>
-            <text x="580" y="45" text-anchor="middle" fill="#FF6B6B">Prod</text>
-        </g>
-    </svg>
+<table style="width:100%;max-width:900px;border-collapse:collapse;text-align:center;">
+  <tr>
+    <td style="padding:12px;vertical-align:top;width:33%;">
+      <img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" alt="React" /><br/>
+      <strong>Websites & Landing Pages</strong><br/>
+      <small>React • Next.js • HTML/CSS</small>
+    </td>
+    <td style="padding:12px;vertical-align:top;width:33%;">
+      <img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white" alt="Node.js" /><br/>
+      <strong>Solutions & Integrations</strong><br/>
+      <small>APIs • GraphQL • Webhooks</small>
+    </td>
+    <td style="padding:12px;vertical-align:top;width:33%;">
+      <img src="https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Linux" /><br/>
+      <strong>Servers</strong><br/>
+      <small>Docker • Nginx • Systemd</small>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px;vertical-align:top;">
+      <img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white" alt="Grafana" /><br/>
+      <strong>Monitoring & Observability</strong><br/>
+      <small>Grafana • Prometheus • Loki</small>
+    </td>
+    <td style="padding:12px;vertical-align:top;">
+      <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /><br/>
+      <strong>DevOps & CI/CD</strong><br/>
+      <small>Docker • GitHub Actions • IaC</small>
+    </td>
+    <td style="padding:12px;vertical-align:top;">
+      <img src="https://img.shields.io/badge/React_Native-61DAFB?style=flat&logo=react&logoColor=black" alt="React Native" /><br/>
+      <strong>Mobile App Development</strong><br/>
+      <small>React Native • Expo • Three.js</small>
+    </td>
+  </tr>
+</table>
+
 </div>
 
 
@@ -72,7 +65,7 @@
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linked-in&logoColor=black" alt="LinkedIn" />
   </a>
   <a href="https://twitter.com/shrishesha4">
-    <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=x&logoColor=whi¡te" alt="Twitter" />
+    <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=x&logoColor=white" alt="Twitter" />
   </a>
   <a href="https://instagram.com/shrishesha4">
     <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
