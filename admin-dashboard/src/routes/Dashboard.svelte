@@ -63,13 +63,17 @@
 </script>
 
 {#if $isAuthenticated}
-    <div class="h-screen w-screen overflow-hidden flex flex-col md:flex-row p-4 gap-4 bg-neutral-100 dark:bg-neutral-950 transition-colors duration-500">
+    <div class="h-screen w-screen overflow-hidden flex flex-col-reverse md:flex-row p-4 gap-4 bg-neutral-100 dark:bg-neutral-950 transition-colors duration-500">
         
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <!-- OS Dock (Navigation) -->
-        <nav class="md:h-full md:w-24 w-full h-20 glass-card flex md:flex-col justify-between items-center py-6 px-2 z-50 shrink-0 border-neutral-200 dark:border-white/5">
+        <nav class="md:h-full md:w-24 w-full h-20 glass-card flex md:flex-col justify-between items-center py-2 md:py-6 px-4 md:px-2 z-50 shrink-0 border-neutral-200 dark:border-white/5 shadow-2xl md:shadow-none">
+            <!-- App Icon / OS Indicator -->
+            <div class="hidden md:flex w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-white items-center justify-center text-white dark:text-black font-black text-xl mb-8 shadow-2xl">
+                A
+            </div>
+
             <!-- Dock Items -->
-            <div class="flex md:flex-col gap-6 items-center justify-center w-full">
+            <div class="flex-1 md:flex-none flex md:flex-col gap-6 items-center justify-around md:justify-center w-full">
                 <button
                     class="dock-item group {activeTab === 'profile' ? 'active' : ''}"
                     on:click={() => setActiveTab('profile')}

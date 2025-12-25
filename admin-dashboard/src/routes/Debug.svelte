@@ -56,7 +56,12 @@
 					education: [],
 					typingStrings: [],
 					favicon: '',
-					profileImage: ''
+					profileImage: '',
+					sub_title: [],
+					location: '',
+					techStack: [],
+					particlesQuantity: 0,
+					badges: []
 				}),
                 contact.set({
                     spreadsheetUrl: '',
