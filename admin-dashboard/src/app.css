@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-neutral-50 text-neutral-900 
+               dark:bg-neutral-950 dark:text-neutral-50 
+               transition-colors duration-300 antialiased;
+        min-height: 100vh;
+    }
+}
+
+@layer components {
+    /* Liquid Glass Card - Monochrome */
+    .glass-card {
+        @apply bg-white/70 backdrop-blur-2xl border border-neutral-200/50 shadow-xl shadow-black/5
+               dark:bg-neutral-900/60 dark:border-white/10 dark:shadow-none
+               rounded-[2rem];
+    }
+
+    .glass-card-hover {
+        @apply transition-all duration-300
+               hover:shadow-2xl hover:shadow-black/10
+               dark:hover:shadow-white/5
+               hover:scale-[1.01];
+    }
+
+    /* Minimalist Liquid Input */
+    .glass-input {
+        @apply bg-neutral-100/50 border border-neutral-200 rounded-2xl px-4 py-3
+               text-neutral-900 placeholder-neutral-400
+               focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50
+               dark:bg-white/5 dark:border-white/10 dark:text-white dark:placeholder-white/20
+               transition-all duration-300;
+    }
+
+    /* Accent Buttons */
+    .glass-button {
+        @apply relative overflow-hidden rounded-full px-6 py-3
+               bg-neutral-900 text-white font-medium
+               dark:bg-white dark:text-black
+               shadow-lg transition-all duration-300
+               hover:scale-105 active:scale-95;
+    }
+
+    .glass-button-primary {
+        @apply bg-orange-500 hover:bg-orange-600 text-white dark:text-white;
+    }
+
+    .glass-button-danger {
+        @apply bg-red-500 hover:bg-red-600 text-white dark:text-white;
+    }
+
+    .glass-button-outline {
+        @apply bg-transparent border border-neutral-200 text-neutral-900
+               dark:border-white/20 dark:text-white
+               hover:bg-neutral-50 dark:hover:bg-white/10;
+    }
+
+    /* OS Dock Item */
+    .dock-item {
+        @apply relative transition-all duration-300 ease-out;
+    }
+
+    .dock-item .icon-container {
+        @apply w-12 h-12 rounded-2xl bg-neutral-200/50 border border-neutral-300/50
+               flex items-center justify-center text-xl text-neutral-600
+               dark:bg-white/5 dark:border-white/10 dark:text-white/40
+               transition-all duration-300 shadow-lg backdrop-blur-md;
+    }
+
+    .dock-item.active .icon-container {
+        @apply bg-neutral-900 text-white scale-110
+               dark:bg-white dark:text-black;
+        box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+    }
+
+    .dock-item:hover .icon-container {
+        @apply bg-neutral-300 text-neutral-900 scale-105 -translate-y-1
+               dark:bg-white/15 dark:text-white;
+    }
+}
