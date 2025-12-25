@@ -30,6 +30,12 @@
     let focusedStarPosition: THREE.Vector3 | null = null; // Where the user clicked
     let targetLookAt: THREE.Vector3 = new THREE.Vector3(0,0,0); // Where controls are looking
 
+    // Camera transition state (for smooth moves when entering/exiting system)
+    let targetCameraPos: THREE.Vector3 | null = null;
+    let isTransitioning = false;
+    const transitionSpeed = 0.08;
+    const GALAXY_CAMERA_POS = new THREE.Vector3(0, 80, 450);
+
     // Thresholds
     const ZOOM_ENTER_THRESHOLD = 30; // Distance to trigger system view
     const ZOOM_EXIT_THRESHOLD = 120;  // Distance to trigger galaxy view
@@ -38,12 +44,12 @@
 
     const parameters = {
         count: 150000,
-        size: 0.3,
+        size: 1.4,
         radius: 300,
-        branches: 5,
-        spin: 1,
-        randomness: 0.5,
-        randomnessPower: 3, 
+        branches: 30,
+        spin: 40,
+        randomness: 30,
+        randomnessPower: 40, 
         coreColor: '#ffddaa', 
         outerColor: '#1b3984', 
     };
@@ -172,21 +178,38 @@
 
         for (let i = 0; i < parameters.count; i++) {
             const i3 = i * 3;
-            const radius = Math.pow(Math.random(), 1.5) * parameters.radius;
-            const spinAngle = radius * parameters.spin;
-            const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
 
-            const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
-            const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
-            const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
+            const branch = i % parameters.branches;
+            const branchAngle = (branch / parameters.branches) * Math.PI * 2;
 
-            positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-            positions[i3 + 1] = randomY * (radius * 0.05) + (Math.random() - 0.5) * 20; 
-            positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+            // Concentrate more stars in core yet allow arms to extend
+            const radius = Math.pow(Math.random(), 1.15) * parameters.radius;
+            const radiusNorm = radius / parameters.radius;
+
+            // Spin angle scaled with normalized radius (creates spiral winding)
+            const spinAngle = radiusNorm * parameters.spin * Math.PI * 2;
+
+            // Angle along spiral arm plus a small, radius-dependent jitter
+            const angle = branchAngle + spinAngle + (Math.random() - 0.5) * (0.6 * (1 - radiusNorm));
+
+            // Smaller radial noise for clearer arms
+            const radialNoise = (Math.random() - 0.5) * parameters.randomness * (1 - radiusNorm * 0.6) * 0.6 * parameters.radius * 0.01;
+
+            // Thin disk vertically; reduce Y spread as we go outward
+            const y = (Math.random() - 0.5) * 10 * (1 - radiusNorm * 0.7);
+
+            positions[i3] = Math.cos(angle) * radius + radialNoise;
+            positions[i3 + 1] = y;
+            positions[i3 + 2] = Math.sin(angle) * radius + radialNoise * 0.5;
 
             const mixedColor = colorCore.clone();
-            mixedColor.lerp(colorOuter, radius / parameters.radius);
-            
+            mixedColor.lerp(colorOuter, radiusNorm);
+            // slight random brightness variation
+            const variation = (Math.random() - 0.5) * 0.06;
+            mixedColor.r = Math.min(1, Math.max(0, mixedColor.r + variation));
+            mixedColor.g = Math.min(1, Math.max(0, mixedColor.g + variation));
+            mixedColor.b = Math.min(1, Math.max(0, mixedColor.b + variation));
+
             colors[i3] = mixedColor.r;
             colors[i3 + 1] = mixedColor.g;
             colors[i3 + 2] = mixedColor.b;
@@ -287,6 +310,10 @@
         });
         activePlanets = [];
         activeSunPosition = null;
+
+        // Restore galaxy visibility when clearing the system
+        if (galaxy) galaxy.visible = true;
+
         // Restore the default exit threshold when no system is active
         currentExitThreshold = ZOOM_EXIT_THRESHOLD;
     }
@@ -337,6 +364,9 @@
 
         scene.add(activeSun);
 
+        // Hide galaxy while in system view to avoid visual clutter
+        if (galaxy) galaxy.visible = false;
+
         // Add light source at the sun (strength and range scaled with size)
         const sunLight = new THREE.PointLight(baseColorHex, sv.intensity * (sunSize/12), 300 + sunSize * 8, 1.5);
         sunLight.position.set(0, 0, 0); // Relative to sun mesh
@@ -347,9 +377,12 @@
         currentExitThreshold = Math.max(ZOOM_EXIT_THRESHOLD, sunSize * 25);
         (activeSun as any).userData = { pulseSpeed: 0.8 + Math.random() * 1.6, baseIntensity: sv.intensity, lightRef: sunLight, spriteRef: sprite, exitThreshold: currentExitThreshold };
 
-        // 2. Generate Planets
+        // 2. Generate Planets (spaced based on sun size to avoid intersections)
         const planetColors = [0x2266ff, 0xff4422, 0x88cc88, 0xcccccc, 0xaa55aa];
-        const planetCount = Math.floor(Math.random() * 4) + 3; 
+        const planetCount = Math.floor(Math.random() * 4) + 3;
+
+        // Start orbit well outside the star's visible radius + a safety margin
+        let currentOrbit = sunSize * 1.6 + 6;
 
         for (let i = 0; i < planetCount; i++) {
             const colorHex = planetColors[Math.floor(Math.random() * planetColors.length)];
@@ -362,17 +395,22 @@
             });
             const planet = new THREE.Mesh(pGeo, pMat);
 
-            const distance = 25 + (i * 12) + Math.random() * 5;
+            // Place planets at increasing distances from the sun so they're never inside it
+            const distance = currentOrbit + pSize + Math.random() * 5;
             const angle = Math.random() * Math.PI * 2;
-            const speed = (0.5 + Math.random() * 0.5) / (distance * 0.1);
+            // Slower orbits for farther planets
+            const speed = (0.2 + Math.random() * 0.6) / (distance * 0.06);
 
             planet.userData = { distance, angle, speed };
             
             planet.position.set(
                 centerPosition.x + Math.cos(angle) * distance,
-                centerPosition.y + (Math.random()-0.5)*2,
+                centerPosition.y + (Math.random()-0.5) * 2,
                 centerPosition.z + Math.sin(angle) * distance
             );
+
+            // Increment the orbit baseline to ensure next planet is farther out
+            currentOrbit += pSize * 2 + 8;
 
             if (Math.random() > 0.6) {
                 const ringGeo = new THREE.RingGeometry(pSize * 1.4, pSize * 2.2, 32);
@@ -389,17 +427,28 @@
 
     // --- Initialization ---
 
+    // Helper: safe distance calculation for SSR safety
+    function safeDistanceTo(target: THREE.Vector3 | null) {
+        if (!target) return null;
+        if (typeof window === 'undefined') return null;
+        if (!camera) return null;
+        try { return camera.position.distanceTo(target); } catch { return null; }
+    }
+
     function init() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000); 
         scene.fog = new THREE.FogExp2(0x000000, 0.001); // Adjusted fog for distance
 
         camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 2000);
-        camera.position.set(0, 180, 250); 
+        // Position camera to view the galaxy face-on (less edge-on which created a vertical line effect)
+        camera.position.set(0, 80, 450);
 
         renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // Guard window access for SSR
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? Math.min(window.devicePixelRatio, 2) : 1;
+        renderer.setPixelRatio(dpr);
         renderer.toneMapping = THREE.ReinhardToneMapping;
         container.appendChild(renderer.domElement);
 
@@ -429,6 +478,12 @@
         scene.add(new THREE.AmbientLight(0x404040, 0.5));
 
         generateGalaxy();
+
+        // Tilt the galaxy slightly so spiral arms are visible (avoid edge-on vertical line)
+        if (galaxy) {
+            galaxy.rotation.x = -0.35; // tilt toward the camera
+            galaxy.rotation.z = (Math.random() - 0.5) * 0.3; // small random twist
+        }
 
         container.addEventListener('pointerdown', onPointerDown);
         window.addEventListener('resize', onResize);
@@ -477,6 +532,19 @@
         const dt = clock.getDelta();
 
         // 1. Smoothly interpolate Controls Target to the desired LookAt point
+        // If we are mid-transition, smoothly move the camera towards the target position and lookAt target
+        if (isTransitioning && targetCameraPos && targetLookAt) {
+            camera.position.lerp(targetCameraPos, transitionSpeed);
+            controls.target.lerp(targetLookAt, transitionSpeed);
+
+            // Finish transition when close enough
+            if (camera.position.distanceTo(targetCameraPos) < 1.0) {
+                isTransitioning = false;
+                // Re-enable auto-rotate only when returning to galaxy
+                if (viewMode === 'GALAXY') controls.autoRotate = true;
+            }
+        }
+
         controls.target.lerp(targetLookAt, 0.05);
 
         // 2. Handle State Transitions based on Distance
@@ -500,6 +568,23 @@
                     viewMode = 'SYSTEM';
                     createSolarSystem(focusedStarPosition);
                     updateReticle(null); // Remove reticle
+
+                    // Compute a camera position that is a comfortable distance away from the star
+                    // Prefer keeping the same viewing direction by using the current camera->star vector
+                    const starPos = focusedStarPosition!.clone();
+                    let dir = camera.position.clone().sub(starPos);
+                    if (dir.length() < 0.1) dir = new THREE.Vector3(0, 10, 40);
+                    dir.normalize();
+
+                    // Determine desired distance: at least 80 units or scaled to star size
+                    const sunRadius = (activeSun && (activeSun.geometry as any)?.parameters?.radius) ?? 12;
+                    const desiredDistance = Math.max(80, sunRadius * 4);
+
+                    targetCameraPos = starPos.clone().add(dir.multiplyScalar(desiredDistance));
+                    targetLookAt = starPos.clone();
+                    isTransitioning = true;
+
+                    // Keep auto-rotate off while we're transitioning into the system
                     controls.autoRotate = false;
                 }
             } else {
@@ -550,7 +635,11 @@
                     // Reset target to center so we don't stare at the empty space where the sun was
                     focusedStarPosition = null;
                     targetLookAt.set(0,0,0);
-                    controls.autoRotate = true;
+
+                    // Smoothly move back to the galaxy overview camera position; re-enable auto-rotate after transition completes
+                    targetCameraPos = GALAXY_CAMERA_POS.clone();
+                    isTransitioning = true;
+                    controls.autoRotate = false;
                 }
             }
         }
@@ -565,29 +654,12 @@
 
     onDestroy(() => {
         if (container) container.removeEventListener('pointerdown', onPointerDown);
-        window.removeEventListener('resize', onResize);
+        // Guard window access for SSR
+        if (typeof window !== 'undefined') window.removeEventListener('resize', onResize);
         // dispose geometries/materials...
     });
 </script>
 
 <!-- Container -->
+<!-- svelte-ignore element_invalid_self_closing_tag -->
 <div bind:this={container} class="w-full h-full absolute inset-0 bg-black cursor-crosshair" />
-
-<!-- UI Instructions -->
-<div class="absolute top-4 left-4 pointer-events-none text-white/60 text-sm font-sans select-none flex flex-col gap-2">
-    {#if viewMode === 'GALAXY'}
-        <div class="bg-black/40 backdrop-blur-sm p-3 rounded border border-white/10">
-            <h2 class="font-bold text-cyan-400 mb-1">GALAXY MODE</h2>
-            <p>1. Click any star to target it (Green Reticle).</p>
-            <p>2. Scroll to <span class="text-white font-bold">ZOOM IN</span> until you enter the system.</p>
-            <p class="mt-2 text-xs italic text-white/40">Target distance: {focusedStarPosition ? camera.position.distanceTo(focusedStarPosition).toFixed(1) : "--"} / {ZOOM_ENTER_THRESHOLD}</p>
-        </div>
-    {:else}
-        <div class="bg-black/40 backdrop-blur-sm p-3 rounded border border-white/10">
-            <h2 class="font-bold text-orange-400 mb-1">SYSTEM MODE</h2>
-            <p>Explore the planets.</p>
-            <p>Scroll to <span class="text-white font-bold">ZOOM OUT</span> to return to Galaxy.</p>
-            <p class="mt-2 text-xs italic text-white/40">Distance to Sun: {activeSunPosition ? camera.position.distanceTo(activeSunPosition).toFixed(1) : "--"} / {currentExitThreshold.toFixed(1)}</p>
-        </div>
-    {/if}
-</div>
