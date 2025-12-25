@@ -87,9 +87,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Contact Form -->
                 <div class="glass-card glass-card-hover p-6">
-                    <div class="flex justify-center">
+                    <!-- <div class="flex justify-center">
                         <h2 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Send a Message</h2>
-                    </div>
+                    </div> -->
                     
                     {#if error}
                         <div class="bg-red-500/10 backdrop-blur-sm text-red-600 dark:text-red-400 p-3 rounded-lg mb-4">

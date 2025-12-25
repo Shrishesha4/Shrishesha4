@@ -64,6 +64,12 @@
     function handleImageLoadStart(projectId: string) {
         imageLoading[projectId] = true;
     }
+
+    function truncateText(text: string, limit: number = 120): string {
+        if (!text) return '';
+        if (text.length <= limit) return text;
+        return text.slice(0, limit).trim() + '...';
+    }
 </script>
 
 <div>
@@ -114,7 +120,7 @@
                             {project.title}
                         </h3>
                         <p class="text-neutral-700 dark:text-neutral-300 mb-4 md:mb-6 leading-relaxed text-base md:text-lg">
-                            {project.description}
+                            {truncateText(project.description)}
                         </p>
 
                         {#if project.technologies && project.technologies.length > 0}

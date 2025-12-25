@@ -74,7 +74,7 @@
 
 <div class="min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <h1 class="text-4xl font-bold">Projects</h1>
             
             <!-- Search and Filter Section -->
@@ -140,7 +140,7 @@
                 </div>
             </div>
             
-            <BuyMeCoffee mode="button" />
+            <!-- <BuyMeCoffee mode="button" /> -->
         </div>
         
         <ProjectViewer {searchQuery} {selectedFilter} {categorizeProject} />

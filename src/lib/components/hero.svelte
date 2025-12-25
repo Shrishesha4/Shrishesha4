@@ -137,22 +137,22 @@
     <p class="mb-5 p-2 text-lg text-neutral-600 dark:text-neutral-400">
         {$profile.location || ''}
     </p>
-    <div class="flex gap-4 mb-8 justify-center md:justify-start">
+    <div class="flex gap-3 md:gap-4 mb-8 justify-center md:justify-start">
         <a
             href="/aboutme"
-            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 dark:border-neutral-700 px-6 py-3 text-white transition hover:bg-neutral-800"
+            class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border border-neutral-300 dark:border-neutral-700 px-3 md:px-6 py-2 md:py-3 text-sm md:text-base text-white transition hover:bg-neutral-800"
         >
             Know Me
         </a>
         <a
             href="/contact"
-            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
+            class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border border-neutral-300 px-3 md:px-6 py-2 md:py-3 text-sm md:text-base text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
         >
             Contact Me
         </a>
         <a
             href="https://cal.com/shrishesha-n"
-            class="glass-card-hover inline-flex items-center rounded-3xl border border-neutral-300 px-6 py-3 text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
+            class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border border-neutral-300 px-3 md:px-6 py-2 md:py-3 text-sm md:text-base text-neutral-700 transition dark:border-neutral-700 dark:text-neutral-300"
         >
             Schedule a Call
         </a>

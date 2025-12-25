@@ -30,14 +30,14 @@
             <header class="mb-8">
                 <h1 class="text-4xl font-bold mb-4">{currentBlog.title}</h1>
                 <div class="flex items-center justify-between">
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2 items-center flex-1">
                         {#each currentBlog.tags as tag}
-                            <span class="px-3 py-1 glass-button dark:bg-neutral-800 rounded-full text-sm">
+                            <span class="px-3 py-1 glass-button dark:bg-neutral-800 rounded-full text-sm flex-shrink-0">
                                 {tag}
                             </span>
                         {/each}
                     </div>
-                    <time class="text-neutral-500 dark:text-neutral-400">
+                    <time class="text-neutral-500 dark:text-neutral-400 flex-shrink-0">
                         {new Date(currentBlog.date).toLocaleDateString()}
                     </time>
                 </div>

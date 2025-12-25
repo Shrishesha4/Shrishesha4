@@ -22,11 +22,25 @@
     };
     let loading = true;
 
+    // LLM generation state
+    let llmApiKey: string = '';
+    let llmStyle: string = '';
+    let saveApiKey: boolean = false;
+    let llmLoading: boolean = false;
+
     onMount(async () => {
         if (!auth.currentUser) {
             navigate('/login');
             return;
         }
+
+        // Load saved API key if user previously chose to store it
+        try {
+            const saved = localStorage.getItem('gemini_api_key');
+            if (saved) {
+                llmApiKey = saved;
+            }
+        } catch (e) {}
 
         if (isEdit && id) {
             await blogs.load();
@@ -79,9 +93,91 @@
     function execCommand(command: string, value: string | null = null) {
         document.execCommand(command, false, value as string);
     }
+
+    async function generateWithLLM() {
+        const key = llmApiKey || '';
+        if (!key) {
+            toast.show('Please provide your Gemini API key (you can save it locally)', 'error');
+            return;
+        }
+
+        if (!blog.title) {
+            toast.show('Please provide a title to seed the generation', 'error');
+            return;
+        }
+
+        llmLoading = true;
+        try {
+            const prompt = `Write a detailed blog post titled "${blog.title}". Summary: ${blog.description || ''}. Style: ${llmStyle || 'clear and engaging'}. Include headings (H2/H3), introduction and conclusion. Format in HTML for a blog editor.`;
+
+            // Call Gemini API directly (newer endpoint)
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(key)}`;
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                })
+            });
+
+            const text = await res.text();
+
+            // Try to parse JSON safely
+            let data: any = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch (e) {
+                data = { error: text || 'Invalid response from Gemini API' };
+            }
+
+            if (!res.ok) {
+                console.error('Gemini API error', res.status, data);
+                const message = data?.error?.message || data?.error || `Generation failed (status ${res.status})`;
+                toast.show(`Gemini API error: ${message}`, 'error');
+                llmLoading = false;
+                return;
+            }
+
+            // Extract content from Gemini response
+            const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            
+            if (!content) {
+                toast.show(data?.error?.message || 'No content returned from Gemini', 'error');
+                llmLoading = false;
+                return;
+            }
+
+            // Put the generated content in the editor
+            blog.content = content;
+
+            // If description is empty try to extract the first sentence/line
+            if (!blog.description) {
+                const firstLine = content.replace(/<[^>]*>/g, '').split('\n').find(Boolean) || '';
+                blog.description = firstLine.slice(0, 200);
+            }
+
+            toast.show('Generated content inserted into editor', 'success');
+
+            // Save API key locally if user asked
+            try {
+                if (saveApiKey) localStorage.setItem('gemini_api_key', llmApiKey);
+                else localStorage.removeItem('gemini_api_key');
+            } catch (e) {}
+
+        } catch (err: any) {
+            console.error(err);
+            toast.show(`Network error: ${err?.message || 'Failed to reach Gemini API'}`, 'error');
+        } finally {
+            llmLoading = false;
+        }
+    }
 </script>
 
 <div class="h-screen w-screen overflow-hidden flex flex-col-reverse bg-neutral-100 dark:bg-neutral-950 p-4 gap-4">
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <!-- Bottom Toolbar (Header) -->
     <header class="glass-card h-20 px-6 flex items-center justify-between border-neutral-200 dark:border-white/5 shrink-0 shadow-2xl">
         <div class="flex items-center gap-4">
@@ -114,7 +210,8 @@
             <div class="flex-1 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div>
             </div>
-        {:else}
+            {:else}
+            <!-- svelte-ignore a11y_label_has_associated_control -->
             <div class="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                 <div class="max-w-4xl mx-auto space-y-8 animate-workspace-in">
                     <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-8">
@@ -152,6 +249,7 @@
                                             <button type="button" on:click={() => execCommand('formatBlock', '<h2>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H2</button>
                                             <button type="button" on:click={() => execCommand('formatBlock', '<h3>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H3</button>
                                             <div class="w-px h-6 bg-neutral-300 dark:bg-white/10 mx-2 my-auto"></div>
+                                            <!-- svelte-ignore a11y_consider_explicit_label -->
                                             <button type="button" on:click={() => execCommand('insertUnorderedList')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors"><i class="fas fa-list-ul"></i></button>
                                         </div>
                                         <div 
@@ -188,6 +286,32 @@
                                                 class="glass-input w-full text-sm"
                                                 placeholder="tag1, tag2..."
                                             />
+                                        </div>
+
+                                        <!-- LLM Generation -->
+                                        <div class="pt-4 border-t border-neutral-200/30">
+                                            <span class="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Generate with LLM (Gemini)</span>
+                                            <label class="block text-[11px] text-neutral-500 mb-1">API Key</label>
+                                            <input type="password" value={llmApiKey} on:input={(e) => llmApiKey = (e.target as HTMLInputElement).value} placeholder="Paste Gemini API key (optional)" class="glass-input w-full text-sm mb-2" />
+
+                                            <label class="block text-[11px] text-neutral-500 mb-1">Tone / Style (optional)</label>
+                                            <input type="text" bind:value={llmStyle} placeholder="e.g. conversational, technical, concise" class="glass-input w-full text-sm mb-2" />
+
+                                            <div class="flex items-center gap-3">
+                                                <button on:click={generateWithLLM} class="glass-button glass-button-primary px-3 py-1.5" disabled={llmLoading}>
+                                                    {#if llmLoading}
+                                                        Generating…
+                                                    {:else}
+                                                        Generate
+                                                    {/if}
+                                                </button>
+                                                <label class="inline-flex items-center gap-2 text-sm text-neutral-500"><input type="checkbox" bind:checked={saveApiKey} /> <span>Save API key locally</span></label>
+                                            </div>
+
+                                            {#if llmLoading}
+                                                <div class="text-sm text-neutral-500 mt-2">Generating content…</div>
+                                            {/if}
+                                            <p class="text-xs text-neutral-400 mt-2">Tip: Paste your Gemini/Google Generative API key above. Storing it locally saves time but keep it private — for production, prefer a server-side key in environment variables.</p>
                                         </div>
                                     </div>
                                 </div>
