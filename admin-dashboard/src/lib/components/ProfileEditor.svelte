@@ -282,129 +282,92 @@
                     </div>
                 </div>
                 <div>
-                    <div class="relative">
-                        {#if savingStates.typing}
-                            <div class="absolute inset-0 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl flex items-center justify-center backdrop-blur-sm z-10">
-                                <LoadingSpinner />
+                <div class="relative">
+                    <label class="block mb-2 mt-6 font-bold text-neutral-700 dark:text-neutral-300">Tech Stack</label>
+                    <div class="space-y-2">
+                        {#each currentProfile.techStack as tech, i}
+                            <div class="flex gap-2">
+                                <input 
+                                    type="text" 
+                                    bind:value={currentProfile.techStack[i]}
+                                    class="flex-1 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                    placeholder="e.g., React, Node.js, etc."
+                                />
+                                <button 
+                                    type="button"
+                                    on:click={() => {
+                                        currentProfile.techStack = currentProfile.techStack.filter((_, index) => index !== i);
+                                    }}
+                                    class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
-                        {/if}
-                        <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Typing Animation Strings</label>
-                        <div class="space-y-2">
-                            {#each currentProfile.typingStrings as string, i}
-                                <div class="flex gap-2 w-min">
-                                    <input 
-                                        type="text" 
-                                        bind:value={currentProfile.typingStrings[i]}
-                                        class="flex-1 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                                    />
-                                    <button 
-                                        type="button"
-                                        on:click={() => {
-                                            currentProfile.typingStrings = currentProfile.typingStrings.filter((_, index) => index !== i);
-                                        }}
-                                        class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            {/each}
-                            <button 
-                                type="button"
-                                on:click={() => {
-                                    currentProfile.typingStrings = [...currentProfile.typingStrings, ''];
-                                }}
-                                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                            >
-                                + Add String
-                            </button>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <label class="block mb-2 mt-6 font-bold text-neutral-700 dark:text-neutral-300">Tech Stack</label>
-                        <div class="space-y-2">
-                            {#each currentProfile.techStack as tech, i}
-                                <div class="flex gap-2">
-                                    <input 
-                                        type="text" 
-                                        bind:value={currentProfile.techStack[i]}
-                                        class="flex-1 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                                        placeholder="e.g., React, Node.js, etc."
-                                    />
-                                    <button 
-                                        type="button"
-                                        on:click={() => {
-                                            currentProfile.techStack = currentProfile.techStack.filter((_, index) => index !== i);
-                                        }}
-                                        class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            {/each}
-                            <button 
-                                type="button"
-                                on:click={() => {
-                                    currentProfile.techStack = [...currentProfile.techStack, ''];
-                                }}
-                                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                            >
-                                + Add Technology
-                            </button>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <label class="block mb-2 mt-6 font-bold text-neutral-700 dark:text-neutral-300">Certification Badges</label>
-                        <div class="space-y-4">
-                            {#each currentProfile.badges as badge, i}
-                                <div class="glass-card p-4 space-y-3">
-                                    <div class="flex justify-between items-start">
-                                        <input 
-                                            type="text" 
-                                            bind:value={badge.title}
-                                            class="flex-1 px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                                            placeholder="Badge title (e.g., Oracle Certified Professional)"
-                                        />
-                                        <button 
-                                            type="button"
-                                            on:click={() => {
-                                                currentProfile.badges = currentProfile.badges.filter((_, index) => index !== i);
-                                            }}
-                                            class="ml-2 px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                        >
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                    <div class="max-w-xs">
-                                        <ImageUpload
-                                            currentImage={badge.imageUrl}
-                                            onImageUploaded={(url) => {
-                                                currentProfile.badges[i].imageUrl = url;
-                                                currentProfile.badges = currentProfile.badges;
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            {/each}
-                            <button 
-                                type="button"
-                                on:click={() => {
-                                    currentProfile.badges = [...currentProfile.badges, { title: '', imageUrl: '' }];
-                                }}
-                                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                            >
-                                + Add Badge
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex justify-center mt-6">
+                        {/each}
                         <button 
-                            type="submit" 
-                            class="glass-button hover:scale-105 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                            disabled={Object.values(savingStates).some(state => state)}
+                            type="button"
+                            on:click={() => {
+                                currentProfile.techStack = [...currentProfile.techStack, ''];
+                            }}
+                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                         >
-                            {Object.values(savingStates).some(state => state) ? 'Saving...' : 'Save Changes'}
+                            + Add Technology
                         </button>
                     </div>
+                </div>
+                <div class="relative">
+                    <label class="block mb-2 mt-6 font-bold text-neutral-700 dark:text-neutral-300">Certification Badges</label>
+                    <div class="space-y-4">
+                        {#each currentProfile.badges as badge, i}
+                            <div class="glass-card p-4 space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <input 
+                                        type="text" 
+                                        bind:value={badge.title}
+                                        class="flex-1 px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Badge title (e.g., Oracle Certified Professional)"
+                                    />
+                                    <button 
+                                        type="button"
+                                        on:click={() => {
+                                            currentProfile.badges = currentProfile.badges.filter((_, index) => index !== i);
+                                        }}
+                                        class="ml-2 px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="max-w-xs">
+                                    <ImageUpload
+                                        currentImage={badge.imageUrl}
+                                        onImageUploaded={(url) => {
+                                            currentProfile.badges[i].imageUrl = url;
+                                            currentProfile.badges = currentProfile.badges;
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        {/each}
+                        <button 
+                            type="button"
+                            on:click={() => {
+                                currentProfile.badges = [...currentProfile.badges, { title: '', imageUrl: '' }];
+                            }}
+                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                        >
+                            + Add Badge
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-center mt-6">
+                    <button 
+                        type="submit" 
+                        class="glass-button hover:scale-105 px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                        disabled={Object.values(savingStates).some(state => state)}
+                    >
+                        {Object.values(savingStates).some(state => state) ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
                 </div>
             </form>
     </div>
