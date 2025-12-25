@@ -60,6 +60,7 @@
 
 <!-- svelte-ignore a11y_label_has_associated_control -->
 <!-- svelte-ignore a11y_missing_content -->
+<!-- svelte-ignore a11y_consider_explicit_label -->
 {#if show}
     <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-all duration-300">
         <div class="glass-card w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden animate-workspace-in border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xl">

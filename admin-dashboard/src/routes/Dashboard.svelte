@@ -66,43 +66,44 @@
     <div class="h-screen w-screen overflow-hidden flex flex-col-reverse md:flex-row p-4 gap-4 bg-neutral-100 dark:bg-neutral-950 transition-colors duration-500">
         
         <!-- OS Dock (Navigation) -->
-        <nav class="md:h-full md:w-24 w-full h-20 glass-card flex md:flex-col justify-between items-center py-2 md:py-6 px-4 md:px-2 z-50 shrink-0 border-neutral-200 dark:border-white/5 shadow-2xl md:shadow-none">
+        <!-- svelte-ignore a11y_consider_explicit_label -->
+        <nav class="md:h-full md:w-24 w-full h-20 glass-card flex md:flex-col items-center py-2 md:py-6 px-3 sm:px-4 z-50 shrink-0 border-neutral-200 dark:border-white/5 shadow-2xl md:shadow-none overflow-x-auto no-scrollbar">
             <!-- App Icon / OS Indicator -->
             <div class="hidden md:flex w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-white items-center justify-center text-white dark:text-black font-black text-xl mb-8 shadow-2xl">
                 A
             </div>
 
             <!-- Dock Items -->
-            <div class="flex-1 md:flex-none flex md:flex-col gap-6 items-center justify-around md:justify-center w-full">
+            <div class="flex-1 md:flex-none flex items-center justify-between md:flex-col gap-3 sm:gap-6 w-full md:w-auto px-3">
                 <button
                     class="dock-item group {activeTab === 'profile' ? 'active' : ''}"
                     on:click={() => setActiveTab('profile')}
                 >
-                    <div class="icon-container"><i class="fas fa-user"></i></div>
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-user"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'projects' ? 'active' : ''}"
                     on:click={() => setActiveTab('projects')}
                 >
-                    <div class="icon-container"><i class="fas fa-cubes"></i></div>
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-cubes"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'blogs' ? 'active' : ''}"
                     on:click={() => setActiveTab('blogs')}
                 >
-                    <div class="icon-container"><i class="fas fa-edit"></i></div>
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-edit"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'contact' ? 'active' : ''}"
                     on:click={() => setActiveTab('contact')}
                 >
-                    <div class="icon-container"><i class="fas fa-address-book"></i></div>
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-address-book"></i></div>
                 </button>
                 <button
                     on:click={handleLogout}
                     class="dock-item group"
                 >
-                    <div class="icon-container bg-red-500/5 dark:bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14 bg-red-500/5 dark:bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">
                         <i class="fas fa-power-off"></i>
                     </div>
                 </button>
@@ -116,19 +117,6 @@
 
         <!-- Main Workspace Window -->
         <main class="flex-1 glass-card overflow-hidden flex flex-col border-neutral-200 dark:border-white/5">
-            <!-- Window Title Bar -->
-            <div class="h-14 border-b border-neutral-200/50 dark:border-white/5 flex items-center justify-between px-6 bg-white/20 dark:bg-white/5 backdrop-blur-xl shrink-0">
-                <div class="flex items-center gap-3">
-                    <h2 class="text-sm font-semibold text-neutral-800 dark:text-white/90">
-                        {#if activeTab === 'profile'}Manage Profile
-                        {:else if activeTab === 'projects'}Project Portfolio
-                        {:else if activeTab === 'blogs'}Editorial Studio
-                        {:else if activeTab === 'contact'}Communication Hub
-                        {/if}
-                    </h2>
-                </div>
-            </div>
-
             <!-- Content Area -->
             <div class="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                 <div class="max-w-5xl mx-auto animate-workspace-in">

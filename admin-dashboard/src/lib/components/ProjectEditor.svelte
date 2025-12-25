@@ -86,23 +86,7 @@
                             </div>
                         {/if}
                         
-                        <!-- Overlay Actions -->
-                        <div class="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px] pointer-events-auto sm:pointer-events-none group-hover:pointer-events-auto">
-                            <button 
-                                on:click={() => handleEdit(project)}
-                                class="w-10 h-10 rounded-full bg-white text-neutral-900 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-colors shadow-lg"
-                                title="Edit"
-                            >
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <button 
-                                on:click={() => handleRemove(project)}
-                                class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors shadow-lg"
-                                title="Delete"
-                            >
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+
                     </div>
 
                     <!-- Content -->
@@ -121,6 +105,22 @@
                             {#if project.technologies.length > 3}
                                 <span class="px-2 py-1 text-xs text-neutral-400">+{project.technologies.length - 3}</span>
                             {/if}
+                        </div>
+
+                        <!-- Actions (match BlogEditor style) -->
+                        <div class="mt-4 flex sm:flex-col gap-3 w-full sm:w-auto">
+                            <button 
+                                on:click={() => handleEdit(project)}
+                                class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
+                            >
+                                <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
+                            </button>
+                            <button 
+                                on:click={() => handleRemove(project)}
+                                class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
+                            >
+                                <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>
+                            </button>
                         </div>
                     </div>
                 </div>

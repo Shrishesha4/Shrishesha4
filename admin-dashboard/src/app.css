@@ -64,16 +64,16 @@
     }
 
     .dock-item .icon-container {
-        @apply w-12 h-12 rounded-2xl bg-neutral-200/50 border border-neutral-300/50
+        @apply w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-neutral-200/50 border border-neutral-300/50
                flex items-center justify-center text-xl text-neutral-600
                dark:bg-white/5 dark:border-white/10 dark:text-white/40
                transition-all duration-300 shadow-lg backdrop-blur-md;
     }
 
     .dock-item.active .icon-container {
-        @apply bg-neutral-900 text-white scale-110
+        @apply bg-neutral-900 text-white scale-110 sm:scale-110
                dark:bg-white dark:text-black;
-        box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+        box-shadow: 0 0 18px rgba(249, 115, 22, 0.22);
     }
 
     .dock-item:hover .icon-container {

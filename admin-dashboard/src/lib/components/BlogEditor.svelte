@@ -6,7 +6,8 @@
     import { auth } from '$lib/firebase/config';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
-    export let editingBlog: any = null; // Kept for prop compatibility
+    // svelte-ignore export_let_unused
+        export let editingBlog: any = null; // Kept for prop compatibility
     
     let allBlogs: typeof $blogs = [];
     let loading = true;
@@ -73,11 +74,11 @@
 
         <div class="grid grid-cols-1 gap-4">
             {#each allBlogs as blog}
-                <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center group hover:border-orange-500/30 transition-all duration-300">
+                <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center group hover:border-orange-500/30 transition-all duration-300 overflow-hidden box-border max-w-full">
                     <!-- Thumbnail -->
-                    <div class="w-full sm:w-24 h-24 sm:h-16 rounded-lg bg-neutral-100 dark:bg-neutral-800 overflow-hidden shrink-0">
+                    <div class="w-full sm:w-24 h-24 sm:h-16 rounded-lg bg-neutral-100 dark:bg-neutral-800 overflow-hidden shrink-0 flex-shrink-0">
                         {#if blog.image}
-                            <img src={blog.image} alt={blog.title} class="w-full h-full object-cover" />
+                            <img src={blog.image} alt={blog.title} class="w-full h-full object-cover block" />
                         {:else}
                             <div class="w-full h-full flex items-center justify-center text-neutral-300 dark:text-neutral-700">
                                 <i class="fas fa-newspaper"></i>
@@ -87,9 +88,9 @@
 
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white truncate">{blog.title}</h3>
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-1 truncate overflow-hidden whitespace-nowrap">{blog.description}</p>
-                        <div class="flex items-center gap-2 mt-2">
+                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words leading-tight line-clamp-2">{blog.title}</h3>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2 break-words max-w-full">{blog.description}</p>
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
                             <span class="text-xs font-medium px-2 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
                                 {new Date(blog.date).toLocaleDateString()}
                             </span>
@@ -103,16 +104,16 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
                         <button 
                             on:click={() => handleEdit(blog)}
-                            class="flex-1 sm:flex-none glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
+                            class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
                         >
                             <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
                         </button>
                         <button 
                             on:click={() => handleDelete(blog.id)}
-                            class="flex-1 sm:flex-none glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
+                            class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
                         >
                             <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>
                         </button>
