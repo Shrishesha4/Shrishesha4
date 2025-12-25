@@ -33,6 +33,8 @@
     // Thresholds
     const ZOOM_ENTER_THRESHOLD = 30; // Distance to trigger system view
     const ZOOM_EXIT_THRESHOLD = 120;  // Distance to trigger galaxy view
+    // Runtime threshold (can be adjusted per-star to avoid too-early exits)
+    let currentExitThreshold = ZOOM_EXIT_THRESHOLD;
 
     const parameters = {
         count: 150000,
@@ -93,22 +95,35 @@
         return tex;
     }
 
-    function createSunTexture() {
+    function createSunTexture(hexColor: string = '#ffaa00') {
         const size = 512;
         const canvas = document.createElement('canvas');
         canvas.width = canvas.height = size;
         const ctx = canvas.getContext('2d');
         if(!ctx) return new THREE.Texture();
 
-        ctx.fillStyle = '#ffaa00';
+        ctx.fillStyle = hexColor;
         ctx.fillRect(0,0,size,size);
+
+        // Helper to slightly lighten/darken the base color for variation
+        function shade(hex: string, percent: number) {
+            const bigint = parseInt(hex.replace('#', ''), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            const nr = Math.max(0, Math.min(255, Math.round(r * (1 + percent))));
+            const ng = Math.max(0, Math.min(255, Math.round(g * (1 + percent))));
+            const nb = Math.max(0, Math.min(255, Math.round(b * (1 + percent))));
+            return `rgb(${nr},${ng},${nb})`;
+        }
+
         for(let i=0; i<3000; i++) {
             const x = Math.random() * size;
             const y = Math.random() * size;
             const r = Math.random() * 10 + 2;
             ctx.beginPath();
             ctx.arc(x,y,r,0,Math.PI*2);
-            ctx.fillStyle = Math.random() > 0.5 ? '#ff4400' : '#ffffaa';
+            ctx.fillStyle = Math.random() > 0.5 ? shade(hexColor, -0.18) : shade(hexColor, 0.12);
             ctx.globalAlpha = 0.15;
             ctx.fill();
         }
@@ -272,6 +287,8 @@
         });
         activePlanets = [];
         activeSunPosition = null;
+        // Restore the default exit threshold when no system is active
+        currentExitThreshold = ZOOM_EXIT_THRESHOLD;
     }
 
     function createSolarSystem(centerPosition: THREE.Vector3) {
@@ -279,37 +296,56 @@
         clearSolarSystem();
         activeSunPosition = centerPosition;
 
-        // 1. Create the Sun
-        const sunSize = 12;
+        // 1. Create the Sun (randomized type/color/size)
+        const starVariants = [
+            { name: 'Yellow Dwarf', color: '#ffdd88', intensity: 2.5, roughness: 0.4, glowSize: 30 },
+            { name: 'Red Giant', color: '#ff7755', intensity: 3.5, roughness: 0.55, glowSize: 40 },
+            { name: 'Blue Giant', color: '#88bfff', intensity: 4.0, roughness: 0.25, glowSize: 20 },
+            { name: 'White Dwarf', color: '#ffffff', intensity: 2.0, roughness: 0.15, glowSize: 20 },
+            { name: 'Magenta Star', color: '#ff88ff', intensity: 3.0, roughness: 0.35, glowSize: 30 }
+        ];
+        const sv = starVariants[Math.floor(Math.random() * starVariants.length)];
+
+        const sunSize = 10 + Math.random() * 12; // 10 to 22
         const sunGeo = new THREE.SphereGeometry(sunSize, 64, 64);
+        const baseColorHex = sv.color;
         const sunMat = new THREE.MeshStandardMaterial({
-            map: createSunTexture(),
-            emissive: 0xff5500,
-            emissiveIntensity: 2.5,
-            emissiveMap: createSunTexture(),
-            color: 0xffaa00,
-            roughness: 0.4
+            map: createSunTexture(baseColorHex),
+            emissive: new THREE.Color(baseColorHex),
+            emissiveIntensity: sv.intensity,
+            emissiveMap: createSunTexture(baseColorHex),
+            color: new THREE.Color(baseColorHex).multiplyScalar(0.9),
+            roughness: sv.roughness,
+            metalness: 0.05
         });
         activeSun = new THREE.Mesh(sunGeo, sunMat);
         activeSun.position.copy(centerPosition);
-        
-        // Glow sprite
+
+        // Add a glow sprite to the sun using the new glow texture
+        const glowTex = createGlowTexture(baseColorHex, 512);
         const spriteMat = new THREE.SpriteMaterial({ 
-            map: createStarTexture(), 
-            color: 0xffaa00, 
+            map: glowTex, 
+            color: new THREE.Color(baseColorHex), 
             transparent: true, 
             blending: THREE.AdditiveBlending,
-            opacity: 0.5
+            opacity: 0.85
         });
         const sprite = new THREE.Sprite(spriteMat);
-        sprite.scale.set(60, 60, 1);
+        sprite.scale.set(sv.glowSize * (sunSize/12), sv.glowSize * (sunSize/12), 1);
+        sprite.position.set(0,0,0.1);
         activeSun.add(sprite);
 
         scene.add(activeSun);
 
-        // Sun Light
-        const sunLight = new THREE.PointLight(0xffaa00, 3, 300, 1.5);
+        // Add light source at the sun (strength and range scaled with size)
+        const sunLight = new THREE.PointLight(baseColorHex, sv.intensity * (sunSize/12), 300 + sunSize * 8, 1.5);
+        sunLight.position.set(0, 0, 0); // Relative to sun mesh
         activeSun.add(sunLight);
+
+        // Store some animation data so pulsing can occur in the animation loop
+        // Set a dynamic exit threshold based on star size so that larger suns require more zoom-out to exit
+        currentExitThreshold = Math.max(ZOOM_EXIT_THRESHOLD, sunSize * 25);
+        (activeSun as any).userData = { pulseSpeed: 0.8 + Math.random() * 1.6, baseIntensity: sv.intensity, lightRef: sunLight, spriteRef: sprite, exitThreshold: currentExitThreshold };
 
         // 2. Generate Planets
         const planetColors = [0x2266ff, 0xff4422, 0x88cc88, 0xcccccc, 0xaa55aa];
@@ -479,6 +515,23 @@
                 // Animate Sun
                 activeSun.rotation.y += 0.002;
 
+                // Subtle pulsing of the sun's light and glow (if present)
+                const sUD = (activeSun as any).userData;
+                if (sUD && sUD.lightRef) {
+                    const flicker = Math.sin(clock.getElapsedTime() * sUD.pulseSpeed) * 0.35;
+                    sUD.lightRef.intensity = Math.max(0.1, sUD.baseIntensity + flicker);
+                    // Adjust glow sprite a bit
+                    if (sUD.spriteRef) {
+                        const mat: any = sUD.spriteRef.material;
+                        if (mat) mat.opacity = 0.75 + (flicker * 0.25);
+                        const baseScale = sUD.spriteRef.__baseScale || sUD.spriteRef.scale.x || 1;
+                        // store base scale once
+                        if (!sUD.spriteRef.__baseScale) sUD.spriteRef.__baseScale = baseScale;
+                        const bs = sUD.spriteRef.__baseScale;
+                        sUD.spriteRef.scale.set(bs * (1 + flicker * 0.12), bs * (1 + flicker * 0.12), 1);
+                    }
+                }
+
                 // Animate Planets
                 activePlanets.forEach(p => {
                     const ud = p.userData;
@@ -488,8 +541,8 @@
                     p.rotation.y += 0.01;
                 });
 
-                // ZOOM OUT THRESHOLD
-                if (dist > ZOOM_EXIT_THRESHOLD) {
+                // ZOOM OUT THRESHOLD (uses dynamic currentExitThreshold)
+                if (dist > currentExitThreshold) {
                     // Switch back to Galaxy View
                     viewMode = 'GALAXY';
                     clearSolarSystem();
@@ -534,7 +587,7 @@
             <h2 class="font-bold text-orange-400 mb-1">SYSTEM MODE</h2>
             <p>Explore the planets.</p>
             <p>Scroll to <span class="text-white font-bold">ZOOM OUT</span> to return to Galaxy.</p>
-            <p class="mt-2 text-xs italic text-white/40">Distance to Sun: {activeSunPosition ? camera.position.distanceTo(activeSunPosition).toFixed(1) : "--"} / {ZOOM_EXIT_THRESHOLD}</p>
+            <p class="mt-2 text-xs italic text-white/40">Distance to Sun: {activeSunPosition ? camera.position.distanceTo(activeSunPosition).toFixed(1) : "--"} / {currentExitThreshold.toFixed(1)}</p>
         </div>
     {/if}
 </div>
