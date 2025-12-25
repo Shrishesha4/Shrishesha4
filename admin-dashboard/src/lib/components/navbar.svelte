@@ -38,7 +38,7 @@
     class="fixed {isMobile ? 'bottom-6' : 'top-6'} left-1/2 transform -translate-x-1/2 z-[100] w-auto transition-transform duration-300"
     style={isMobile ? `transform: translate(-50%, ${isVisible ? '0' : '150%'})` : ''}
 >
-    <div class="bg-white/20 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30 dark:border-neutral-700/30 px-8 py-3 rounded-full flex items-center gap-8 shadow-lg">
+    <div class="bg-white/20 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30 dark:border-neutral-700/30 px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-full inline-flex items-center gap-4 sm:gap-6 md:gap-8 shadow-lg max-w-[95vw] overflow-x-auto whitespace-nowrap no-scrollbar">
         <a 
             href="/" 
             class="flex items-center gap-2 {pathname === '/' ? 'text-black/90 dark:text-white' : 'text-black/60 dark:text-neutral-400'} hover:text-black dark:hover:text-white transition-colors"
@@ -55,7 +55,7 @@
         </a>
         <a 
             href="/projects" 
-            class="flex items-center gap-2 {pathname === '/projects' ? 'text-black/90 dark:text-white' : 'text-black/60 dark:text-neutral-400'} hover:text-black dark:hover:text-white transition-color"
+            class="flex items-center gap-2 {pathname === '/projects' ? 'text-black/90 dark:text-white' : 'text-black/60 dark:text-neutral-400'} hover:text-black dark:hover:text-white transition-colors"
         >
             <i class="fas fa-code text-xl"></i>
             {#if !isMobile}<span>Projects</span>{/if}
@@ -83,3 +83,12 @@
         </a>
     </div>
 </nav>
+
+<style>
+    /* Hide horizontal scrollbar while keeping scroll behavior for overflow-x-auto */
+    :global(.no-scrollbar)::-webkit-scrollbar { display: none; }
+    :global(.no-scrollbar) { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Ensure nav anchors don't wrap their contents */
+    :global(nav a) { white-space: nowrap; }
+</style>

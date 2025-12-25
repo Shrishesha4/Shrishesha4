@@ -88,14 +88,14 @@
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <h3 class="text-lg font-bold text-neutral-900 dark:text-white truncate">{blog.title}</h3>
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-1">{blog.description}</p>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-1 truncate overflow-hidden whitespace-nowrap">{blog.description}</p>
                         <div class="flex items-center gap-2 mt-2">
                             <span class="text-xs font-medium px-2 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
                                 {new Date(blog.date).toLocaleDateString()}
                             </span>
                             {#if blog.tags && blog.tags.length > 0}
                                 <span class="text-xs text-neutral-400">•</span>
-                                <span class="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[150px]">
+                                <span class="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[120px] sm:max-w-[150px]">
                                     {blog.tags.join(', ')}
                                 </span>
                             {/if}
