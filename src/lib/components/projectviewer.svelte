@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getResponsiveImageSrcSet, optimizeImage } from './../utils/imageOptimizer';
+    import { createSlug } from './../utils/slug';
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
     import { projects } from '$lib/stores/projects';
@@ -133,7 +134,7 @@
                             </a>
                         {/if}
                         <a 
-                            href="/projects/{project.id}"
+                            href="/projects/{createSlug(project.title)}"
                             class="w-full flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                         >
                             <i class="fas fa-info-circle"></i>

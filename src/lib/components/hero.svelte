@@ -131,13 +131,13 @@
         </p>
 
         <!-- Buttons -->
-        <div class="flex gap-3 md:gap-4 mb-8 justify-center md:justify-start flex-wrap">
+        <div class="flex gap-3 md:gap-2 mb-8 justify-center md:justify-start">
             {#each ['Know Me', 'Contact Me', 'Schedule a Call'] as btn, i}
                 {@const href = i === 0 ? '/aboutme' : i === 1 ? '/contact' : 'https://cal.com/shrishesha-n'}
                 {@const primary = i === 0}
                 <a
                     href={href}
-                    class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border {primary ? 'border-neutral-300 dark:border-neutral-700' : 'border-neutral-300 dark:border-neutral-700'} {primary ? 'text-white' : 'text-neutral-700 dark:text-neutral-300'} transition px-3 md:px-6 py-2 md:py-3 text-sm md:text-base hover:scale-105 animate-pop-in"
+                    class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border {primary ? 'border-neutral-300 dark:border-neutral-700' : 'border-neutral-300 dark:border-neutral-700'} {primary ? 'text-white' : 'text-neutral-700 dark:text-neutral-300'} transition px-3 md:px-6 py-2 md:py-3 text-xs md:text-base hover:scale-105 animate-pop-in"
                     style="animation-delay: {700 + (i * 100)}ms;"
                 >
                     {btn}

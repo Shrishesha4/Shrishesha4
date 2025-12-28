@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Project } from '$lib/types';
     import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
+    import { createSlug } from '$lib/utils/slug';
     import { onMount } from 'svelte';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
@@ -59,14 +60,9 @@
 </script>
 
 <div class="w-full">
-    <div class="flex items-end justify-between mb-10 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+    <div class="flex items-end justify-between mb-6">
         <div>
             <h2 class="text-4xl font-bold text-neutral-900 dark:text-white tracking-tight">Featured Projects</h2>
-        </div>
-        <div class="hidden md:block">
-            <span class="text-xs font-mono text-primary-500 uppercase tracking-widest border border-primary-500/30 px-3 py-1 rounded-full bg-primary-500/10">
-                2023 - 2024
-            </span>
         </div>
     </div>
 
@@ -180,7 +176,7 @@
                                     </a>
                                 {/if}
                                 <a 
-                                    href="/projects/{project.id}"
+                                    href="/projects/{createSlug(project.title)}"
                                     on:click|stopPropagation
                                     class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                                 >

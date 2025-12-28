@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
+    import { createSlug } from '$lib/utils/slug';
 
     let currentProject: typeof $projects[0] | undefined;
     let loading = true;
@@ -14,7 +15,7 @@
             if ($projects.length === 0) {
                 await projects.load();
             }
-            currentProject = $projects.find(p => p.id === $page.params.id);
+            currentProject = $projects.find(p => createSlug(p.title) === $page.params.slug);
         } finally {
             loading = false;
         }
