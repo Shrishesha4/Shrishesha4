@@ -48,7 +48,7 @@
     let currentExitThreshold = ZOOM_EXIT_THRESHOLD;
 
     const parameters = {
-        count: 150000,
+        count: 50000,
         size: 1.4,
         radius: 300,
         branches: 30,
@@ -117,27 +117,31 @@
     // Create a glow texture with a tint color (hex string like '#bfe9ff')
     function createGlowTexture(hexColor: string, size = 128) {
         const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
+        canvas.width = size;
+        canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error('Context fail for glow texture');
+        
+        // Ensure clear canvas
+        ctx.clearRect(0, 0, size, size);
 
         const center = size / 2;
         const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
-        // Inner brighter
-        const rgba = (c: string, a: number) => {
-            // Convert hex to r,g,b
-            const bigint = parseInt(c.replace('#', ''), 16);
-            const r = (bigint >> 16) & 255;
-            const g = (bigint >> 8) & 255;
-            const b = bigint & 255;
-            return `rgba(${r},${g},${b},${a})`;
-        };
-        grad.addColorStop(0, rgba(hexColor, 0.95));
-        grad.addColorStop(0.4, rgba(hexColor, 0.5));
-        grad.addColorStop(1, rgba(hexColor, 0));
+        
+        // Convert hex to rgb string for gradient steps
+        const bigint = parseInt(hexColor.replace('#', ''), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        const rgb = `${r},${g},${b}`;
+
+        grad.addColorStop(0, `rgba(${rgb}, 0.8)`);
+        grad.addColorStop(0.3, `rgba(${rgb}, 0.3)`);
+        grad.addColorStop(1, `rgba(${rgb}, 0)`); // Fully transparent at edge
 
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, size, size);
+        
         const tex = new THREE.CanvasTexture(canvas);
         tex.needsUpdate = true;
         return tex;
@@ -252,14 +256,14 @@
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
         galaxy = new THREE.Points(geometry, new THREE.PointsMaterial({
-            size: parameters.size,
+            size: parameters.size * 1.2,
             sizeAttenuation: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
             vertexColors: true,
             map: starTexture,
             transparent: true,
-            opacity: 0.8
+            opacity: 1.0
         }));
         scene.add(galaxy);
 
@@ -302,7 +306,7 @@
             vertexColors: true,
             map: dustTexture,
             transparent: true,
-            opacity: 0.15
+            opacity: 0.35
         }));
         scene.add(galaxyDust);
     }
@@ -321,6 +325,7 @@
             // Also dispose textures on sprites if present
             if (anyRet.children && Array.isArray(anyRet.children)) {
                 anyRet.children.forEach((c: any) => {
+                    if (c.geometry && typeof c.geometry.dispose === 'function') c.geometry.dispose();
                     if (c.material && c.material.map && typeof c.material.map.dispose === 'function') c.material.map.dispose();
                     if (c.material && typeof c.material.dispose === 'function') c.material.dispose();
                 });
@@ -328,42 +333,73 @@
             reticle = null;
         }
         if (position) {
-            // Hexagonal ring: use RingGeometry with 6 segments to get a hexagon-like shape
-            const innerR = 1.0;
-            const outerR = 1.6;
-            const segments = 6; // makes the ring hexagonal
-            const hexGeo = new THREE.RingGeometry(innerR, outerR, segments);
-            const hexMat = new THREE.MeshBasicMaterial({ color: 0xbfe9ff, side: THREE.DoubleSide, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
-            const hexMesh = new THREE.Mesh(hexGeo, hexMat);
-
-            // Add a faint outer halo sprite for glow
-            const glowTex = createGlowTexture('#bfe9ff', 256);
-            const spriteMat = new THREE.SpriteMaterial({ map: glowTex, color: 0xbfe9ff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
-            const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(8, 8, 1);
-            sprite.position.set(0, 0, 0.01); // slightly in front
-
-            // Subtle inner line for contrast using LineLoop
-            const angleStep = (Math.PI * 2) / 6;
-            const points: THREE.Vector3[] = [];
-            for (let i = 0; i < 6; i++) {
-                const a = i * angleStep;
-                points.push(new THREE.Vector3(Math.cos(a) * ((innerR + outerR) / 2), Math.sin(a) * ((innerR + outerR) / 2), 0.02));
-            }
-            const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-            // Close the loop
-            const lastPoint = points[0].clone();
-            lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(points.flatMap(p => [p.x, p.y, p.z]), 3));
-            const lineMat = new THREE.LineBasicMaterial({ color: 0xbfe9ff, linewidth: 2, transparent: true, opacity: 0.9 });
-            const line = new THREE.LineLoop(lineGeo, lineMat);
-
             const group = new THREE.Group();
+
+            // 1. Wormhole Particles (Spiral)
+            const particlesCount = 200;
+            const particleGeo = new THREE.BufferGeometry();
+            const particlePos = new Float32Array(particlesCount * 3);
+            const particleSizes = new Float32Array(particlesCount);
+            
+            for(let i=0; i<particlesCount; i++) {
+                const angle = (i / particlesCount) * Math.PI * 10; // Multiple spirals
+                const radius = 1 + (i/particlesCount) * 1.5;
+                // Add some randomness to create a "cloud" feel
+                const spread = (Math.random() - 0.5) * 0.2; 
+                
+                particlePos[i*3] = Math.cos(angle) * (radius + spread);
+                particlePos[i*3+1] = Math.sin(angle) * (radius + spread);
+                particlePos[i*3+2] = (Math.random() - 0.5) * 0.5; // Depth
+                
+                particleSizes[i] = Math.random() * 0.5 + 0.1;
+            }
+            
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+            particleGeo.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
+            
+            const particleMat = new THREE.PointsMaterial({
+                color: 0x88ccff,
+                size: 0.2,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            
+            const swirl = new THREE.Points(particleGeo, particleMat);
+            group.add(swirl);
+
+            // 2. Central Glow Sprite
+            const glowTex = createGlowTexture('#00ffff', 128);
+            const spriteMat = new THREE.SpriteMaterial({ 
+                map: glowTex, 
+                color: 0x00ffff, 
+                transparent: true, 
+                opacity: 0.6, 
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(4, 4, 1);
             group.add(sprite);
-            group.add(hexMesh);
-            group.add(line);
+
+            // 3. Outer Ring (Event Horizonish)
+            const ringGeo = new THREE.RingGeometry(2.8, 3.0, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff, 
+                side: THREE.DoubleSide, 
+                transparent: true, 
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            group.add(ring);
 
             group.position.copy(position);
-            group.lookAt(camera.position); // face camera
+            group.lookAt(camera.position); // Face camera
+            
+            // Store reference for animation
+            group.userData = { swirl: swirl, ring: ring };
 
             reticle = group;
             scene.add(reticle);
@@ -388,6 +424,13 @@
         // Restore galaxy visibility when clearing the system
         if (galaxy) galaxy.visible = true;
         if (galaxyDust) galaxyDust.visible = true;
+        
+        // Reset controls
+        if (controls) {
+            controls.enablePan = true;
+            controls.minDistance = 0;
+            controls.maxDistance = Infinity;
+        }
 
         // Restore the default exit threshold when no system is active
         currentExitThreshold = ZOOM_EXIT_THRESHOLD;
@@ -524,9 +567,14 @@
         renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
         renderer.setSize(container.clientWidth, container.clientHeight);
         // Guard window access for SSR
-        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? Math.min(window.devicePixelRatio, 2) : 1;
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? Math.min(window.devicePixelRatio, 1.5) : 1;
         renderer.setPixelRatio(dpr);
-        renderer.toneMapping = THREE.ReinhardToneMapping;
+        
+        // Reverting to standard sRGB to fix runtime error
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.5;
         container.appendChild(renderer.domElement);
 
         controls = new OrbitControls(camera, renderer.domElement);
@@ -537,8 +585,8 @@
         
         const renderScene = new RenderPass(scene, camera);
         const bloomPass = new UnrealBloomPass(
-            new THREE.Vector2(container.clientWidth, container.clientHeight), 
-            1.5, 0.4, 0.1 
+            new THREE.Vector2(container.clientWidth / 2, container.clientHeight / 2), 
+            2.5, 0.5, 0.05 
         );
 
         composer = new EffectComposer(renderer);
@@ -588,15 +636,47 @@
     }
 
     function onPointerDown(event: PointerEvent) {
-        // Only handle clicks in GALAXY mode for selecting targets
-        if (viewMode !== 'GALAXY') return;
+        // Ignore multi-touch events (e.g., pinch-to-zoom secondary finger)
+        if (!event.isPrimary) return;
 
+        event.preventDefault(); // Prevent default browser actions
+        
         const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        const clientX = event.clientX;
+        const clientY = event.clientY;
 
+        // Calculate Normalized Device Coordinates (NDC) -1 to +1
+        // Ensure we are strictly within the container bounds
+        mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Handle SYSTEM mode double-click to exit
+        if (viewMode === 'SYSTEM') {
+            const now = Date.now();
+            // Use a separate variable for system click time to avoid confusion
+            if ((activeSun as any)?.__lastClickTime && (now - (activeSun as any).__lastClickTime) < DOUBLE_CLICK_WINDOW) {
+                // Double click detected in system view -> Exit to Galaxy
+                 viewMode = 'GALAXY';
+                 clearSolarSystem();
+                 
+                 focusedStarPosition = null;
+                 targetLookAt.set(0,0,0);
+
+                 targetCameraPos = GALAXY_CAMERA_POS.clone();
+                 isTransitioning = true;
+                 controls.autoRotate = true;
+                 
+                 lastClickedPosition = null;
+                 if (activeSun) (activeSun as any).__lastClickTime = 0;
+                 return;
+            }
+            if (activeSun) (activeSun as any).__lastClickTime = now;
+            return;
+        }
+
+        // GALAXY MODE INTERACTION
         raycaster.setFromCamera(mouse, camera);
-        raycaster.params.Points.threshold = 3; // Easier to click stars
+        raycaster.params.Points.threshold = 3;
         const intersects = raycaster.intersectObject(galaxy);
 
         if (intersects.length > 0) {
@@ -636,7 +716,7 @@
                 
                 lastClickedPosition = null; // Reset after double-click
             } else {
-                // First click: Show reticle but delay camera target change
+                // First click: Show reticle but keep rotating around it
                 if (clickTimeout !== null) {
                     clearTimeout(clickTimeout);
                 }
@@ -644,13 +724,13 @@
                 focusedStarPosition = clickedPoint.clone();
                 lastClickedPosition = clickedPoint.clone();
                 updateReticle(focusedStarPosition);
-                controls.autoRotate = false; // Stop rotation so we can focus
                 
-                // Delay the camera target change to allow for double-click
+                // Anchor rotation to the selected star immediately
+                targetLookAt.copy(focusedStarPosition);
+                controls.autoRotate = true; // KEEP ROTATING
+
+                // Delay to allow for potential double-click
                 clickTimeout = setTimeout(() => {
-                    if (focusedStarPosition) {
-                        targetLookAt.copy(focusedStarPosition);
-                    }
                     clickTimeout = null;
                 }, DOUBLE_CLICK_WINDOW) as unknown as number;
             }
@@ -681,14 +761,19 @@
             controls.target.lerp(targetLookAt, transitionSpeed);
 
             // Finish transition when close enough
-            if (camera.position.distanceTo(targetCameraPos) < 1.0) {
+            if (camera.position.distanceTo(targetCameraPos) < 5.0) {
                 isTransitioning = false;
                 // Re-enable auto-rotate only when returning to galaxy
                 if (viewMode === 'GALAXY') controls.autoRotate = true;
             }
         }
 
-        controls.target.lerp(targetLookAt, 0.05);
+        // Only enforce target lerping if we have a specific focus or are transitioning
+        if (isTransitioning) {
+            controls.target.lerp(targetLookAt, 0.05);
+        } else if (focusedStarPosition) {
+            controls.target.lerp(targetLookAt, 0.05);
+        }
 
         // 2. Handle State Transitions based on Distance
         if (viewMode === 'GALAXY') {
@@ -700,9 +785,16 @@
                 if(reticle) {
                     reticle.position.copy(focusedStarPosition);
                     reticle.lookAt(camera.position);
-                    // Animate reticle scale
-                    const scale = 1 + Math.sin(clock.elapsedTime * 5) * 0.2;
-                    reticle.scale.set(scale, scale, scale);
+                    
+                    // Animate wormhole components
+                    const ud = reticle.userData;
+                    if (ud.swirl) {
+                        ud.swirl.rotation.z -= 0.05; // Spin the swirl
+                    }
+                    if (ud.ring) {
+                        const pulse = 1 + Math.sin(clock.elapsedTime * 8) * 0.05;
+                        ud.ring.scale.set(pulse, pulse, 1);
+                    }
                 }
 
                 // ZOOM IN THRESHOLD
