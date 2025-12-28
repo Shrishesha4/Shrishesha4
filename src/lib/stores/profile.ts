@@ -52,7 +52,7 @@ export const techMap: { [key: string]: string } = {
 
    // 3D & Game Development
    "blender": "https://cdn.simpleicons.org/blender",
-   "n8n": "https://cdn.simpleicons.org/n8n"
+   "n8n": "https://cdn.simpleicons.org/n8n",
    "unity3d": "devicon-unity-original colored",
    "unreal": "devicon-unrealengine-original colored",
    "godot": "devicon-godot-plain colored",
