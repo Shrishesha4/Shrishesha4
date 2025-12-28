@@ -105,17 +105,20 @@
                     />
                     
                     <!-- svelte-ignore a11y_consider_explicit_label -->
+                    <!-- Overlay Background -->
+                    <div class="absolute inset-0 bg-neutral-900/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] z-10"></div>
+
                     <!-- Overlay Actions -->
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-8 group-hover:translate-y-0">
                         {#if project.url}
                             <a 
                                 href={project.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="p-3 rounded-full bg-primary-600 text-white hover:bg-primary-500 transition-transform hover:scale-110 shadow-lg"
-                                title="Live Demo"
+                                class="w-full flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-sm transition-all duration-300 hover:scale-105"
                             >
-                                <i class="fas fa-globe text-lg"></i>
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Live Demo</span>
                             </a>
                         {/if}
                         {#if project.github}
@@ -123,18 +126,18 @@
                                 href={project.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="p-3 rounded-full bg-neutral-700 text-white hover:bg-neutral-600 transition-transform hover:scale-110 shadow-lg"
-                                title="View Code"
+                                class="w-full flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                             >
-                                <i class="fab fa-github text-lg"></i>
+                                <i class="fab fa-github"></i>
+                                        <span>Code</span>
                             </a>
                         {/if}
                         <a 
                             href="/projects/{project.id}"
-                            class="p-3 rounded-full bg-neutral-600 text-white hover:bg-neutral-500 transition-transform hover:scale-110 shadow-lg"
-                            title="View Details"
+                            class="w-full flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                         >
-                            <i class="fas fa-info text-lg"></i>
+                            <i class="fas fa-info-circle"></i>
+                            <span>Details</span>
                         </a>
                     </div>
                 </div>

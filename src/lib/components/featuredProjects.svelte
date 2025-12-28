@@ -61,8 +61,7 @@
 <div class="w-full">
     <div class="flex items-end justify-between mb-10 border-b border-neutral-200 dark:border-neutral-800 pb-4">
         <div>
-            <h2 class="text-4xl font-bold text-neutral-900 dark:text-white tracking-tight">Featured Work</h2>
-            <p class="text-neutral-500 dark:text-neutral-400 mt-2">A selection of my best technical endeavors.</p>
+            <h2 class="text-4xl font-bold text-neutral-900 dark:text-white tracking-tight">Featured Projects</h2>
         </div>
         <div class="hidden md:block">
             <span class="text-xs font-mono text-primary-500 uppercase tracking-widest border border-primary-500/30 px-3 py-1 rounded-full bg-primary-500/10">
@@ -149,20 +148,20 @@
                            Logic: By default max-h-0 opacity-0. 
                            On group-hover OR activeCard match, expand. 
                         -->
-                        <div class="max-h-0 opacity-0 group-hover:max-h-[500px] group-hover:opacity-100 md:group-hover:max-h-40 {activeCard === index ? 'max-h-[500px] opacity-100' : ''} transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
+                        <div class="max-h-0 opacity-0 group-hover:max-h-[600px] group-hover:opacity-100 md:group-hover:max-h-40 {activeCard === index ? 'max-h-[600px] opacity-100' : ''} transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
                             <p class="text-neutral-300 text-sm md:text-base mb-6 line-clamp-3 leading-relaxed">
                                 {truncateText(project.description, 150)}
                             </p>
                             
                             <!-- Action Buttons -->
-                            <div class="flex flex-row gap-3 pt-2 border-t border-white/10">
+                            <div class="flex flex-col md:flex-row gap-3 pt-2 border-t border-white/10">
                                 {#if project.url}
                                     <a 
                                         href={project.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         on:click|stopPropagation
-                                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-sm transition-all duration-300 hover:scale-105"
+                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-sm transition-all duration-300 hover:scale-105"
                                     >
                                         <i class="fas fa-external-link-alt"></i>
                                         <span>Live Demo</span>
@@ -174,7 +173,7 @@
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         on:click|stopPropagation
-                                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
+                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                                     >
                                         <i class="fab fa-github"></i>
                                         <span>Code</span>
@@ -183,7 +182,7 @@
                                 <a 
                                     href="/projects/{project.id}"
                                     on:click|stopPropagation
-                                    class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
+                                    class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                                 >
                                     <i class="fas fa-info-circle"></i>
                                     <span>Details</span>
