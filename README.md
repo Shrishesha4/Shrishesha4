@@ -2,10 +2,6 @@
   <img src="https://raw.githubusercontent.com/Shrishesha4/Shrishesha4/refs/heads/main/static/images/Background.png" alt="Shrishesha Banner" width="100%"/>
 </p>
 
-<div align="center">
-<img src="https://readme-typing-svg.herokuapp.com/?lines=Software+Developer;Infrastructure+Engineer;Homelab+Architect;IoT+Security;SIH+Hackathon+Winner&font=JetBrains+Mono&duration=3000&pause=100&center=true&vCenter=true&width=700&height=18&color=00D4AA&background=00000000" alt="Typing SVG" />
-</div>
-
 # Shrishesha Narmatesshvara
 
 <div align="center">
