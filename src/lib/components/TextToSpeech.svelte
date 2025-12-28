@@ -1,9 +1,11 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 
     export let text: string;
+    export let isPlaying = false;
 
-    let isPlaying = false;
+    const dispatch = createEventDispatcher();
+
     let showSettings = false;
     let error: string | null = null;
     let synth: SpeechSynthesis | null = null;
@@ -12,66 +14,95 @@
     let selectedVoiceURI = '';
     let playbackRate = 1.0;
 
-    // Strip HTML tags for TTS
-    $: cleanText = text.replace(/<[^>]*>?/gm, '');
+    // Determine clean text locally or use what's passed. 
+    // Assuming 'text' passed from parent is already stripped of HTML.
+    $: cleanText = text.trim();
 
     onMount(() => {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             synth = window.speechSynthesis;
+            
+            // Force load voices immediately for Chrome/Android
+            synth.getVoices();
+
             const loadVoices = () => {
-                // Filter for English voices by default, but allow user to pick
-                voices = synth!.getVoices().filter(v => v.lang.startsWith('en'));
-                if (voices.length === 0) {
-                     // Fallback if no English voices found (rare but possible)
-                     voices = synth!.getVoices();
-                }
+                // Filter for English, but fallback to all if needed
+                let allVoices = synth!.getVoices();
                 
-                // Set default voice if none selected or current selection is invalid
+                // Prioritize English
+                voices = allVoices.filter(v => v.lang.startsWith('en'));
+                if (voices.length === 0) voices = allVoices;
+                
+                // Set default
                 if (!selectedVoiceURI && voices.length > 0) {
                     selectedVoiceURI = voices[0].voiceURI;
-                } else if (selectedVoiceURI && !voices.find(v => v.voiceURI === selectedVoiceURI)) {
-                     // If previously selected voice is gone, reset to first available
-                     if (voices.length > 0) selectedVoiceURI = voices[0].voiceURI;
+                }
+                
+                // Validate current selection
+                const exists = voices.find(v => v.voiceURI === selectedVoiceURI);
+                if (!exists && voices.length > 0) {
+                    selectedVoiceURI = voices[0].voiceURI;
                 }
             };
+
             loadVoices();
+            
+            // Chrome loads voices asynchronously
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = loadVoices;
             }
         } else {
-            error = "Text-to-speech not supported in this browser.";
+            error = "TTS not supported.";
         }
     });
 
     function play() {
-        if (!synth) return;
+        if (!synth || !cleanText) return;
         
-        // Cancel any current speaking
+        // Mobile fix: Cancel any pending speech to prevent queue buildup
         synth.cancel();
 
         utterance = new SpeechSynthesisUtterance(cleanText);
+        
+        // Mobile Garbage Collection Fix:
+        // Keep a reference to the utterance on the window object so 
+        // the browser doesn't kill it mid-sentence.
+        (window as any).svelteUtterance = utterance;
+
         utterance.rate = playbackRate;
+        utterance.pitch = 1;
         
         const voice = voices.find(v => v.voiceURI === selectedVoiceURI);
-        if (voice) {
-            utterance.voice = voice;
-        }
+        if (voice) utterance.voice = voice;
+
+        utterance.onstart = () => {
+            isPlaying = true;
+        };
 
         utterance.onend = () => {
             isPlaying = false;
+            (window as any).svelteUtterance = null;
+        };
+
+        utterance.onboundary = (e) => {
+            // Some mobile browsers fire boundary events frequently
+            // We only care about 'word'
+            if (e.name === 'word') {
+                dispatch('speech', e);
+            }
         };
 
         utterance.onerror = (e) => {
-            if (e.error === 'interrupted') {
-                return;
+            console.error('TTS Error:', e);
+            // 'interrupted' is common when toggling, ignore it
+            // 'canceled' is common when stopping
+            if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                error = "Playback error.";
+                isPlaying = false;
             }
-            console.error('Browser TTS error:', e);
-            isPlaying = false;
-            error = "Playback error.";
         };
 
         synth.speak(utterance);
-        isPlaying = true;
     }
 
     function togglePlay() {
@@ -91,30 +122,32 @@
     }
 
     function handleSpeedChange() {
-        // Browser TTS often requires restart to apply speed change effectively
-        if (isPlaying) play();
+        if (isPlaying) play(); // Restart to apply speed
     }
 
     function handleVoiceChange() {
-        if (isPlaying) play();
+        if (isPlaying) play(); // Restart to apply voice
     }
 
     onDestroy(() => {
         if (synth) {
             synth.cancel();
+            (window as any).svelteUtterance = null;
         }
     });
 </script>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
     {#if showSettings}
-        <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl p-4 mb-2 w-64 border border-neutral-200 dark:border-neutral-700 animate-slide-up-fade">
+        <div class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 mb-2 w-72 border border-neutral-200 dark:border-neutral-700 animate-slide-up-fade">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-neutral-900 dark:text-white">Voice Settings</h3>
+                <h3 class="font-bold text-neutral-900 dark:text-white text-sm uppercase tracking-wide">Voice Settings</h3>
                 <button 
                     on:click={() => showSettings = false} 
-                    class="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                    class="text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+                    aria-label="Close settings"
                 >
                     <i class="fas fa-times"></i>
                 </button>
@@ -122,27 +155,32 @@
 
             <!-- Voice Selection -->
             <div class="mb-4">
-                <label for="voice-select" class="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Voice</label>
-                <select 
-                    id="voice-select"
-                    bind:value={selectedVoiceURI} 
-                    on:change={handleVoiceChange}
-                    class="w-full rounded-lg bg-neutral-100 dark:bg-neutral-700 border-none text-sm p-2 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                >
-                    {#each voices as voice}
-                        <option value={voice.voiceURI}>
-                            {voice.localService ? '📍 ' : ''}{voice.name} ({voice.lang})
-                        </option>
-                    {/each}
-                </select>
-                {#if voices.length === 0}
-                    <p class="text-xs text-neutral-400 mt-1">Loading voices...</p>
-                {/if}
+                <label for="voice-select" class="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2">Voice</label>
+                <div class="relative">
+                    <select 
+                        id="voice-select"
+                        bind:value={selectedVoiceURI} 
+                        on:change={handleVoiceChange}
+                        class="w-full appearance-none rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-sm p-2.5 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-shadow"
+                    >
+                        {#each voices as voice}
+                            <option value={voice.voiceURI}>
+                                {voice.name} ({voice.lang})
+                            </option>
+                        {/each}
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-500">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
             </div>
 
             <!-- Speed Selection -->
             <div>
-                <label for="speed-select" class="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Speed ({playbackRate}x)</label>
+                <div class="flex justify-between mb-1">
+                    <label for="speed-select" class="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Speed</label>
+                    <span class="text-xs font-mono text-primary-600 dark:text-primary-400 font-bold">{playbackRate}x</span>
+                </div>
                 <input 
                     id="speed-select"
                     type="range" 
@@ -151,41 +189,40 @@
                     step="0.1" 
                     bind:value={playbackRate} 
                     on:input={handleSpeedChange}
-                    class="w-full accent-primary-500 h-2 bg-neutral-200 dark:bg-neutral-600 rounded-lg appearance-none cursor-pointer"
+                    class="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
                 />
             </div>
         </div>
     {/if}
 
     <!-- Main Controller -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
         {#if error}
-            <div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs animate-fade-in">
-                {error}
+            <div class="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs shadow-lg animate-fade-in flex items-center gap-1">
+                <i class="fas fa-exclamation-circle"></i> {error}
             </div>
         {/if}
 
         <button 
             on:click={() => showSettings = !showSettings}
-            class="w-12 h-12 rounded-full bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
+            class="w-12 h-12 rounded-full bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center border border-neutral-200 dark:border-neutral-700 z-50"
             title="Voice Settings"
+            aria-label="Voice Settings"
+            class:rotate-90={showSettings}
         >
-            <i class="fas fa-sliders-h"></i>
+            <i class="fas fa-sliders-h transition-transform"></i>
         </button>
 
         <button 
             on:click={togglePlay}
-            class="w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg hover:shadow-primary-600/30 hover:scale-105 transition-all flex items-center justify-center text-xl relative overflow-hidden"
-            title={isPlaying ? "Pause" : "Listen to this article"}
+            class="w-16 h-16 rounded-full bg-primary-600 text-white shadow-xl shadow-primary-900/20 hover:shadow-primary-600/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-2xl relative overflow-hidden z-50"
+            aria-label={isPlaying ? "Pause Speech" : "Start Speech"}
         >
             {#if isPlaying}
-                <i class="fas fa-pause"></i>
-                <!-- Audio Wave Animation -->
-                <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
-                    <div class="w-full h-full bg-white/20 animate-ping rounded-full"></div>
-                </div>
+                <div class="absolute inset-0 bg-white/10 animate-pulse rounded-full"></div>
+                <i class="fas fa-pause relative z-10"></i>
             {:else}
-                <i class="fas fa-headphones"></i>
+                <i class="fas fa-headphones relative z-10 pl-1"></i>
             {/if}
         </button>
     </div>
@@ -193,26 +230,20 @@
 
 <style>
     @keyframes slideUpFade {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
     }
     
     .animate-slide-up-fade {
-        animation: slideUpFade 0.2s ease-out forwards;
+        animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .animate-fade-in {
-        animation: fadeIn 0.3s ease-out forwards;
+        animation: fadeIn 0.5s ease-out forwards;
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
