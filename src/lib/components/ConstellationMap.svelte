@@ -10,6 +10,7 @@
     let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer;
     let controls: OrbitControls;
     let galaxy: THREE.Points;
+    let galaxyDust: THREE.Points;
     let reticle: THREE.Object3D | null = null; // Visual indicator for selected star (mesh or line)
     let composer: EffectComposer;
 
@@ -68,15 +69,48 @@
 
     function createStarTexture() {
         const canvas = document.createElement('canvas');
-        canvas.width = 32; canvas.height = 32;
+        canvas.width = 64; canvas.height = 64;
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error("Context fail");
-        const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        
+        ctx.clearRect(0, 0, 64, 64);
+        const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
         grad.addColorStop(0, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.4, 'rgba(255,255,255,0.4)');
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.05, 'rgba(255,255,255,0.9)');
+        grad.addColorStop(0.15, 'rgba(255,255,255,0.3)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        
         ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 32, 32);
+        ctx.beginPath();
+        ctx.arc(32, 32, 32, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add a tiny core flare
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.beginPath();
+        ctx.arc(32, 32, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        return new THREE.CanvasTexture(canvas);
+    }
+
+    function createDustTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128; canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error("Context fail");
+        
+        ctx.clearRect(0, 0, 128, 128);
+        const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        grad.addColorStop(0, 'rgba(255,255,255,0.15)');
+        grad.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(64, 64, 64, 0, Math.PI * 2);
+        ctx.fill();
+        
         return new THREE.CanvasTexture(canvas);
     }
 
@@ -177,33 +211,25 @@
     // --- Scene Generation ---
 
     function generateGalaxy() {
+        const starTexture = createStarTexture();
+        const dustTexture = createDustTexture();
+
+        // --- STARS ---
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(parameters.count * 3);
         const colors = new Float32Array(parameters.count * 3);
-
         const colorCore = new THREE.Color(parameters.coreColor);
         const colorOuter = new THREE.Color(parameters.outerColor);
 
         for (let i = 0; i < parameters.count; i++) {
             const i3 = i * 3;
-
             const branch = i % parameters.branches;
             const branchAngle = (branch / parameters.branches) * Math.PI * 2;
-
-            // Concentrate more stars in core yet allow arms to extend
             const radius = Math.pow(Math.random(), 1.15) * parameters.radius;
             const radiusNorm = radius / parameters.radius;
-
-            // Spin angle scaled with normalized radius (creates spiral winding)
             const spinAngle = radiusNorm * parameters.spin * Math.PI * 2;
-
-            // Angle along spiral arm plus a small, radius-dependent jitter
             const angle = branchAngle + spinAngle + (Math.random() - 0.5) * (0.6 * (1 - radiusNorm));
-
-            // Smaller radial noise for clearer arms
             const radialNoise = (Math.random() - 0.5) * parameters.randomness * (1 - radiusNorm * 0.6) * 0.6 * parameters.radius * 0.01;
-
-            // Thin disk vertically; reduce Y spread as we go outward
             const y = (Math.random() - 0.5) * 10 * (1 - radiusNorm * 0.7);
 
             positions[i3] = Math.cos(angle) * radius + radialNoise;
@@ -212,8 +238,7 @@
 
             const mixedColor = colorCore.clone();
             mixedColor.lerp(colorOuter, radiusNorm);
-            // slight random brightness variation
-            const variation = (Math.random() - 0.5) * 0.06;
+            const variation = (Math.random() - 0.5) * 0.1;
             mixedColor.r = Math.min(1, Math.max(0, mixedColor.r + variation));
             mixedColor.g = Math.min(1, Math.max(0, mixedColor.g + variation));
             mixedColor.b = Math.min(1, Math.max(0, mixedColor.b + variation));
@@ -226,19 +251,60 @@
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        const material = new THREE.PointsMaterial({
+        galaxy = new THREE.Points(geometry, new THREE.PointsMaterial({
             size: parameters.size,
             sizeAttenuation: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
             vertexColors: true,
-            map: createStarTexture(),
+            map: starTexture,
             transparent: true,
-            opacity: 0.6
-        });
-
-        galaxy = new THREE.Points(geometry, material);
+            opacity: 0.8
+        }));
         scene.add(galaxy);
+
+        // --- DUST ---
+        const dustCount = Math.floor(parameters.count / 4);
+        const dustGeometry = new THREE.BufferGeometry();
+        const dustPositions = new Float32Array(dustCount * 3);
+        const dustColors = new Float32Array(dustCount * 3);
+
+        for (let i = 0; i < dustCount; i++) {
+            const i3 = i * 3;
+            const branch = i % parameters.branches;
+            const branchAngle = (branch / parameters.branches) * Math.PI * 2;
+            const radius = Math.pow(Math.random(), 1.2) * parameters.radius;
+            const radiusNorm = radius / parameters.radius;
+            const spinAngle = radiusNorm * parameters.spin * Math.PI * 2;
+            const angle = branchAngle + spinAngle + (Math.random() - 0.5) * 1.5; // More spread
+            const radialNoise = (Math.random() - 0.5) * 60 * (1 - radiusNorm * 0.5); // Much noisier
+            const y = (Math.random() - 0.5) * 30 * (1 - radiusNorm * 0.5);
+
+            dustPositions[i3] = Math.cos(angle) * radius + radialNoise;
+            dustPositions[i3 + 1] = y;
+            dustPositions[i3 + 2] = Math.sin(angle) * radius + radialNoise;
+
+            const dColor = colorOuter.clone();
+            dColor.lerp(new THREE.Color('#440066'), Math.random()); // Add some purple/deep hues
+            dustColors[i3] = dColor.r;
+            dustColors[i3 + 1] = dColor.g;
+            dustColors[i3 + 2] = dColor.b;
+        }
+
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+        dustGeometry.setAttribute('color', new THREE.BufferAttribute(dustColors, 3));
+
+        galaxyDust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({
+            size: parameters.size * 6, // Much larger particles for "dust clouds"
+            sizeAttenuation: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexColors: true,
+            map: dustTexture,
+            transparent: true,
+            opacity: 0.15
+        }));
+        scene.add(galaxyDust);
     }
 
     function updateReticle(position: THREE.Vector3 | null) {
@@ -321,6 +387,7 @@
 
         // Restore galaxy visibility when clearing the system
         if (galaxy) galaxy.visible = true;
+        if (galaxyDust) galaxyDust.visible = true;
 
         // Restore the default exit threshold when no system is active
         currentExitThreshold = ZOOM_EXIT_THRESHOLD;
@@ -331,7 +398,8 @@
         clearSolarSystem();
         activeSunPosition = centerPosition;
 
-        // 1. Create the Sun (randomized type/color/size)
+        // ... (existing sun logic) ...
+        // [Existing starVariants array and sun creation logic should remain intact]
         const starVariants = [
             { name: 'Yellow Dwarf', color: '#ffdd88', intensity: 2.5, roughness: 0.4, glowSize: 30 },
             { name: 'Red Giant', color: '#ff7755', intensity: 3.5, roughness: 0.55, glowSize: 40 },
@@ -374,6 +442,7 @@
 
         // Hide galaxy while in system view to avoid visual clutter
         if (galaxy) galaxy.visible = false;
+        if (galaxyDust) galaxyDust.visible = false;
 
         // Add light source at the sun (strength and range scaled with size)
         const sunLight = new THREE.PointLight(baseColorHex, sv.intensity * (sunSize/12), 300 + sunSize * 8, 1.5);
@@ -481,7 +550,15 @@
         const bgPos = new Float32Array(5000 * 3);
         for(let i=0; i<5000*3; i++) bgPos[i] = (Math.random()-0.5)*1500;
         bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPos, 3));
-        scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({color:0xffffff, size:0.7, transparent:true, opacity:0.3})));
+        scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({
+            color: 0xffffff, 
+            size: 1.0, 
+            transparent: true, 
+            opacity: 0.4, 
+            map: createStarTexture(), 
+            depthWrite: false, 
+            blending: THREE.AdditiveBlending 
+        })));
 
         scene.add(new THREE.AmbientLight(0x404040, 0.5));
 
@@ -491,6 +568,10 @@
         if (galaxy) {
             galaxy.rotation.x = -0.35; // tilt toward the camera
             galaxy.rotation.z = (Math.random() - 0.5) * 0.3; // small random twist
+            if (galaxyDust) {
+                galaxyDust.rotation.x = galaxy.rotation.x;
+                galaxyDust.rotation.z = galaxy.rotation.z;
+            }
         }
 
         container.addEventListener('pointerdown', onPointerDown);
@@ -652,6 +733,7 @@
             } else {
                 // No target, just looking at galaxy
                 if(galaxy) galaxy.rotation.y += 0.0005;
+                if(galaxyDust) galaxyDust.rotation.y += 0.0005;
             }
         } 
         else if (viewMode === 'SYSTEM') {
