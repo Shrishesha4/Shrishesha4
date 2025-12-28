@@ -3,6 +3,7 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+    import TextToSpeech from '$lib/components/TextToSpeech.svelte';
 
     let currentBlog: typeof $blogs[0] | undefined;
     let loading = true;
@@ -76,6 +77,8 @@
             <div class="prose dark:prose-invert max-w-none {readerMode ? 'prose-lg md:prose-xl leading-relaxed' : 'prose-lg'} marker:text-primary-500">
                 {@html currentBlog.content}
             </div>
+            
+            <TextToSpeech text="{currentBlog.title}. {currentBlog.content}" />
         </div>
     </article>
 {:else}

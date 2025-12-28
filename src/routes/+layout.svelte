@@ -108,7 +108,7 @@
         <Navbar/>
     {/if}
 
-    <main class="pt-6 md:pt-10 px-4">
+    <main class="pt-8 md:pt-28 px-4">
         <slot />
     </main>
     <Toast />

@@ -73,7 +73,7 @@
 </script>
 
 <div class="min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-1xl mx-auto">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 md:mb-12">
             <h1 class="text-4xl font-bold tracking-tight">Projects</h1>
             
