@@ -129,6 +129,13 @@
                                 <i class="fab fa-github text-lg"></i>
                             </a>
                         {/if}
+                        <a 
+                            href="/projects/{project.id}"
+                            class="p-3 rounded-full bg-neutral-600 text-white hover:bg-neutral-500 transition-transform hover:scale-110 shadow-lg"
+                            title="View Details"
+                        >
+                            <i class="fas fa-info text-lg"></i>
+                        </a>
                     </div>
                 </div>
 

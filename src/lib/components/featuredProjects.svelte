@@ -180,6 +180,14 @@
                                         <span>Code</span>
                                     </a>
                                 {/if}
+                                <a 
+                                    href="/projects/{project.id}"
+                                    on:click|stopPropagation
+                                    class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Details</span>
+                                </a>
                             </div>
                         </div>
                     </div>
