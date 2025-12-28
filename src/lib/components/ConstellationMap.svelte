@@ -60,6 +60,10 @@
 
     let clock = new THREE.Clock();
 
+    // Store original overflow styles so we can restore them when leaving the view
+    let prevHtmlOverflow: string | null = null;
+    let prevBodyOverflow: string | null = null;
+
     // --- Texture Generators ---
 
     function createStarTexture() {
@@ -707,6 +711,14 @@
     }
 
     onMount(() => {
+        // Prevent page scrolling while the map is active
+        if (typeof document !== 'undefined') {
+            prevHtmlOverflow = document.documentElement.style.overflow || '';
+            prevBodyOverflow = document.body.style.overflow || '';
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        }
+
         init();
     });
 
@@ -717,10 +729,17 @@
         if (container) container.removeEventListener('pointerdown', onPointerDown);
         // Guard window access for SSR
         if (typeof window !== 'undefined') window.removeEventListener('resize', onResize);
+
+        // Restore document scroll behavior
+        if (typeof document !== 'undefined') {
+            document.documentElement.style.overflow = prevHtmlOverflow ?? '';
+            document.body.style.overflow = prevBodyOverflow ?? '';
+        }
+
         // dispose geometries/materials...
     });
 </script>
 
 <!-- Container -->
 <!-- svelte-ignore element_invalid_self_closing_tag -->
-<div bind:this={container} class="w-full h-full absolute inset-0 bg-black cursor-crosshair" />
+<div bind:this={container} class="fixed inset-0 bg-black cursor-crosshair z-10"></div>

@@ -25,7 +25,7 @@
 {#if loading}
     <LoadingSpinner />
 {:else if currentBlog}
-    <article class="min-h-screen p-4 md:p-8 transition-all duration-500 ease-in-out">
+    <article class="pt-0 p-4 md:pt-0 md:p-8 transition-all duration-500 ease-in-out">
         <div class="{readerMode ? 'max-w-2xl' : 'max-w-7xl'} mx-auto transition-all duration-500 ease-in-out">
             <div class="flex items-center justify-between mb-8">
                 <a href="/blogs" class="inline-flex items-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
@@ -33,6 +33,7 @@
                     Posts
                 </a>
                 
+                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button 
                     on:click={toggleReaderMode}
                     class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
@@ -63,7 +64,7 @@
             </header>
 
             {#if currentBlog.image && !readerMode}
-                <div class="w-full h-[400px] md:h-[500px] overflow-hidden rounded-2xl mb-12 shadow-2xl">
+                <div class="w-full md:h-[500px] overflow-hidden rounded-2xl mb-12 shadow-2xl">
                     <img 
                         src={currentBlog.image} 
                         alt={currentBlog.title}

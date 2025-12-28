@@ -1,11 +1,40 @@
 <script lang='ts'>
     import { profile, techMap } from '$lib/stores/profile';
     import { loading } from '$lib/stores/loading';
+    import { showNavbar } from '$lib/stores/ui';
     import { onMount, onDestroy } from 'svelte';
     
     let isLoading = true;
     let showBadgeModal = false;
     let selectedBadgeIndex = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    function handleTouchStart(e: TouchEvent) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }
+
+    function handleTouchEnd(e: TouchEvent) {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        
+        const deltaX = touchStartX - touchEndX;
+        const deltaY = touchStartY - touchEndY;
+
+        // Ensure it's a horizontal swipe and exceeds threshold
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+            if (deltaX > 0) {
+                nextBadge(); // Swipe left -> Next
+            } else {
+                prevBadge(); // Swipe right -> Previous
+            }
+        }
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        e.preventDefault();
+    }
 
     function getTechIcon(tech: string): string {
         const key = tech.toLowerCase().trim();
@@ -19,10 +48,12 @@
     function openBadgeModal(index: number) {
         selectedBadgeIndex = index;
         showBadgeModal = true;
+        showNavbar.set(false);
     }
 
     function closeBadgeModal() {
         showBadgeModal = false;
+        showNavbar.set(true);
     }
 
     function nextBadge() {
@@ -50,6 +81,7 @@
 
     onDestroy(() => {
         profile.cleanup();
+        showNavbar.set(true);
     });
 </script>
 
@@ -208,48 +240,49 @@
         role="button"
         tabindex="0"
         on:keydown={(e) => e.key === 'Escape' && closeBadgeModal()}
+        on:touchstart={handleTouchStart}
+        on:touchend={handleTouchEnd}
+        on:touchmove|nonpassive={handleTouchMove}
     >
+        <button 
+            on:click|stopPropagation={closeBadgeModal}
+            class="fixed top-6 right-6 z-[60] text-white/70 hover:text-white text-3xl w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+        >
+            <i class="fas fa-times"></i>
+        </button>
+
         <div 
-            class="relative max-w-2xl w-full mx-4 glass-card p-8 rounded-2xl animate-modal-in"
+            class="relative max-w-4xl w-full mx-4 flex flex-col items-center justify-center animate-modal-in"
             on:click|stopPropagation
             role="dialog"
             aria-modal="true"
         >
-            <button 
-                on:click={closeBadgeModal}
-                class="absolute top-4 right-4 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-            >
-                <i class="fas fa-times"></i>
-            </button>
             
-            <div class="flex items-center justify-center mb-6 p-4">
-                <img 
-                    src={$profile.badges[selectedBadgeIndex].imageUrl}
-                    alt={$profile.badges[selectedBadgeIndex].title}
-                    class="max-w-full max-h-96 object-contain drop-shadow-2xl"
-                />
+            <div class="flex items-center justify-center mb-6 p-4 w-full h-[50vh] md:h-[60vh] animate-swipe-hint md:animate-none">
+                {#key selectedBadgeIndex}
+                    <img 
+                        src={$profile.badges[selectedBadgeIndex].imageUrl}
+                        alt={$profile.badges[selectedBadgeIndex].title}
+                        class="max-w-full max-h-full object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] animate-badge-swap"
+                    />
+                {/key}
             </div>
             
-            <h3 class="text-2xl font-bold text-center text-neutral-900 dark:text-neutral-100 mb-4">
+            <h3 class="text-3xl font-bold text-center text-white drop-shadow-lg mb-8">
                 {$profile.badges[selectedBadgeIndex].title}
             </h3>
             
             {#if $profile.badges.length > 1}
-                <div class="flex justify-between items-center mt-6">
+                <div class="flex justify-center md:justify-between items-center w-full max-w-md px-4 mt-2">
                     <button 
                         on:click={prevBadge}
-                        class="glass-button px-4 py-2 rounded-lg hover:scale-110 transition-transform flex items-center gap-2"
+                        class="hidden md:flex glass-button text-white px-6 py-3 rounded-xl hover:scale-110 transition-transform items-center gap-2 border border-white/20"
                     >
                         <i class="fas fa-chevron-left"></i> Previous
                     </button>
-                    
-                    <div class="text-neutral-700 dark:text-neutral-300 font-mono">
-                        {selectedBadgeIndex + 1} / {$profile.badges.length}
-                    </div>
-                    
                     <button 
                         on:click={nextBadge}
-                        class="glass-button px-4 py-2 rounded-lg hover:scale-110 transition-transform flex items-center gap-2"
+                        class="hidden md:flex glass-button text-white px-6 py-3 rounded-xl hover:scale-110 transition-transform items-center gap-2 border border-white/20"
                     >
                         Next <i class="fas fa-chevron-right"></i>
                     </button>
@@ -321,9 +354,33 @@
         to { opacity: 1; }
     }
 
+    @keyframes badgeSwap {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    @keyframes swipeHint {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-15px); }
+        40% { transform: translateX(10px); }
+        60% { transform: translateX(-5px); }
+        80% { transform: translateX(2px); }
+    }
+
     /* Utility Classes with 'both' to prevent blinking */
     .animate-fade-in-up {
         animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-swipe-hint {
+        animation: swipeHint 1.5s ease-in-out 2; /* Run twice */
+        animation-delay: 0.5s;
     }
 
     .animate-fade-in-scale {
@@ -344,6 +401,10 @@
 
     .animate-fade-in-overlay {
         animation: fadeInOverlay 0.3s ease-out forwards;
+    }
+
+    .animate-badge-swap {
+        animation: badgeSwap 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     /* Tech Stack Icon Wrapper */

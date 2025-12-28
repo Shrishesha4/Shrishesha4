@@ -16,9 +16,9 @@
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
     import { beforeNavigate, afterNavigate } from '$app/navigation';
+    import { showNavbar } from '$lib/stores/ui';
     
     $: isStargaze = $page.url.pathname.startsWith('/stargaze');
-    $: isAdminPage = $page.url.pathname.includes('admin');
     
     let showWarpTransition = false;
     let warpDirection: 'in' | 'out' = 'in';
@@ -74,12 +74,6 @@
             'updateFavicon' in window && $profile.favicon) {
             (window as any).updateFavicon($profile.favicon);
         }
-
-        const lightVideo = document.querySelector('.video-bg.light') as HTMLVideoElement;
-        const darkVideo = document.querySelector('.video-bg.dark') as HTMLVideoElement;
-
-        if (lightVideo) lightVideo.playbackRate = 1;
-        if (darkVideo) darkVideo.playbackRate = 0.7;
     });
 
     $: if (browser && typeof window !== 'undefined' && 
@@ -110,11 +104,11 @@
         />
     {/if}
 
-    {#if !$page.url.pathname.includes('admin')}
+    {#if $showNavbar}
         <Navbar/>
     {/if}
 
-    <main class="pt-8 md:pt-28 px-4">
+    <main class="pt-6 md:pt-10 px-4">
         <slot />
     </main>
     <Toast />

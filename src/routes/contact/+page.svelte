@@ -102,11 +102,14 @@
                     <!-- Socials / Quick Actions -->
                     <div class="space-y-6">
                         {#if $contact.email}
-                            <div class="flex items-center gap-4 group/item cursor-pointer transition-transform hover:-translate-x-1">
-                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary-400 group-hover/item:bg-primary-500 group-hover/item:text-white transition-colors">
+                            <div class="flex items-start gap-4 group/item cursor-pointer transition-transform hover:-translate-x-1 w-full">
+                                <div class="w-10 h-10 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center text-primary-400 group-hover/item:bg-primary-500 group-hover/item:text-white transition-colors">
                                     <i class="fa-regular fa-envelope"></i>
                                 </div>
-                                <a href="mailto:{$contact.email}" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
+                                <a 
+                                    href="mailto:{$contact.email}" 
+                                    class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline break-all whitespace-normal pt-2 flex-1"
+                                >
                                     {$contact.email}
                                 </a>
                             </div>

@@ -55,7 +55,7 @@
 
             <!-- Main Image -->
             {#if currentProject.image}
-                <div class="w-full h-[300px] md:h-[500px] overflow-hidden rounded-2xl mb-10 shadow-2xl bg-neutral-100 dark:bg-neutral-900 relative group">
+                <div class="w-full overflow-hidden rounded-2xl mb-10 shadow-2xl bg-neutral-100 dark:bg-neutral-900 relative group">
                     <img 
                         src={optimizeImage(currentProject.image, { width: 1200, format: 'webp' })}
                         srcset={getResponsiveImageSrcSet(currentProject.image)}
