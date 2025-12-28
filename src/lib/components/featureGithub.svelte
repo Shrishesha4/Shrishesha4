@@ -1,9 +1,11 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { githubService } from '$lib/services/github';
+    import { profile } from '$lib/stores/profile';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
     let repos: any[] = [];
+    let featuredRepos: any[] = [];
     let error: string = '';
     let loading = true;
     let isMobile = false;
@@ -15,8 +17,32 @@
         checkMobile();
         window.addEventListener('resize', checkMobile);
         
-        // Call async function without blocking cleanup
-        loadRepositories();
+        // Load profile first to get featured repos list and wait for data
+        (async () => {
+            try {
+                await profile.load();
+                // Wait for profile data to be available in the store
+                await new Promise<void>(resolve => {
+                    let unsubscribe: (() => void) | null = null;
+                    unsubscribe = profile.subscribe(p => {
+                        if (p && (p.featuredRepos || p.name)) {
+                            if (unsubscribe) unsubscribe();
+                            resolve();
+                        }
+                    });
+                    // Timeout after 2 seconds to prevent hanging
+                    setTimeout(() => {
+                        if (unsubscribe) unsubscribe();
+                        resolve();
+                    }, 2000);
+                });
+            } catch (err) {
+                console.error('Error loading profile:', err);
+            }
+            
+            // Call async function without blocking cleanup
+            loadRepositories();
+        })();
         
         return () => {
             if (observer) {
@@ -27,7 +53,7 @@
     });
 
     function setupScrollObserver() {
-        if (!isMobile && repos.length > 0) {
+        if (!isMobile && featuredRepos.length > 0) {
             observer = new IntersectionObserver(
                 (entries) => {
                     entries.forEach((entry) => {
@@ -47,8 +73,8 @@
         }
     }
 
-    $: if (repos.length > 0 && isMobile) {
-        const allIndices = Array.from({ length: Math.min(repos.length, 4) }, (_, i) => i);
+    $: if (featuredRepos.length > 0 && isMobile) {
+        const allIndices = Array.from({ length: Math.min(featuredRepos.length, 4) }, (_, i) => i);
         visibleCards = new Set(allIndices);
     }
 
@@ -56,6 +82,22 @@
         try {
             repos = await githubService.getRepositories();
             repos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+            
+            // Filter by featured repos from profile, or fallback to top 4
+            const featuredRepoNames = $profile.featuredRepos || [];
+            console.log('=== PROFILE DATA ===');
+            console.log('Full profile:', $profile);
+            console.log('Featured repo names from profile:', featuredRepoNames);
+            console.log('All repos:', repos.map(r => r.name));
+            
+            if (featuredRepoNames.length > 0) {
+                featuredRepos = repos.filter(repo => featuredRepoNames.includes(repo.name));
+                console.log('Filtered featured repos:', featuredRepos.map(r => r.name));
+            } else {
+                featuredRepos = repos.slice(0, 4);
+                console.log('Using default top 4 repos:', featuredRepos.map(r => r.name));
+            }
+            
             loading = false;
             setTimeout(() => setupScrollObserver(), 200);
         } catch (err) {
@@ -81,9 +123,9 @@
             <div class="flex justify-center">
                 <LoadingSpinner />
             </div>
-        {:else if repos.length > 0}
+        {:else if featuredRepos.length > 0}
             <div class="space-y-8">
-                {#each repos.slice(0, 4) as repo, index}
+                {#each featuredRepos.slice(0, 4) as repo, index}
                     <div 
                         data-index={index}
                         on:click={() => toggleModal(index)}

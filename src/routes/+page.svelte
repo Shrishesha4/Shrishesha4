@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import { blogs } from '$lib/stores/blogs';
     import { projects } from '$lib/stores/projects';
+    import { profile } from '$lib/stores/profile';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import type { SvelteComponentTyped } from 'svelte';
 
@@ -44,6 +45,7 @@
             await Promise.all([
                 blogs.load(),
                 projects.load(),
+                profile.load(),
                 loadComponents()
             ]);
         } catch (err: any) {

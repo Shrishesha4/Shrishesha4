@@ -17,4 +17,5 @@ export interface Project {
     technologies: string[];
     github?: string;
     url?: string;
+    featured?: boolean;
 }

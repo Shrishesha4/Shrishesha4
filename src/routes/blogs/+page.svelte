@@ -23,27 +23,27 @@
     });
 </script>
 
-<div class="min-h-screen p-4">
-    <div class="max-w-4xl mx-auto">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-0">
+<div class="min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 md:mb-12">
     
-        <h1 class="text-4xl font-bold">Blogs</h1>
+        <h1 class="text-4xl font-bold tracking-tight">Blogs</h1>
         <!-- Search and Filter Section -->
-        <div class="mb-6 flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-1 max-w-xl md:justify-end">
             <!-- Search Input -->
-            <div class="relative flex-1">
+            <div class="relative flex-1 max-w-sm">
                 <input
                 type="text"
                 bind:value={searchQuery}
                 placeholder="Search posts..."
-                class="w-full px-4 py-2.5 pl-10 rounded-lg bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all backdrop-blur-sm"
+                class="w-full px-5 py-3 pl-11 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all backdrop-blur-sm"
                 />
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400"></i>
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400"></i>
                 {#if searchQuery}
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
                 on:click={() => searchQuery = ''}
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
                 >
                 <i class="fas fa-times"></i>
             </button>
@@ -54,15 +54,15 @@
         <div class="relative">
             <button
             on:click={() => showFilterDropdown = !showFilterDropdown}
-            class="px-4 py-2.5 rounded-lg bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white/20 dark:hover:bg-black/30 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
+            class="px-5 py-3 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
             >
-            <i class="fas fa-filter"></i>
-            <span class="hidden md:inline">{selectedFilter === 'all' ? 'All' : selectedFilter}</span>
-            <i class="fas fa-chevron-down text-xs"></i>
+            <i class="fas fa-filter text-neutral-500 dark:text-neutral-400"></i>
+            <span class="hidden md:inline font-medium">{selectedFilter === 'all' ? 'All' : selectedFilter}</span>
+            <i class="fas fa-chevron-down text-xs text-neutral-500 dark:text-neutral-400 ml-1"></i>
         </button>
         
         {#if showFilterDropdown}
-        <div class="absolute right-0 mt-2 w-64 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl z-50 backdrop-blur-sm max-h-96 overflow-y-auto">
+        <div class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 shadow-xl z-50 backdrop-blur-md overflow-hidden">
             <div class="p-2">
                 <button
                 on:click={() => { selectedFilter = 'all'; showFilterDropdown = false; }}

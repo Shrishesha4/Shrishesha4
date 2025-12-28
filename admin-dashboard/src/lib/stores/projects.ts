@@ -10,6 +10,7 @@ export interface Project {
     technologies: string[];
     url?: string;
     github?: string;
+    featured?: boolean;
 }
 
 function createProjectsStore() {

@@ -7,6 +7,7 @@
     import ProjectEditor from '$lib/components/ProjectEditor.svelte';
     import ProfileEditor from '$lib/components/ProfileEditor.svelte';
     import BlogEditor from '$lib/components/BlogEditor.svelte';
+    import FeaturedReposEditor from '$lib/components/FeaturedReposEditor.svelte';
     import { blogs } from '$lib/stores/blogs';
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
@@ -29,7 +30,7 @@
 
         const params = new URLSearchParams(window.location.search);
         const tab = params.get('tab');
-        if (tab && ['profile', 'projects', 'blogs', 'contact'].includes(tab)) {
+        if (tab && ['profile', 'projects', 'blogs', 'contact', 'repos'].includes(tab)) {
             activeTab = tab;
         }
 
@@ -100,6 +101,12 @@
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-address-book"></i></div>
                 </button>
                 <button
+                    class="dock-item group {activeTab === 'repos' ? 'active' : ''}"
+                    on:click={() => setActiveTab('repos')}
+                >
+                    <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fab fa-github"></i></div>
+                </button>
+                <button
                     on:click={handleLogout}
                     class="dock-item group"
                 >
@@ -128,6 +135,8 @@
                         <BlogEditor bind:editingBlog />
                     {:else if activeTab === 'contact'}
                         <ContactEditor />
+                    {:else if activeTab === 'repos'}
+                        <FeaturedReposEditor />
                     {/if}
                 </div>
             </div>

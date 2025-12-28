@@ -29,6 +29,7 @@ export interface Profile {
     techStack: string[];
     particlesQuantity: number;
     badges: Badge[];
+    featuredRepos?: string[];
 }
 
 export const techMap: { [key: string]: string } = {
@@ -181,7 +182,8 @@ export const defaultProfile: Profile = {
     profileImage: "",
     techStack: [],
     particlesQuantity: 1000,
-    badges: []
+    badges: [],
+    featuredRepos: []
 };
 
 function createProfileStore() {

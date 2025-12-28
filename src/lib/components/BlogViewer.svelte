@@ -9,7 +9,7 @@
         await blogs.load();
     });
 
-    function truncateText(text: string, limit: number = 150): string {
+    function truncateText(text: string, limit: number = 650): string {
         if (text.length <= limit) return text;
         return text.slice(0, limit).trim() + '...';
     }

@@ -28,12 +28,16 @@
     
     // Targeting Logic (Galaxy Mode)
     let focusedStarPosition: THREE.Vector3 | null = null; // Where the user clicked
+    let lastClickedPosition: THREE.Vector3 | null = null; // Track last clicked position for double-click detection
     let targetLookAt: THREE.Vector3 = new THREE.Vector3(0,0,0); // Where controls are looking
+    let clickTimeout: number | null = null; // Timeout for delayed camera target change
+    const DOUBLE_CLICK_WINDOW = 400; // ms to wait for double-click before changing view
 
     // Camera transition state (for smooth moves when entering/exiting system)
     let targetCameraPos: THREE.Vector3 | null = null;
     let isTransitioning = false;
     const transitionSpeed = 0.08;
+    const DOUBLE_CLICK_THRESHOLD = 20; // Distance threshold to consider it the same star
     const GALAXY_CAMERA_POS = new THREE.Vector3(0, 80, 450);
 
     // Thresholds
@@ -511,14 +515,68 @@
         const intersects = raycaster.intersectObject(galaxy);
 
         if (intersects.length > 0) {
-            // Clicked a star: Set target
-            focusedStarPosition = intersects[0].point;
-            targetLookAt.copy(focusedStarPosition);
-            updateReticle(focusedStarPosition);
-            controls.autoRotate = false; // Stop rotation so we can focus
+            const clickedPoint = intersects[0].point;
+            
+            // Check if this is a double-click on the same star
+            const isSameStar = lastClickedPosition && clickedPoint.distanceTo(lastClickedPosition) < DOUBLE_CLICK_THRESHOLD;
+            
+            if (isSameStar) {
+                // Double-click detected: Clear timeout and auto-zoom into the system
+                if (clickTimeout !== null) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                }
+                
+                focusedStarPosition = clickedPoint.clone();
+                targetLookAt.copy(focusedStarPosition);
+                updateReticle(null); // Remove reticle immediately
+                
+                // Force transition to system view
+                viewMode = 'SYSTEM';
+                createSolarSystem(focusedStarPosition);
+                
+                // Set up smooth camera transition
+                const starPos = focusedStarPosition.clone();
+                let dir = camera.position.clone().sub(starPos);
+                if (dir.length() < 0.1) dir = new THREE.Vector3(0, 10, 40);
+                dir.normalize();
+                
+                const sunRadius = (activeSun && (activeSun.geometry as any)?.parameters?.radius) ?? 12;
+                const desiredDistance = Math.max(80, sunRadius * 4);
+                
+                targetCameraPos = starPos.clone().add(dir.multiplyScalar(desiredDistance));
+                targetLookAt = starPos.clone();
+                isTransitioning = true;
+                controls.autoRotate = false;
+                
+                lastClickedPosition = null; // Reset after double-click
+            } else {
+                // First click: Show reticle but delay camera target change
+                if (clickTimeout !== null) {
+                    clearTimeout(clickTimeout);
+                }
+                
+                focusedStarPosition = clickedPoint.clone();
+                lastClickedPosition = clickedPoint.clone();
+                updateReticle(focusedStarPosition);
+                controls.autoRotate = false; // Stop rotation so we can focus
+                
+                // Delay the camera target change to allow for double-click
+                clickTimeout = setTimeout(() => {
+                    if (focusedStarPosition) {
+                        targetLookAt.copy(focusedStarPosition);
+                    }
+                    clickTimeout = null;
+                }, DOUBLE_CLICK_WINDOW) as unknown as number;
+            }
         } else {
             // Clicked background: Reset target to center
+            if (clickTimeout !== null) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+            }
             focusedStarPosition = null;
+            lastClickedPosition = null;
             targetLookAt.set(0,0,0);
             updateReticle(null);
             controls.autoRotate = true;
@@ -653,6 +711,9 @@
     });
 
     onDestroy(() => {
+        if (clickTimeout !== null) {
+            clearTimeout(clickTimeout);
+        }
         if (container) container.removeEventListener('pointerdown', onPointerDown);
         // Guard window access for SSR
         if (typeof window !== 'undefined') window.removeEventListener('resize', onResize);

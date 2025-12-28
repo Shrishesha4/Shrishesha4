@@ -29,6 +29,7 @@ export interface Profile {
     techStack: string[];
     particlesQuantity: number;
     badges: Badge[];
+    featuredRepos?: string[];
 }
 
 export const techMap: { [key: string]: string } = {
@@ -180,12 +181,14 @@ export const defaultProfile: Profile = {
     profileImage: "",
     techStack: [],
     particlesQuantity: 1000,
-    badges: []
+    badges: [],
+    featuredRepos: []
 };
 
 function createProfileStore() {
     const { subscribe, set } = writable<Profile>(defaultProfile);
     let unsubscribe: (() => void) | null = null;
+    let profileDocId: string | null = null;
 
     return {
         subscribe,
@@ -194,7 +197,11 @@ function createProfileStore() {
                 if (!auth.currentUser) {
                     throw new Error('Authentication required to save profile');
                 }
-                await saveProfile(auth.currentUser.uid, value);
+                
+                // Use the loaded profile document ID, or fall back to user ID
+                const docId = profileDocId || auth.currentUser.uid;
+                console.log('Saving profile to document:', docId);
+                await saveProfile(docId, value);
                 set(value);
             } catch (error) {
                 console.error('Error saving profile:', error);
@@ -212,6 +219,8 @@ function createProfileStore() {
                 
                 if (!profileSnapshot.empty) {
                     const firstDoc = profileSnapshot.docs[0];
+                    profileDocId = firstDoc.id; // Store the doc ID for saving
+                    console.log('Loading profile from document:', profileDocId);
                     unsubscribe = onSnapshot(
                         doc(db, 'profiles', firstDoc.id),
                         (docSnapshot) => {

@@ -13,6 +13,7 @@ function createToastStore() {
     return {
         subscribe,
         show: (message: string, type: ToastType) => {
+            console.log('Toast.show called:', message, type);
             set({ message, type });
             setTimeout(() => set(null), 3000);
         }

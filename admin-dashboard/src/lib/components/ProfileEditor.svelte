@@ -49,7 +49,8 @@
                 profileImage:profileData.profileImage || '',
                 techStack:profileData.techStack || '',
                 particlesQuantity:profileData.particlesQuantity || 100,
-                badges: profileData.badges || []
+                badges: profileData.badges || [],
+                featuredRepos: profileData.featuredRepos || []
             };
     
             await profile.set(currentProfile);

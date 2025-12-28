@@ -6,6 +6,32 @@
     import { navigate } from '$lib/router';
     import { toast } from '$lib/stores/toast';
     
+    let searchQuery = '';
+    let selectedFilter = 'all';
+    let showFilterDropdown = false;
+
+    // Category keywords for filtering
+    const categoryKeywords = {
+        'Web Development': ['web', 'website', 'frontend', 'backend', 'fullstack', 'html', 'css', 'javascript', 'react', 'vue', 'angular', 'svelte', 'next', 'nuxt', 'node', 'express', 'django', 'flask'],
+        'Mobile Apps': ['mobile', 'app', 'ios', 'android', 'flutter', 'react native', 'swift', 'kotlin'],
+        'AI & ML': ['ai', 'ml', 'machine learning', 'neural', 'deep learning', 'tensorflow', 'pytorch'],
+        'Tools & Utilities': ['tool', 'utility', 'cli', 'automation', 'script', 'bot'],
+        'Other': []
+    };
+
+    function categorizeProject(title: string, description: string, technologies: string[]): string[] {
+        const text = `${title} ${description} ${technologies.join(' ')}`.toLowerCase();
+        const categories: string[] = [];
+
+        for (const [category, keywords] of Object.entries(categoryKeywords)) {
+            if (category === 'Other') continue;
+            const matches = keywords.some(keyword => text.includes(keyword.toLowerCase()));
+            if (matches) categories.push(category);
+        }
+
+        return categories.length > 0 ? categories : ['Other'];
+    }
+    
     let currentProjects: Project[] = [];
     let loading = true;
     let error = '';
@@ -52,6 +78,43 @@
             toast.show('Failed to delete project', 'error');
         }
     }
+
+    async function toggleFeatured(project: Project) {
+        try {
+            const updatedProjects = currentProjects.map(p => 
+                p.id === project.id ? { ...p, featured: !p.featured } : p
+            );
+            await projects.set(updatedProjects);
+            toast.show(`Project ${project.featured ? 'removed from' : 'added to'} featured!`, 'success');
+        } catch (error) {
+            toast.show('Failed to update project', 'error');
+        }
+    }
+
+    // Filtered projects based on search and category
+    $: filteredProjects = currentProjects.filter(project => {
+        const matchesSearch = !searchQuery || 
+            project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.technologies.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        const matchesFilter = selectedFilter === 'all' || 
+            categorizeProject(project.title, project.description, project.technologies).includes(selectedFilter);
+        
+        return matchesSearch && matchesFilter;
+    });
+
+    // Available categories from current projects
+    $: availableCategories = (() => {
+        const categoryCount = new Map<string, number>();
+        currentProjects.forEach(project => {
+            const categories = categorizeProject(project.title, project.description, project.technologies);
+            categories.forEach(cat => categoryCount.set(cat, (categoryCount.get(cat) || 0) + 1));
+        });
+        return Array.from(categoryCount.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+    })();
 </script>
 
 {#if loading}
@@ -73,8 +136,69 @@
             </button>
         </div>
 
+        <!-- Search and Filter -->
+        <div class="flex items-center gap-3 mb-6">
+            <!-- Search Input -->
+            <div class="relative flex-1 max-w-md">
+                <input
+                    type="text"
+                    bind:value={searchQuery}
+                    placeholder="Search projects..."
+                    class="w-full px-4 py-2 pl-10 rounded-lg bg-white/50 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                />
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                {#if searchQuery}
+                    <button
+                        on:click={() => searchQuery = ''}
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                {/if}
+            </div>
+
+            <!-- Filter Dropdown -->
+            <div class="relative">
+                <button
+                    on:click={() => showFilterDropdown = !showFilterDropdown}
+                    class="px-4 py-2 rounded-lg bg-white/50 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white dark:hover:bg-white/10 transition-all flex items-center gap-2 whitespace-nowrap"
+                >
+                    <i class="fas fa-filter text-neutral-500"></i>
+                    <span class="hidden md:inline">{selectedFilter === 'all' ? 'All' : selectedFilter}</span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                
+                {#if showFilterDropdown}
+                    <div class="absolute right-0 mt-2 w-56 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl z-50 overflow-hidden">
+                        <div class="p-2">
+                            <button
+                                on:click={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
+                                class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors {selectedFilter === 'all' ? 'bg-orange-100 dark:bg-orange-900/30' : ''}"
+                            >
+                                All Projects
+                            </button>
+                            {#if availableCategories.length > 0}
+                                <div class="border-t border-neutral-200 dark:border-neutral-700 my-2"></div>
+                                {#each availableCategories as category}
+                                    <button
+                                        on:click={() => { selectedFilter = category.name; showFilterDropdown = false; }}
+                                        class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors text-sm {selectedFilter === category.name ? 'bg-orange-100 dark:bg-orange-900/30' : ''}"
+                                    >
+                                        <div class="flex items-center justify-between">
+                                            <span>{category.name}</span>
+                                            <span class="text-xs text-neutral-500 bg-neutral-100 dark:bg-neutral-700 px-2 py-0.5 rounded-full">{category.count}</span>
+                                        </div>
+                                    </button>
+                                {/each}
+                            {/if}
+                        </div>
+                    </div>
+                {/if}
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {#each currentProjects as project}
+            {#each filteredProjects as project}
                 <div class="glass-card group relative overflow-hidden hover:border-orange-500/30 transition-all duration-300">
                     <!-- Image Area -->
                     <div class="aspect-video w-full bg-neutral-100 dark:bg-neutral-800 relative overflow-hidden">
@@ -85,8 +209,11 @@
                                 <i class="fas fa-image text-4xl"></i>
                             </div>
                         {/if}
-                        
-
+                        {#if project.featured}
+                            <div class="absolute top-2 right-2 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-bold shadow-lg flex items-center gap-1">
+                                <i class="fas fa-star"></i> Featured
+                            </div>
+                        {/if}
                     </div>
 
                     <!-- Content -->
@@ -109,6 +236,13 @@
 
                         <!-- Actions (match BlogEditor style) -->
                         <div class="mt-4 flex sm:flex-col gap-3 w-full sm:w-auto">
+                            <button 
+                                on:click={() => toggleFeatured(project)}
+                                class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 {project.featured ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700' : ''}"
+                                title={project.featured ? 'Remove from featured' : 'Add to featured'}
+                            >
+                                <i class="fas fa-star"></i> <span class="sm:hidden">{project.featured ? 'Featured' : 'Feature'}</span>
+                            </button>
                             <button 
                                 on:click={() => handleEdit(project)}
                                 class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"

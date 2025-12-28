@@ -8,50 +8,35 @@
     export let error: string = '';
     export let onRetry: () => void;
     let imageLoading: { [key: string]: boolean } = {};
-    let isMobile = false;
     let visibleCards: Set<number> = new Set();
     let observer: IntersectionObserver | null = null;
     let activeCard: number | null = null;
 
     onMount(() => {
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        
-        if (!isMobile) {
-            observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const index = parseInt(entry.target.getAttribute('data-index') || '0');
-                            visibleCards = new Set([...visibleCards, index]);
-                        }
-                    });
-                },
-                { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
-            );
+        // Setup Observer for animations
+        observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const index = parseInt(entry.target.getAttribute('data-index') || '0');
+                        visibleCards = new Set([...visibleCards, index]);
+                        observer?.unobserve(entry.target); // Only animate once
+                    }
+                });
+            },
+            { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+        );
 
-            setTimeout(() => {
-                const cards = document.querySelectorAll('.featured-project-card');
-                cards.forEach((card) => observer?.observe(card));
-            }, 200);
-        }
+        // Wait for DOM to settle
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.featured-card');
+            cards.forEach((card) => observer?.observe(card));
+        }, 100);
         
         return () => {
-            if (observer) {
-                observer.disconnect();
-            }
-            window.removeEventListener('resize', checkMobile);
+            if (observer) observer.disconnect();
         };
     });
-
-    $: if (projects.length > 0 && isMobile) {
-        const allIndices = Array.from({ length: Math.min(projects.length, 4) }, (_, i) => i);
-        visibleCards = new Set(allIndices);
-    }
-
-    function checkMobile() {
-        isMobile = window.innerWidth < 768;
-    }
 
     function toggleModal(index: number) {
         activeCard = activeCard === index ? null : index;
@@ -72,32 +57,50 @@
     }
 </script>
 
-<div>
-    <h2 class="mb-8 text-3xl font-bold text-neutral-900 dark:text-neutral-100">Featured Projects</h2>
+<div class="w-full">
+    <div class="flex items-end justify-between mb-10 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+        <div>
+            <h2 class="text-4xl font-bold text-neutral-900 dark:text-white tracking-tight">Featured Work</h2>
+            <p class="text-neutral-500 dark:text-neutral-400 mt-2">A selection of my best technical endeavors.</p>
+        </div>
+        <div class="hidden md:block">
+            <span class="text-xs font-mono text-primary-500 uppercase tracking-widest border border-primary-500/30 px-3 py-1 rounded-full bg-primary-500/10">
+                2023 - 2024
+            </span>
+        </div>
+    </div>
+
     {#if error}
-        <div class="mb-8 rounded-lg bg-red-50 p-4 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400">
+        <div class="rounded-xl bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400 border border-red-100 dark:border-red-900/30">
             {error}
-            <button class="ml-4 text-sm underline" on:click={onRetry}>
+            <button class="ml-4 text-sm font-bold underline hover:text-red-800 transition-colors" on:click={onRetry}>
                 Try again
             </button>
         </div>
     {:else if projects.length > 0}
-        <div class="space-y-8">
-            {#each projects.slice(0, 4) as project, index}
+        <!-- GRID LAYOUT: 2 columns on Desktop, 1 on Mobile -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {#each projects.filter(p => p.featured).slice(0, 4) as project, index}
+                <!-- 
+                   CARD COMPONENT 
+                   Design: Full background image, floating content at bottom.
+                   Interaction: Hover expands content to show description and buttons.
+                -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <div 
                     data-index={index}
+                    class="featured-card group relative h-[400px] md:h-[480px] w-full rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-primary-900/10 transition-all duration-500"
+                    class:opacity-0={!visibleCards.has(index)}
+                    class:animate-fade-in-up={visibleCards.has(index)}
+                    style="animation-delay: {index * 100}ms;"
                     on:click={() => toggleModal(index)}
-                    on:keydown={(e) => e.key === 'Enter' && toggleModal(index)}
                     role="button"
                     tabindex="0"
-                    class="featured-project-card group relative overflow-hidden rounded-2xl backdrop-blur-sm bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col md:flex-row {index % 2 === 1 ? 'md:flex-row-reverse' : ''} cursor-pointer"
-                    class:opacity-0={!isMobile && !visibleCards.has(index)}
-                    class:animate-slide-in-left={!isMobile && visibleCards.has(index) && index % 2 === 0}
-                    class:animate-slide-in-right={!isMobile && visibleCards.has(index) && index % 2 === 1}
                 >
-                    <div class="relative w-full md:w-1/2 h-64 md:h-96 overflow-hidden">
+                    <!-- Background Image -->
+                    <div class="absolute inset-0 bg-neutral-900">
                         {#if imageLoading[project.id]}
-                            <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
+                            <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 z-20">
                                 <LoadingSpinner />
                             </div>
                         {/if}
@@ -107,101 +110,118 @@
                                 srcset={getResponsiveImageSrcSet(project.image)}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt={project.title}
-                                class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
+                                class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
                                 on:load={() => handleImageLoad(project.id)}
                                 on:loadstart={() => handleImageLoadStart(project.id)}
                             />
                         {/if}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
                     </div>
 
-                    <div class="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center relative">
-                        <h3 class="text-2xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-3 md:mb-4 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">
-                            {project.title}
-                        </h3>
-                        <p class="text-neutral-700 dark:text-neutral-300 mb-4 md:mb-6 leading-relaxed text-base md:text-lg">
-                            {truncateText(project.description)}
-                        </p>
+                    <!-- Gradient Overlay (Deepens on Hover) -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-80 transition-opacity duration-500 group-hover:opacity-95"></div>
+                    
+                    <!-- Subtle Gradient Glow on Hover -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay"></div>
 
-                        {#if project.technologies && project.technologies.length > 0}
-                            <div class="flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8">
-                                {#each project.technologies as tech}
-                                    <span class="px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium bg-primary-100/80 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 border border-primary-300/50 dark:border-primary-700/50 backdrop-blur-sm">
-                                        {tech}
-                                    </span>
-                                {/each}
-                            </div>
-                        {/if}
-                    </div>
-
-                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-all duration-500 flex items-center justify-center z-10 {activeCard === index ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}">
-                        <div class="flex flex-col sm:flex-row gap-4 transition-transform duration-500 {activeCard === index ? 'scale-100' : 'scale-75'}">
-                            {#if project.url}
-                                <a 
-                                    href={project.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    on:click|stopPropagation
-                                    class="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-semibold transition-all duration-300 transform hover:scale-110 shadow-2xl min-w-[160px]"
-                                >
-                                    <i class="fas fa-globe text-xl"></i>
-                                    <span>Live Demo</span>
-                                </a>
-                            {/if}
-                            {#if project.github}
-                                <a 
-                                    href={project.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    on:click|stopPropagation
-                                    class="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-neutral-800 hover:bg-neutral-900 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white font-semibold transition-all duration-300 transform hover:scale-110 shadow-2xl min-w-[160px]"
-                                >
-                                    <i class="fab fa-github text-xl"></i>
-                                    <span>Code</span>
-                                </a>
+                    <!-- Content Container -->
+                    <div class="absolute inset-0 flex flex-col justify-end p-6 md:p-8 z-10 transition-all duration-500">
+                        
+                        <!-- Tech Tags (Visible immediately, slide up slightly on hover) -->
+                        <div class="flex flex-wrap gap-2 mb-3 transform transition-transform duration-500 group-hover:-translate-y-2">
+                            {#each project.technologies.slice(0, 3) as tech}
+                                <span class="px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider bg-white/10 backdrop-blur-md text-white border border-white/10 group-hover:bg-primary-500/20 group-hover:border-primary-500/30 transition-colors">
+                                    {tech}
+                                </span>
+                            {/each}
+                            {#if project.technologies.length > 3}
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold text-white/60">+{project.technologies.length - 3}</span>
                             {/if}
                         </div>
-                    </div>
 
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl -z-10 group-hover:bg-primary-500/20 transition-all duration-500"></div>
+                        <!-- Title -->
+                        <h3 class="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight transform transition-transform duration-500 group-hover:-translate-y-1 group-hover:text-primary-200">
+                            {project.title}
+                        </h3>
+
+                        <!-- Description & Actions (Reveal on Hover) -->
+                        <!-- On mobile, we force them to be visible (h-auto, opacity-100). On desktop, they slide up. -->
+                        <div class="max-h-0 opacity-0 group-hover:max-h-[500px] group-hover:opacity-100 md:group-hover:max-h-40 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
+                            <p class="text-neutral-300 text-sm md:text-base mb-6 line-clamp-3 leading-relaxed">
+                                {truncateText(project.description, 150)}
+                            </p>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex flex-row gap-3 pt-2 border-t border-white/10">
+                                {#if project.url}
+                                    <a 
+                                        href={project.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        on:click|stopPropagation
+                                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-sm transition-all duration-300 hover:scale-105"
+                                    >
+                                        <i class="fas fa-external-link-alt"></i>
+                                        <span>Live Demo</span>
+                                    </a>
+                                {/if}
+                                {#if project.github}
+                                    <a 
+                                        href={project.github}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        on:click|stopPropagation
+                                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
+                                    >
+                                        <i class="fab fa-github"></i>
+                                        <span>Code</span>
+                                    </a>
+                                {/if}
+                            </div>
+                        </div>
+
+                        <!-- Mobile Fallback: Always show description if no hover support detected, 
+                             or just let user tap. For this "stunning" version, let's keep it hidden 
+                             on mobile too to encourage the clean "Deck" look, but maybe show a hint. -->
+                    </div>
                 </div>
             {/each}
         </div>
     {:else}
-        <p class="text-center text-neutral-600 dark:text-neutral-400">
-            No projects available yet.
-        </p>
+        <div class="flex flex-col items-center justify-center py-20 text-neutral-400">
+            <i class="fas fa-layer-group text-4xl mb-4 opacity-50"></i>
+            <p>No featured projects available yet.</p>
+        </div>
     {/if}
 </div>
 
 <style>
-    @keyframes slideInLeft {
+    /* Animation Keyframes with 'both' fill-mode to prevent blinking */
+    @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateX(-100px) translateY(20px);
+            transform: translateY(40px) scale(0.97);
         }
         to {
             opacity: 1;
-            transform: translateX(0) translateY(0);
+            transform: translateY(0) scale(1);
         }
     }
 
-    @keyframes slideInRight {
-        from {
-            opacity: 0;
-            transform: translateX(100px) translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0) translateY(0);
-        }
+    .animate-fade-in-up {
+        /* Apply both directions of the animation immediately and stick */
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        backface-visibility: hidden;
+        will-change: transform, opacity;
     }
 
-    .animate-slide-in-left {
-        animation: slideInLeft 0.8s ease-out forwards;
+    .featured-card {
+        /* Prevent layout shift before animation starts */
+        transform: translate3d(0, 0, 0);
+        will-change: transform, opacity;
     }
 
-    .animate-slide-in-right {
-        animation: slideInRight 0.8s ease-out forwards;
+    .featured-card.opacity-0 {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
     }
 </style>

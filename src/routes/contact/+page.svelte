@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { asClassComponent } from 'svelte/legacy';
+    import { asClassComponent } from 'svelte/legacy';
     import { onMount } from 'svelte';
     import { contact } from '$lib/stores/contact';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { db } from '$lib/firebase/config';
     import { collection, addDoc } from 'firebase/firestore';
-	import BuyMeCoffee from '$lib/components/BuyMeCoffee.svelte';
+    import BuyMeCoffee from '$lib/components/BuyMeCoffee.svelte';
 
     let formData = {
         name: '',
@@ -73,152 +73,276 @@
     }
 </script>
 
-<div class="min-h-screen p-4">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-4xl font-bold">Contact Me</h1>
-            <BuyMeCoffee mode="button"/>
+{#if loading}
+    <div class="flex justify-center items-center min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div class="flex flex-col items-center gap-4 animate-pulse">
+            <LoadingSpinner />
+            <p class="text-neutral-500 text-sm">Connecting...</p>
         </div>
-        {#if loading}
-            <div class="flex justify-center">
-                <LoadingSpinner />
-            </div>
-        {:else}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Contact Form -->
-                <div class="glass-card glass-card-hover p-6">
-                    <!-- <div class="flex justify-center">
-                        <h2 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Send a Message</h2>
-                    </div> -->
+    </div>
+{:else}
+    <div class="min-h-screen flex items-center justify-center p-4 bg-transparent selection:bg-primary-500 selection:text-white relative overflow-hidden">
+        
+        <!-- Background Decorative Blobs -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-[128px] pointer-events-none animate-pulse-slow"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[128px] pointer-events-none animate-pulse-slow" style="animation-delay: 2s;"></div>
+
+        <!-- Main Card Container -->
+        <div class="w-full max-w-5xl bg-white/10 dark:bg-neutral-950/15 backdrop-blur-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px] animate-slide-up-fade ring-1 ring-white/30 dark:ring-white/10 z-10">
+            
+            <!-- LEFT PANEL: Contact Info (Dark Themed) -->
+            <div class="w-full md:w-5/12 bg-gradient-to-br from-neutral-900/40 to-neutral-800/40 text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden group backdrop-blur-lg">
+                <!-- Decorative circle -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 group-hover:bg-primary-500/30 transition-colors duration-700"></div>
+
+                <div class="relative z-10">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-2 leading-tight">Let's<br>Connect.</h1>
+                    <p class="text-neutral-400 text-lg mb-8">Have an idea? Let's build something amazing together.</p>
                     
-                    {#if error}
-                        <div class="bg-red-500/10 backdrop-blur-sm text-red-600 dark:text-red-400 p-3 rounded-lg mb-4">
-                            {error}
-                        </div>
-                    {/if}
-
-                    <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Name</label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    autocomplete="name"
-                                    bind:value={formData.name}
-                                    placeholder="Your name"
-                                    required
-                                    class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                                />
+                    <!-- Socials / Quick Actions -->
+                    <div class="space-y-6">
+                        {#if $contact.email}
+                            <div class="flex items-center gap-4 group/item cursor-pointer transition-transform hover:-translate-x-1">
+                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary-400 group-hover/item:bg-primary-500 group-hover/item:text-white transition-colors">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </div>
+                                <a href="mailto:{$contact.email}" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
+                                    {$contact.email}
+                                </a>
                             </div>
-                            
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    autocomplete="email"
-                                    bind:value={formData.email}
-                                    placeholder="Your email"
-                                    required
-                                    class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                                />
+                        {/if}
+
+                        {#if $contact.phone}
+                            <div class="flex items-center gap-4 group/item cursor-pointer transition-transform hover:-translate-x-1">
+                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-purple-400 group-hover/item:bg-purple-500 group-hover/item:text-white transition-colors">
+                                    <i class="fa-solid fa-phone"></i>
+                                </div>
+                                <a href="tel:{$contact.phone.replace(/\s+/g, '')}" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
+                                    {$contact.phone}
+                                </a>
                             </div>
-                        </div>
+                        {/if}
 
-                        <div>
-                            <label for="subject" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Subject</label>
-                            <input
-                                type="text"
-                                id="subject"
-                                name="subject"
-                                autocomplete="off"
-                                bind:value={formData.subject}
-                                placeholder="Subject"
-                                required
-                                class="glass-card transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label for="message" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Message</label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                autocomplete="off"
-                                bind:value={formData.message}
-                                placeholder="Write your message here"
-                                required
-                                rows="4"
-                                class="transition-all duration-200 hover:scale-105 w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-                            ></textarea>
-                        </div>
-                        <div class="flex justify-center">
-                            <button
-                                type="submit"
-                                disabled={sending}
-                                class="glass-card-hover inline-flex items-center rounded-lg border border-neutral-300 dark:border-neutral-700 px-6 py-3 text-white transition hover:bg-neutral-800 gap-2"
-                            >
-                                {sending ? 'Sending...' : 'Send'}
-                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </form>
-
-                    {#if success}
-                        <div class="mt-6 bg-green-500/10 backdrop-blur-sm text-green-600 dark:text-green-400 p-3 rounded-lg">
-                            Message sent successfully!
-                        </div>
-                    {/if}
+                        {#if $contact.location}
+                            <div class="flex items-center gap-4 group/item cursor-pointer transition-transform hover:-translate-x-1">
+                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-pink-400 group-hover/item:bg-pink-500 group-hover/item:text-white transition-colors">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <a href="https://www.google.com/maps/search/?api=1&query={encodeURIComponent($contact.location)}" target="_blank" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
+                                    {$contact.location}
+                                </a>
+                            </div>
+                        {/if}
+                    </div>
                 </div>
 
-                <!-- Contact Information -->
-                <div class="space-y-4">
-                    <div class="glass-card glass-card-hover p-6">
-                        <h2 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-white mb-4">Contact Info</h2>
-                        <div class="space-y-4">
-                            {#if $contact.email}
-                                <div class="flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
-                                    <i class="fa-regular fa-envelope text-lg sm:text-xl"></i>
-                                    <a href="mailto:{$contact.email}" target="_blank">
-                                        <span class="text-sm sm:text-base break-all">{$contact.email}</span>
-                                    </a>
-                                </div>
-                            {/if}
-                            
-                            {#if $contact.phone}
-                                <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
-                                    <i class="fa-solid fa-phone text-xl"></i>
-                                    <a 
-                                        href="tel:{$contact.phone.replace(/\s+/g, '')}" 
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <span class="text-sm sm:text-base">{$contact.phone}</span>
-                                    </a>
-                                </div>
-                            {/if}
-                            
-                            {#if $contact.location}
-                                <div class="flex items-center gap-3 text-neutral-700 dark:text-neutral-300">
-                                    <i class="fa-solid fa-location-dot text-xl"></i>
-                                    <span>
-                                        <a 
-                                            href="https://www.google.com/maps/search/?api=1&query={encodeURIComponent($contact.location)}" 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                        >
-                                            {$contact.location}
-                                        </a>
-                                    </span>
-                                </div>
-                            {/if}
-                        </div>
+                <div class="relative z-10 mt-12">
+                    <div class="flex items-center justify-between border-t border-white/10 pt-6">
+                        <BuyMeCoffee mode="button" />
+                        <!-- svelte-ignore a11y_consider_explicit_label -->
+                         <div class="flex gap-4">
+                             <a href="https://github.com/shrishesha4" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-github text-xl"></i></a>
+                             <a href="https://linkedin.com/in/shrishesha" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-linkedin text-xl"></i></a>
+                             <a href="https://x.com/Shrishesha4" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-x-twitter text-xl"></i></a>
+                         </div>
                     </div>
                 </div>
             </div>
-        {/if}
+
+            <!-- RIGHT PANEL: Form (Light/Glass Themed) -->
+            <div class="w-full md:w-7/12 p-8 md:p-12 bg-white/5 dark:bg-neutral-950/20 relative backdrop-blur-lg">
+                
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white">Send a Message</h2>
+                    <p class="text-neutral-500 dark:text-neutral-400 text-sm mt-2">I usually respond within 24 hours.</p>
+                </div>
+
+                <!-- Status Messages -->
+                {#if error}
+                    <div class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 animate-slide-down">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>{error}</span>
+                        </div>
+                    </div>
+                {/if}
+
+                {#if success}
+                    <div class="mb-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30 animate-slide-down">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Message sent successfully!</span>
+                        </div>
+                    </div>
+                {/if}
+
+                <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+                    
+                    <!-- Name & Email Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="relative group">
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                autocomplete="name"
+                                bind:value={formData.name}
+                                placeholder=" "
+                                required
+                                class="block w-full px-4 py-3 text-neutral-900 dark:text-white bg-white/50 dark:bg-neutral-700/50 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary-500 peer transition-all duration-300"
+                            />
+                            <label 
+                                for="name" 
+                                class="absolute text-sm text-neutral-500 dark:text-neutral-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] left-4 bg-transparent peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-1 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-primary-500 pointer-events-none"
+                            >
+                                Your Name
+                            </label>
+                        </div>
+
+                        <div class="relative group">
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                autocomplete="email"
+                                bind:value={formData.email}
+                                placeholder=" "
+                                required
+                                class="block w-full px-4 py-3 text-neutral-900 dark:text-white bg-white/50 dark:bg-neutral-700/50 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary-500 peer transition-all duration-300"
+                            />
+                            <label 
+                                for="email" 
+                                class="absolute text-sm text-neutral-500 dark:text-neutral-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] left-4 bg-transparent peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-1 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-primary-500 pointer-events-none"
+                            >
+                                Email Address
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="relative group">
+                        <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            autocomplete="off"
+                            bind:value={formData.subject}
+                            placeholder=" "
+                            required
+                            class="block w-full px-4 py-3 text-neutral-900 dark:text-white bg-white/50 dark:bg-neutral-700/50 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary-500 peer transition-all duration-300"
+                        />
+                        <label 
+                            for="subject" 
+                            class="absolute text-sm text-neutral-500 dark:text-neutral-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] left-4 bg-transparent peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-1 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-primary-500 pointer-events-none"
+                        >
+                            Subject
+                        </label>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="relative group">
+                        <textarea
+                            id="message"
+                            name="message"
+                            autocomplete="off"
+                            bind:value={formData.message}
+                            placeholder=" "
+                            required
+                            rows="5"
+                            class="block w-full px-4 py-3 text-neutral-900 dark:text-white bg-white/50 dark:bg-neutral-700/50 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary-500 peer transition-all duration-300 resize-none"
+                        ></textarea>
+                        <label 
+                            for="message" 
+                            class="absolute text-sm text-neutral-500 dark:text-neutral-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] left-4 bg-transparent peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-1 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-primary-500 pointer-events-none"
+                        >
+                            Write your message here...
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        disabled={sending}
+                        class="group relative w-full flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-lg overflow-hidden transition-all duration-300 hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <span class="relative z-10 flex items-center gap-2">
+                            {#if sending}
+                                <i class="fas fa-circle-notch fa-spin"></i>
+                                <span>Sending...</span>
+                            {:else}
+                                <span>Send Message</span>
+                                <i class="fas fa-paper-plane transition-transform group-hover:translate-x-1"></i>
+                            {/if}
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
+{/if}
+
+<style>
+    /* --- Animations --- */
+
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulseSlow {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.05); }
+    }
+
+    .animate-slide-up-fade {
+        animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-slide-down {
+        animation: slideDown 0.4s ease-out both;
+    }
+
+    .animate-pulse-slow {
+        animation: pulseSlow 8s ease-in-out infinite;
+    }
+
+    /* Input Peer Styles for Floating Labels */
+    input:focus ~ label,
+    input:not(:placeholder-shown) ~ label,
+    textarea:focus ~ label,
+    textarea:not(:placeholder-shown) ~ label {
+        /* Move labels higher and slightly smaller for clearer separation */
+        transform: translateY(-2.5rem) scale(0.75);
+        background-color: transparent; /* ensure no solid background shows through */
+        padding: 0 0.4rem; /* small horizontal padding to avoid overlap artifacts */
+    }
+
+    /* Dark mode: keep labels transparent as well */
+    @media (prefers-color-scheme: dark) {
+        input:focus ~ label,
+        input:not(:placeholder-shown) ~ label,
+        textarea:focus ~ label,
+        textarea:not(:placeholder-shown) ~ label {
+            transform: translateY(-1.1rem) scale(0.75);
+            background-color: transparent;
+        }
+    }
+</style>

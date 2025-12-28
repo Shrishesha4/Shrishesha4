@@ -17,7 +17,8 @@
         image: '',
         technologies: [],
         url: '',
-        github: ''
+        github: '',
+        featured: false
     };
     let loading = true;
 
@@ -182,6 +183,20 @@
                                             {tech}
                                         </span>
                                     {/each}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Featured Project</label>
+                                <div class="glass-card p-4 bg-neutral-50/50 dark:bg-white/5 border-neutral-200/50">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            bind:checked={project.featured}
+                                            class="w-5 h-5 rounded border-2 border-neutral-300 dark:border-neutral-600 text-orange-500 focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                                        />
+                                        <span class="text-sm text-neutral-700 dark:text-neutral-300">Show this project in the featured section on the homepage</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
