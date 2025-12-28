@@ -7,6 +7,7 @@
     export let projects: Project[] = [];
     export let error: string = '';
     export let onRetry: () => void;
+    
     let imageLoading: { [key: string]: boolean } = {};
     let visibleCards: Set<number> = new Set();
     let observer: IntersectionObserver | null = null;
@@ -83,13 +84,13 @@
             {#each projects.filter(p => p.featured).slice(0, 4) as project, index}
                 <!-- 
                    CARD COMPONENT 
-                   Design: Full background image, floating content at bottom.
-                   Interaction: Hover expands content to show description and buttons.
+                   Fix: Changed 'transition-all' to 'transition-[box-shadow]' to prevent 
+                   border-radius clipping artifacts during animation.
                 -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <div 
                     data-index={index}
-                    class="featured-card group relative h-[400px] md:h-[480px] w-full rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-primary-900/10 transition-all duration-500"
+                    class="featured-card group relative h-[400px] md:h-[480px] w-full rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-primary-900/10 transition-[box-shadow] duration-500"
                     class:opacity-0={!visibleCards.has(index)}
                     class:animate-fade-in-up={visibleCards.has(index)}
                     style="animation-delay: {index * 100}ms;"
@@ -110,26 +111,26 @@
                                 srcset={getResponsiveImageSrcSet(project.image)}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt={project.title}
-                                class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                                class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 {activeCard === index ? 'scale-110' : ''}"
                                 on:load={() => handleImageLoad(project.id)}
                                 on:loadstart={() => handleImageLoadStart(project.id)}
                             />
                         {/if}
                     </div>
 
-                    <!-- Gradient Overlay (Deepens on Hover) -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-80 transition-opacity duration-500 group-hover:opacity-95"></div>
+                    <!-- Gradient Overlay (Deepens on Hover/Active) -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-80 transition-opacity duration-500 group-hover:opacity-95 {activeCard === index ? 'opacity-95' : ''}"></div>
                     
-                    <!-- Subtle Gradient Glow on Hover -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay"></div>
+                    <!-- Subtle Gradient Glow on Hover/Active -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 {activeCard === index ? 'opacity-100' : ''} mix-blend-overlay"></div>
 
                     <!-- Content Container -->
                     <div class="absolute inset-0 flex flex-col justify-end p-6 md:p-8 z-10 transition-all duration-500">
                         
-                        <!-- Tech Tags (Visible immediately, slide up slightly on hover) -->
-                        <div class="flex flex-wrap gap-2 mb-3 transform transition-transform duration-500 group-hover:-translate-y-2">
+                        <!-- Tech Tags (Visible immediately, slide up slightly on hover/active) -->
+                        <div class="flex flex-wrap gap-2 mb-3 transform transition-transform duration-500 group-hover:-translate-y-2 {activeCard === index ? '-translate-y-2' : ''}">
                             {#each project.technologies.slice(0, 3) as tech}
-                                <span class="px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider bg-white/10 backdrop-blur-md text-white border border-white/10 group-hover:bg-primary-500/20 group-hover:border-primary-500/30 transition-colors">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider bg-white/10 backdrop-blur-md text-white border border-white/10 group-hover:bg-primary-500/20 group-hover:border-primary-500/30 transition-colors {activeCard === index ? 'bg-primary-500/20 border-primary-500/30' : ''}">
                                     {tech}
                                 </span>
                             {/each}
@@ -139,13 +140,16 @@
                         </div>
 
                         <!-- Title -->
-                        <h3 class="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight transform transition-transform duration-500 group-hover:-translate-y-1 group-hover:text-primary-200">
+                        <h3 class="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight transform transition-transform duration-500 group-hover:-translate-y-1 group-hover:text-primary-200 {activeCard === index ? '-translate-y-1 text-primary-200' : ''}">
                             {project.title}
                         </h3>
 
-                        <!-- Description & Actions (Reveal on Hover) -->
-                        <!-- On mobile, we force them to be visible (h-auto, opacity-100). On desktop, they slide up. -->
-                        <div class="max-h-0 opacity-0 group-hover:max-h-[500px] group-hover:opacity-100 md:group-hover:max-h-40 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
+                        <!-- Description & Actions (Reveal on Hover/Active) -->
+                        <!-- 
+                           Logic: By default max-h-0 opacity-0. 
+                           On group-hover OR activeCard match, expand. 
+                        -->
+                        <div class="max-h-0 opacity-0 group-hover:max-h-[500px] group-hover:opacity-100 md:group-hover:max-h-40 {activeCard === index ? 'max-h-[500px] opacity-100' : ''} transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
                             <p class="text-neutral-300 text-sm md:text-base mb-6 line-clamp-3 leading-relaxed">
                                 {truncateText(project.description, 150)}
                             </p>
@@ -178,10 +182,6 @@
                                 {/if}
                             </div>
                         </div>
-
-                        <!-- Mobile Fallback: Always show description if no hover support detected, 
-                             or just let user tap. For this "stunning" version, let's keep it hidden 
-                             on mobile too to encourage the clean "Deck" look, but maybe show a hint. -->
                     </div>
                 </div>
             {/each}
@@ -208,16 +208,29 @@
     }
 
     .animate-fade-in-up {
-        /* Apply both directions of the animation immediately and stick */
         animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         backface-visibility: hidden;
         will-change: transform, opacity;
     }
 
     .featured-card {
-        /* Prevent layout shift before animation starts */
-        transform: translate3d(0, 0, 0);
-        will-change: transform, opacity;
+        /* 
+           FIX: Explicitly force hardware acceleration (translateZ) to ensure
+           border-radius is preserved during transitions.
+           Add a mask so mobile/Safari correctly clips children during transforms,
+           and use paint containment to help with rendering stability.
+        */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        will-change: transform, opacity, box-shadow;
+        /* Ensure overflow clipping of children on iOS/Safari during transforms */
+        overflow: hidden;
+        -webkit-mask-image: -webkit-linear-gradient(#000, #000);
+        mask-image: linear-gradient(#000, #000);
+        /* Improve paint isolation for smoother animations */
+        contain: paint;
     }
 
     .featured-card.opacity-0 {
