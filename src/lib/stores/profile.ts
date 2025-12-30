@@ -19,6 +19,8 @@ export interface Profile {
     title: string;
     sub_title: string[];
     bio: string;
+    resumeBio?: string; // Enhanced summary for resume
+    resumeDataHash?: string; // Hash to track data changes for auto-enhancement
     location: string;
     skills: string[];
     experience: string[];
@@ -173,6 +175,8 @@ export const defaultProfile: Profile = {
     title: "",
     sub_title: [''],
     bio: "",
+    resumeBio: "",
+    resumeDataHash: "",
     location: "",
     skills: [],
     experience: [],
