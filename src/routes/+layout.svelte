@@ -19,6 +19,7 @@
     import { showNavbar } from '$lib/stores/ui';
     
     $: isStargaze = $page.url.pathname.startsWith('/stargaze');
+    $: isResume = $page.url.pathname.startsWith('/resume');
     
     let showWarpTransition = false;
     let warpDirection: 'in' | 'out' = 'in';
@@ -90,29 +91,32 @@
 </script>
 
 <div class="min-h-screen relative {contentZoom}">
-    {#if isStargaze}
-        <ParticlesBackground
-            quantity={$profile.particlesQuantity/3}
-            staticity={2000}
-            ease={500}  
-        />
-    {:else}
-        <ParticlesBackground
-            quantity={$profile.particlesQuantity}
-            staticity={20}
-            ease={10}  
-        />
+    {#if !isResume}
+        {#if isStargaze}
+            <ParticlesBackground
+                quantity={$profile.particlesQuantity/3}
+                staticity={2000}
+                ease={500}  
+            />
+        {:else}
+            <ParticlesBackground
+                quantity={$profile.particlesQuantity}
+                staticity={20}
+                ease={10}  
+            />
+        {/if}
+
+        {#if $showNavbar}
+            <Navbar/>
+        {/if}
     {/if}
 
-    {#if $showNavbar}
-        <Navbar/>
-    {/if}
-
-    <main class="pt-8 md:pt-28 px-4">
+    <main class="{isResume ? '' : 'pt-8 md:pt-28 px-4'}">
         <slot />
     </main>
     <Toast />
     <LoadingSpinner />
+    {#if !isResume}
     <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
         <div class="container mx-auto flex justify-center items-center">
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
@@ -120,6 +124,7 @@
             </p>
         </div>
     </footer>
+    {/if}
 </div>
 
 <!-- Warp Speed Transition -->
