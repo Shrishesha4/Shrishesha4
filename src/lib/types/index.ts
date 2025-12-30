@@ -18,4 +18,5 @@ export interface Project {
     github?: string;
     url?: string;
     featured?: boolean;
+    resumeSummary?: string[];
 }

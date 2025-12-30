@@ -23,9 +23,7 @@
     let loading = true;
 
     // LLM generation state
-    let llmApiKey: string = '';
     let llmStyle: string = '';
-    let saveApiKey: boolean = false;
     let llmLoading: boolean = false;
 
     onMount(async () => {
@@ -33,14 +31,6 @@
             navigate('/login');
             return;
         }
-
-        // Load saved API key if user previously chose to store it
-        try {
-            const saved = localStorage.getItem('gemini_api_key');
-            if (saved) {
-                llmApiKey = saved;
-            }
-        } catch (e) {}
 
         if (isEdit && id) {
             await blogs.load();
@@ -95,12 +85,6 @@
     }
 
     async function generateWithLLM() {
-        const key = llmApiKey || '';
-        if (!key) {
-            toast.show('Please provide your Gemini API key (you can save it locally)', 'error');
-            return;
-        }
-
         if (!blog.title) {
             toast.show('Please provide a title to seed the generation', 'error');
             return;
@@ -108,44 +92,29 @@
 
         llmLoading = true;
         try {
-            const prompt = `Write a detailed blog post titled "${blog.title}". Summary: ${blog.description || ''}. Style: ${llmStyle || 'clear and engaging'}. Include headings (H2/H3), introduction and conclusion. Format in HTML for a blog editor.`;
-
-            // Call Gemini API directly (newer endpoint)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(key)}`;
-
-            const res = await fetch(url, {
+            const res = await fetch('/api/generate-blog', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }]
+                    title: blog.title,
+                    description: blog.description,
+                    style: llmStyle
                 })
             });
 
-            const text = await res.text();
-
-            // Try to parse JSON safely
-            let data: any = null;
-            try {
-                data = text ? JSON.parse(text) : null;
-            } catch (e) {
-                data = { error: text || 'Invalid response from Gemini API' };
-            }
+            const data = await res.json();
 
             if (!res.ok) {
-                console.error('Gemini API error', res.status, data);
-                const message = data?.error?.message || data?.error || `Generation failed (status ${res.status})`;
-                toast.show(`Gemini API error: ${message}`, 'error');
+                const message = data?.error || `Generation failed (status ${res.status})`;
+                toast.show(`Generation error: ${message}`, 'error');
                 llmLoading = false;
                 return;
             }
 
-            // Extract content from Gemini response
-            const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const content = data.content;
             
             if (!content) {
-                toast.show(data?.error?.message || 'No content returned from Gemini', 'error');
+                toast.show('No content returned', 'error');
                 llmLoading = false;
                 return;
             }
@@ -161,15 +130,9 @@
 
             toast.show('Generated content inserted into editor', 'success');
 
-            // Save API key locally if user asked
-            try {
-                if (saveApiKey) localStorage.setItem('gemini_api_key', llmApiKey);
-                else localStorage.removeItem('gemini_api_key');
-            } catch (e) {}
-
         } catch (err: any) {
             console.error(err);
-            toast.show(`Network error: ${err?.message || 'Failed to reach Gemini API'}`, 'error');
+            toast.show(`Network error: ${err?.message || 'Failed to reach server'}`, 'error');
         } finally {
             llmLoading = false;
         }
@@ -291,9 +254,7 @@
                                         <!-- LLM Generation -->
                                         <div class="pt-4 border-t border-neutral-200/30">
                                             <span class="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Generate with LLM (Gemini)</span>
-                                            <label class="block text-[11px] text-neutral-500 mb-1">API Key</label>
-                                            <input type="password" value={llmApiKey} on:input={(e) => llmApiKey = (e.target as HTMLInputElement).value} placeholder="Paste Gemini API key (optional)" class="glass-input w-full text-sm mb-2" />
-
+                                            
                                             <label class="block text-[11px] text-neutral-500 mb-1">Tone / Style (optional)</label>
                                             <input type="text" bind:value={llmStyle} placeholder="e.g. conversational, technical, concise" class="glass-input w-full text-sm mb-2" />
 
@@ -305,13 +266,12 @@
                                                         Generate
                                                     {/if}
                                                 </button>
-                                                <label class="inline-flex items-center gap-2 text-sm text-neutral-500"><input type="checkbox" bind:checked={saveApiKey} /> <span>Save API key locally</span></label>
                                             </div>
 
                                             {#if llmLoading}
                                                 <div class="text-sm text-neutral-500 mt-2">Generating content…</div>
                                             {/if}
-                                            <p class="text-xs text-neutral-400 mt-2">Tip: Paste your Gemini/Google Generative API key above. Storing it locally saves time but keep it private — for production, prefer a server-side key in environment variables.</p>
+                                            <p class="text-xs text-neutral-400 mt-2">Using server-side Gemini API generation.</p>
                                         </div>
                                     </div>
                                 </div>

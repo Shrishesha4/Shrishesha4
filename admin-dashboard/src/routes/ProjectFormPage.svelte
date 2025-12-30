@@ -18,9 +18,11 @@
         technologies: [],
         url: '',
         github: '',
-        featured: false
+        featured: false,
+        resumeSummary: []
     };
     let loading = true;
+    let isGenerating = false;
 
     onMount(async () => {
         if (!auth.currentUser) {
@@ -33,6 +35,8 @@
             const found = $projects.find(p => p.id === id);
             if (found) {
                 project = JSON.parse(JSON.stringify(found));
+                // Ensure resumeSummary is initialized
+                project.resumeSummary = project.resumeSummary || [];
             } else {
                 toast.show('Project not found', 'error');
                 navigate('/');
@@ -40,6 +44,39 @@
         }
         loading = false;
     });
+
+    async function generateSummary() {
+        if (!project.title || !project.description) {
+            toast.show('Please fill in Title and Description first', 'error');
+            return;
+        }
+
+        isGenerating = true;
+        try {
+            const response = await fetch('/api/generate-summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: project.title,
+                    description: project.description,
+                    technologies: project.technologies
+                })
+            });
+
+            if (!response.ok) throw new Error('Generation failed');
+
+            const data = await response.json();
+            if (data.summary) {
+                project.resumeSummary = Array.isArray(data.summary) ? data.summary : [];
+                toast.show('Summary generated successfully!', 'success');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.show('Failed to generate summary', 'error');
+        } finally {
+            isGenerating = false;
+        }
+    }
 
     async function handleSubmit() {
         try {
@@ -74,6 +111,7 @@
     <!-- Bottom Toolbar -->
     <header class="glass-card h-20 px-6 flex items-center justify-between border-neutral-200 dark:border-white/5 shrink-0 shadow-2xl">
         <div class="flex items-center gap-4">
+            <!-- svelte-ignore a11y_consider_explicit_label -->
             <button 
                 on:click={() => navigate('/?tab=projects')}
                 class="w-12 h-12 rounded-2xl bg-white dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-all shadow-sm active:scale-95"
@@ -104,6 +142,7 @@
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div>
             </div>
         {:else}
+        <!-- svelte-ignore a11y_label_has_associated_control -->
             <div class="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                 <div class="max-w-3xl mx-auto animate-workspace-in">
                     <form id="projectForm" on:submit|preventDefault={handleSubmit} class="space-y-8">
@@ -183,6 +222,67 @@
                                             {tech}
                                         </span>
                                     {/each}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">
+                                    Resume Summary (AI Generated)
+                                </label>
+                                <div class="glass-card p-6 bg-neutral-50/50 dark:bg-white/5 border-neutral-200/50 space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-xs text-neutral-500">
+                                            Generate concise bullet points for your resume.
+                                        </p>
+                                        <button 
+                                            type="button"
+                                            on:click={generateSummary}
+                                            disabled={isGenerating}
+                                            class="glass-button px-4 py-2 text-xs font-bold flex items-center gap-2 {isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-orange-500'}"
+                                        >
+                                            {#if isGenerating}
+                                                <i class="fas fa-spinner fa-spin"></i> Generating...
+                                            {:else}
+                                                <i class="fas fa-magic"></i> Generate with AI
+                                            {/if}
+                                        </button>
+                                    </div>
+                                    
+                                    {#if project.resumeSummary && project.resumeSummary.length > 0}
+                                        <div class="space-y-2">
+                                            {#each (project.resumeSummary || []) as point, i}
+                                                <div class="flex gap-2">
+                                                    <span class="text-orange-500 mt-1">•</span>
+                                                    <input 
+                                                        type="text" 
+                                                        bind:value={project.resumeSummary[i]}
+                                                        class="glass-input w-full text-sm"
+                                                    />
+                                                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                                                    <button 
+                                                        type="button"
+                                                        on:click={() => {
+                                                            project.resumeSummary = (project.resumeSummary || []).filter((_, idx) => idx !== i);
+                                                        }}
+                                                        class="text-neutral-400 hover:text-red-500"
+                                                    >
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            {/each}
+                                            <button 
+                                                type="button"
+                                                on:click={() => project.resumeSummary = [...(project.resumeSummary || []), '']}
+                                                class="text-xs text-orange-500 font-bold hover:underline mt-2"
+                                            >
+                                                + Add Point
+                                            </button>
+                                        </div>
+                                    {:else}
+                                        <div class="text-center py-8 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-lg">
+                                            <p class="text-sm text-neutral-500">No summary generated yet.</p>
+                                        </div>
+                                    {/if}
                                 </div>
                             </div>
 

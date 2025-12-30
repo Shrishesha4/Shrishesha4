@@ -2,11 +2,13 @@ import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { apiServerPlugin } from './vite-plugins/api-server'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     svelte(),
+    apiServerPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {

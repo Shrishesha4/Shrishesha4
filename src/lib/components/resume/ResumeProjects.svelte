@@ -38,9 +38,19 @@
                         </div>
                     </div>
                     
-                    <p class="text-gray-700 text-sm text-justify mb-2 leading-relaxed">
-                        {project.description}
-                    </p>
+                    {#if project.resumeSummary && project.resumeSummary.length > 0}
+                        <ul class="list-disc list-outside ml-4 mb-2 space-y-1">
+                            {#each project.resumeSummary as point}
+                                <li class="text-gray-700 text-sm leading-relaxed text-justify">
+                                    {point}
+                                </li>
+                            {/each}
+                        </ul>
+                    {:else}
+                        <p class="text-gray-700 text-sm text-justify mb-2 leading-relaxed">
+                            {project.description}
+                        </p>
+                    {/if}
 
                     {#if project.technologies && project.technologies.length > 0}
                         <div class="flex flex-wrap gap-1">

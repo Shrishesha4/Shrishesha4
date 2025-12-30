@@ -5,4 +5,4 @@ Disallow: /wp-admin/
 Disallow: /wordpress/
 Disallow: /*.php$
 
-Sitemap: https://www.shrishesha.online/sitemap.xml
+Sitemap: https://www.shrishesha.space/sitemap.xml

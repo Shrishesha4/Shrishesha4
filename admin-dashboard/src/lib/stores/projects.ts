@@ -11,6 +11,7 @@ export interface Project {
     url?: string;
     github?: string;
     featured?: boolean;
+    resumeSummary?: string[];
 }
 
 function createProjectsStore() {
