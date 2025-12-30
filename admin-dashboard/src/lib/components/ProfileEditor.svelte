@@ -1,6 +1,8 @@
 <script lang="ts">
     import LoadingSpinner from './LoadingSpinner.svelte';
     import { profile } from '$lib/stores/profile';
+    import { projects } from '$lib/stores/projects';
+    import { blogs } from '$lib/stores/blogs';
     import { auth } from '$lib/firebase/config';
     import { toast } from '$lib/stores/toast';
     import { navigate } from '$lib/router';
@@ -12,11 +14,55 @@
     let currentProfile = { ...$profile };
     let loading = true;
     let error = '';
+    let isEnhancing = false;
     let savingStates = {
         profile: false,
         education: false,
         typing: false
     };
+
+    async function enhanceResumeSummary() {
+        isEnhancing = true;
+        try {
+            // Load projects and blogs if needed
+            await projects.load();
+            await blogs.load();
+            
+            const response = await fetch('/api/enhance-resume-summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bio: currentProfile.bio,
+                    skills: currentProfile.skills,
+                    experience: currentProfile.experience,
+                    education: currentProfile.education,
+                    projects: $projects.slice(0, 5),
+                    blogs: $blogs.slice(0, 5)
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                if (response.status === 429) {
+                    toast.show(`Rate limit exceeded. Please wait ${errData.retryAfter || 60} seconds.`, 'error');
+                    return;
+                }
+                throw new Error(errData.error || 'Enhancement failed');
+            }
+
+            const data = await response.json();
+            if (data.summary) {
+                currentProfile.resumeBio = data.summary;
+                await profile.set({ ...currentProfile, resumeBio: data.summary });
+                toast.show('Resume summary enhanced successfully!', 'success');
+            }
+        } catch (err: any) {
+            console.error('Error enhancing summary:', err);
+            toast.show(err.message || 'Failed to enhance summary', 'error');
+        } finally {
+            isEnhancing = false;
+        }
+    }
 
 
     async function loadProfileData() {
@@ -40,6 +86,7 @@
                 title: profileData.title || '',
                 sub_title: profileData.sub_title || '',
                 bio: profileData.bio || '',
+                resumeBio: profileData.resumeBio || '',
                 location:profileData.location || '',
                 skills: profileData.skills || [],
                 experience: profileData.experience || [],
@@ -190,6 +237,35 @@
                             class="glass-card-hover w-full px-3 mt-2 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                             rows="4"
                         ></textarea>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="font-bold text-neutral-700 dark:text-neutral-300">Resume Summary (AI Enhanced)</label>
+                            <button
+                                type="button"
+                                on:click={enhanceResumeSummary}
+                                disabled={isEnhancing}
+                                class="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
+                            >
+                                {#if isEnhancing}
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Enhancing...
+                                {:else}
+                                    <i class="fas fa-magic"></i>
+                                    Enhance with AI
+                                {/if}
+                            </button>
+                        </div>
+                        <textarea 
+                            bind:value={currentProfile.resumeBio} 
+                            class="glass-card-hover w-full px-3 py-2 rounded-lg bg-gray-200/10 dark:bg-black/10 backdrop-blur-md border border-gray-800/20 dark:border-neutral-700/30 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                            rows="4"
+                            placeholder="Click 'Enhance with AI' to generate a professional resume summary based on your profile data..."
+                        ></textarea>
+                        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                            This summary will be used on your resume page. AI enhancement uses your bio, skills, experience, projects, and blogs.
+                        </p>
                     </div>
 
                     <div>

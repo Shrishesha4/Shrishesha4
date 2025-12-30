@@ -19,6 +19,7 @@ export interface Profile {
     title: string;
     sub_title: string[];
     bio: string;
+    resumeBio?: string;
     location: string;
     skills: string[];
     experience: string[];
@@ -182,7 +183,7 @@ export const defaultProfile: Profile = {
     techStack: [],
     particlesQuantity: 1000,
     badges: [],
-    featuredRepos: []
+    featuredRepos: [],
 };
 
 function createProfileStore() {
