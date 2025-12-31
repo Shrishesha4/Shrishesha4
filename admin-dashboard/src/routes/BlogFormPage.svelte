@@ -5,6 +5,7 @@
     import { toast } from '$lib/stores/toast';
     import { auth } from '$lib/firebase/config';
     import ImageUpload from '$lib/components/ImageUpload.svelte';
+    import { API_BASE_URL } from '$lib/config';
 
     const path = window.location.pathname;
     const isEdit = path.includes('/edit/');
@@ -92,7 +93,7 @@
 
         llmLoading = true;
         try {
-            const res = await fetch('/api/generate-blog', {
+            const res = await fetch(`${API_BASE_URL}/generate-blog`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

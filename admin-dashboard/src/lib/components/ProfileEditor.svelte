@@ -9,6 +9,7 @@
     import { onMount } from 'svelte';
     import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
     import ImageUpload from './ImageUpload.svelte';
+    import { API_BASE_URL } from '$lib/config';
 
     const db = getFirestore();
     let currentProfile = { ...$profile };
@@ -28,7 +29,7 @@
             await projects.load();
             await blogs.load();
             
-            const response = await fetch('/api/enhance-resume-summary', {
+            const response = await fetch(`${API_BASE_URL}/enhance-resume-summary`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

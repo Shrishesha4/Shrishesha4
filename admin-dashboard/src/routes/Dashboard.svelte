@@ -65,16 +65,8 @@
 
 {#if $isAuthenticated}
     <div class="h-screen w-screen overflow-hidden flex flex-col-reverse md:flex-row p-4 gap-4 bg-neutral-100 dark:bg-neutral-950 transition-colors duration-500">
-        
-        <!-- OS Dock (Navigation) -->
         <!-- svelte-ignore a11y_consider_explicit_label -->
         <nav class="md:h-full md:w-24 w-full h-20 glass-card flex md:flex-col items-center py-2 md:py-6 px-3 sm:px-4 z-50 shrink-0 border-neutral-200 dark:border-white/5 shadow-2xl md:shadow-none overflow-x-auto no-scrollbar">
-            <!-- App Icon / OS Indicator -->
-            <div class="hidden md:flex w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-white items-center justify-center text-white dark:text-black font-black text-xl mb-8 shadow-2xl">
-                A
-            </div>
-
-            <!-- Dock Items -->
             <div class="flex-1 md:flex-none flex items-center justify-between md:flex-col gap-3 sm:gap-6 w-full md:w-auto px-3">
                 <button
                     class="dock-item group {activeTab === 'profile' ? 'active' : ''}"
