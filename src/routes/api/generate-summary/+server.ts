@@ -22,9 +22,11 @@ export async function POST({ request }) {
 
         Requirements:
         1. Generate exactly 2-3 bullet points.
-        2. Focus on technical achievements, impact, and specific technologies used.
-        3. Keep it professional and action-oriented (e.g., "Developed...", "Implemented...", "Optimized...").
-        4. Return ONLY the bullet points as a JSON array of strings. Do not include markdown formatting or "json" tags.`;
+        2. Each bullet point must be MAXIMUM 120 characters (one short sentence).
+        3. Focus on ONE key technical achievement or impact per bullet point.
+        4. Use strong action verbs ("Engineered", "Implemented", "Optimized", "Developed").
+        5. Be extremely concise - cut all unnecessary words.
+        6. Return ONLY the bullet points as a JSON array of strings. Do not include markdown formatting or "json" tags.`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
