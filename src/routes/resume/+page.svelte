@@ -48,7 +48,7 @@
 
 <div class="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
     <!-- Resume Paper -->
-    <div class="max-w-[21cm] mx-auto bg-white shadow-xl print:shadow-none p-8 md:p-12 print:p-0 min-h-[29.7cm] text-gray-900">
+    <div class="max-w-[21cm] mx-auto bg-white shadow-xl print:shadow-none p-8 md:p-12 print:p-6 min-h-[29.7cm] text-gray-900">
         
         <ResumeHeader />
         
@@ -80,7 +80,7 @@
 <style>
     @media print {
         @page {
-            margin: 0;
+            margin: 1.5cm;
             size: auto;
         }
         :global(body) {
