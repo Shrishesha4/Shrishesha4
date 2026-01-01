@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  /* Cyberpunk Palette */
+  --neon-pink: #FF006E;
+  --neon-orange: #FB5607;
+  --neon-blue: #3A86FF;
+  --neon-cyan: #00F5FF;
+  --acid-green: #06FFA5;
+  --deep-purple: #8338EC;
+  --dark-bg: #0A0E27;
+  --darker-bg: #050713;
+  --panel-bg: rgba(10, 14, 39, 0.7);
+  
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-rajdhani: 'Rajdhani', sans-serif;
+}
+
+@theme inline {
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-orange: var(--neon-orange);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-acid-green: var(--acid-green);
+  --color-deep-purple: var(--deep-purple);
+  --color-dark-bg: var(--dark-bg);
+  --color-darker-bg: var(--darker-bg);
+  --color-panel-bg: var(--panel-bg);
+
+  --font-orbitron: var(--font-orbitron);
+  --font-rajdhani: var(--font-rajdhani);
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: white;
+  font-family: var(--font-rajdhani);
+  cursor: none; /* Hide default cursor */
+}
+
+html {
+    cursor: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-orbitron);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* Utilities */
+.text-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.box-glow {
+  box-shadow: 0 0 15px currentColor;
+}
+
+.glitch-effect {
+  position: relative;
+}
+
+.clip-path-slant {
+
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+
+}
+
+
+
+@keyframes glitch {
+
+  0% {
+
+    transform: translate(0);
+
+  }
+
+  20% {
+
+    transform: translate(-2px, 2px);
+
+  }
+
+  40% {
+
+    transform: translate(-2px, -2px);
+
+  }
+
+  60% {
+
+    transform: translate(2px, 2px);
+
+  }
+
+  80% {
+
+    transform: translate(2px, -2px);
+
+  }
+
+  100% {
+
+    transform: translate(0);
+
+  }
+
+}
+
+
+
+.animate-glitch {
+
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+
+}
