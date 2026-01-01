@@ -311,18 +311,6 @@
 
 ---
 
-## 🎯 Current Focus
-
-```mermaid
-flowchart TD
-  A[🐳 Homelab Orchestration] --> B[Docker Swarm + Portainer]
-  C[🔐 ESP32 Network Defense] --> D[Intrusion Detection Firmware]
-  E[📱 Immersive 3D Mobile] --> F[AR/VR GLTF Rendering]
-  G[📊 Chaos Engineering] --> H[Load Testing + Observability]
-```
-
----
-
 ## 💝 Support My Work
 
 <div align="center">
@@ -338,9 +326,4 @@ flowchart TD
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="250" alt="Footer animation" />
-</div>
-
-<div align="center">
-  <br>
-  <sub><b>✨ shrishesha4 | Engineered with precision</b></sub>
 </div>
