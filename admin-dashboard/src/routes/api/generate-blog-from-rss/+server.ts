@@ -1,20 +1,20 @@
-import { json, type RequestEvent } from '@sveltejs/kit';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { env } from '$env/dynamic/private';
 
-export async function POST({ request }: RequestEvent) {
+export async function POST({ request }: { request: Request }) {
     try {
         const { title, description, sourceUrl, sourceTitle, content } = await request.json();
         
-        const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
         if (!apiKey) {
-            console.error('Gemini API key not found');
-            return json({ error: 'Gemini API key not configured' }, { status: 500 });
+            console.error('Gemini API key not configured');
+            return new Response(JSON.stringify({ error: 'Gemini API key not configured' }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-flash-latest which is widely available
         const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // Clean up description/content from HTML
@@ -62,9 +62,18 @@ Write the blog post now:`;
   <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="text-orange-500 hover:underline">Read the original article →</a>
 </p>`;
 
-        return json({ content: cleanedContent });
-    } catch (error) {
+        return new Response(JSON.stringify({ content: cleanedContent }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error: any) {
         console.error('Error generating blog from RSS:', error);
-        return json({ error: 'Failed to generate blog content from RSS item' }, { status: 500 });
+        return new Response(JSON.stringify({ 
+            error: 'Failed to generate blog content from RSS item', 
+            details: error.message 
+        }), { 
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }

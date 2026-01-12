@@ -12,6 +12,143 @@ export function apiServerPlugin(): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
+        // RSS Proxy endpoint
+        if (req.url?.startsWith('/api/rss-proxy') && req.method === 'GET') {
+          try {
+            const urlParams = new URL(req.url, 'http://localhost');
+            const feedUrl = urlParams.searchParams.get('url');
+            
+            if (!feedUrl) {
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'URL parameter is required' }));
+              return;
+            }
+            
+            // Validate URL
+            try {
+              new URL(feedUrl);
+            } catch {
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Invalid URL format' }));
+              return;
+            }
+            
+            // Fetch the RSS feed
+            const response = await fetch(feedUrl, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; RSSReader/1.0)',
+                'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml'
+              }
+            });
+            
+            if (!response.ok) {
+              res.statusCode = response.status;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: `Failed to fetch feed: ${response.statusText}` }));
+              return;
+            }
+            
+            const text = await response.text();
+            const items = parseRSSFeed(text);
+            
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ items }));
+          } catch (error: any) {
+            console.error('Error fetching RSS feed:', error);
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Failed to fetch or parse RSS feed' }));
+          }
+          return;
+        }
+        
+        // Generate blog from RSS endpoint
+        if (req.url === '/api/generate-blog-from-rss' && req.method === 'POST') {
+          let body = '';
+          
+          req.on('data', chunk => {
+            body += chunk.toString();
+          });
+          
+          req.on('end', async () => {
+            try {
+              const { title, description, sourceUrl, sourceTitle, content } = JSON.parse(body);
+              
+              if (!apiKey) {
+                console.error('Gemini API key not configured');
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Gemini API key not configured' }));
+                return;
+              }
+              
+              const genAI = new GoogleGenerativeAI(apiKey);
+              const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+              
+              // Clean up description/content from HTML
+              const cleanDescription = (description || '').replace(/<[^>]*>/g, '').trim();
+              const cleanContent = (content || '').replace(/<[^>]*>/g, '').trim();
+              
+              const prompt = `You are a skilled blog writer. Based on the following news article information, write an original, insightful blog post that:
+
+1. Takes inspiration from the source material but adds your own perspective and analysis
+2. Is NOT a direct copy or paraphrase of the original article
+3. Provides valuable insights, context, or commentary
+4. Is written in an engaging, conversational style
+5. Is formatted as clean HTML suitable for a blog post (no <html>, <head>, or <body> tags)
+
+SOURCE ARTICLE INFORMATION:
+Title: ${title}
+Source: ${sourceTitle}
+${cleanDescription ? `Summary: ${cleanDescription}` : ''}
+${cleanContent ? `Content excerpt: ${cleanContent.slice(0, 1500)}` : ''}
+
+REQUIREMENTS:
+- Create an original blog post inspired by this topic
+- Include relevant headings (H2, H3)
+- Add an engaging introduction that hooks the reader
+- Provide analysis, context, or your unique take on the topic
+- Include a thoughtful conclusion
+- Format as clean HTML (no markdown code blocks)
+- Do NOT include source attribution in the content (that will be added separately)
+- Make it approximately 800-1200 words
+
+Write the blog post now:`;
+              
+              const result = await model.generateContent(prompt);
+              const response = await result.response;
+              const text = response.text();
+              
+              // Clean up markdown code blocks if present
+              let cleanedContent = text.replace(/```html/g, '').replace(/```/g, '').trim();
+              
+              // Add source attribution at the end
+              cleanedContent += `
+<hr class="my-8 border-neutral-200 dark:border-neutral-700" />
+<p class="text-sm text-neutral-500 dark:text-neutral-400 italic">
+  This post was inspired by an article from <strong>${sourceTitle}</strong>. 
+  <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="text-orange-500 hover:underline">Read the original article →</a>
+</p>`;
+              
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ content: cleanedContent }));
+            } catch (error: any) {
+              console.error('Error generating blog from RSS:', error);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ 
+                error: 'Failed to generate blog content from RSS item', 
+                details: error.message 
+              }));
+            }
+          });
+          return;
+        }
+        
         if (req.url === '/api/generate-summary' && req.method === 'POST') {
           let body = '';
           
@@ -200,4 +337,149 @@ export function apiServerPlugin(): Plugin {
       });
     }
   };
+}
+
+// RSS Feed parsing helper functions
+function parseRSSFeed(xml: string): Array<{
+    title: string;
+    link: string;
+    description: string;
+    pubDate: string;
+    content?: string;
+    image?: string;
+}> {
+    const items: Array<{
+        title: string;
+        link: string;
+        description: string;
+        pubDate: string;
+        content?: string;
+        image?: string;
+    }> = [];
+
+    // Try to detect if it's Atom or RSS
+    const isAtom = xml.includes('<feed') && xml.includes('xmlns="http://www.w3.org/2005/Atom"');
+
+    if (isAtom) {
+        // Parse Atom feed
+        const entryMatches = xml.match(/<entry[\s\S]*?<\/entry>/gi) || [];
+        
+        for (const entry of entryMatches) {
+            const title = extractTag(entry, 'title');
+            const link = extractAtomLink(entry);
+            const description = extractTag(entry, 'summary') || extractTag(entry, 'content');
+            const pubDate = extractTag(entry, 'published') || extractTag(entry, 'updated');
+            const content = extractTag(entry, 'content');
+            const image = extractMediaImage(entry);
+
+            items.push({
+                title: decodeHtmlEntities(title),
+                link,
+                description: decodeHtmlEntities(description),
+                pubDate,
+                content: decodeHtmlEntities(content),
+                image
+            });
+        }
+    } else {
+        // Parse RSS feed
+        const itemMatches = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
+        
+        for (const item of itemMatches) {
+            const title = extractTag(item, 'title');
+            const link = extractTag(item, 'link') || extractGuid(item);
+            const description = extractTag(item, 'description');
+            const pubDate = extractTag(item, 'pubDate') || extractTag(item, 'dc:date');
+            const content = extractTag(item, 'content:encoded') || extractTag(item, 'content');
+            const image = extractMediaImage(item) || extractEnclosure(item);
+
+            items.push({
+                title: decodeHtmlEntities(title),
+                link,
+                description: decodeHtmlEntities(description),
+                pubDate,
+                content: decodeHtmlEntities(content),
+                image
+            });
+        }
+    }
+
+    return items.slice(0, 30); // Limit to 30 items per feed
+}
+
+function extractTag(xml: string, tagName: string): string {
+    // Handle CDATA sections
+    const cdataRegex = new RegExp(`<${tagName}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tagName}>`, 'i');
+    const cdataMatch = xml.match(cdataRegex);
+    if (cdataMatch) {
+        return cdataMatch[1].trim();
+    }
+
+    // Handle regular tags
+    const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1].trim() : '';
+}
+
+function extractAtomLink(xml: string): string {
+    // Try to find alternate link first
+    const alternateMatch = xml.match(/<link[^>]*rel=["']alternate["'][^>]*href=["']([^"']+)["']/i);
+    if (alternateMatch) {
+        return alternateMatch[1];
+    }
+    
+    // Try to find href in link tag
+    const hrefMatch = xml.match(/<link[^>]*href=["']([^"']+)["']/i);
+    return hrefMatch ? hrefMatch[1] : '';
+}
+
+function extractGuid(xml: string): string {
+    const match = xml.match(/<guid[^>]*>([^<]+)<\/guid>/i);
+    return match ? match[1].trim() : '';
+}
+
+function extractMediaImage(xml: string): string {
+    // Try media:thumbnail
+    const thumbnailMatch = xml.match(/<media:thumbnail[^>]*url=["']([^"']+)["']/i);
+    if (thumbnailMatch) {
+        return thumbnailMatch[1];
+    }
+
+    // Try media:content with image type
+    const mediaMatch = xml.match(/<media:content[^>]*url=["']([^"']+)["'][^>]*type=["']image/i);
+    if (mediaMatch) {
+        return mediaMatch[1];
+    }
+
+    // Try enclosure with image type
+    const enclosureMatch = xml.match(/<enclosure[^>]*type=["']image[^"']*["'][^>]*url=["']([^"']+)["']/i);
+    if (enclosureMatch) {
+        return enclosureMatch[1];
+    }
+
+    // Try img tag in description/content
+    const imgMatch = xml.match(/<img[^>]*src=["']([^"']+)["']/i);
+    if (imgMatch) {
+        return imgMatch[1];
+    }
+
+    return '';
+}
+
+function extractEnclosure(xml: string): string {
+    const match = xml.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*type=["']image/i);
+    return match ? match[1] : '';
+}
+
+function decodeHtmlEntities(text: string): string {
+    if (!text) return '';
+    
+    return text
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 }

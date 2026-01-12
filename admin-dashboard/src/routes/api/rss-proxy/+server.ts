@@ -1,10 +1,11 @@
-import { json, type RequestEvent } from '@sveltejs/kit';
-
-export async function GET({ url }: RequestEvent) {
+export async function GET({ url }: { url: URL }) {
     const feedUrl = url.searchParams.get('url');
 
     if (!feedUrl) {
-        return json({ error: 'URL parameter is required' }, { status: 400 });
+        return new Response(JSON.stringify({ error: 'URL parameter is required' }), { 
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     try {
@@ -20,7 +21,10 @@ export async function GET({ url }: RequestEvent) {
         });
 
         if (!response.ok) {
-            return json({ error: `Failed to fetch feed: ${response.statusText}` }, { status: response.status });
+            return new Response(JSON.stringify({ error: `Failed to fetch feed: ${response.statusText}` }), { 
+                status: response.status,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         const text = await response.text();
@@ -28,12 +32,18 @@ export async function GET({ url }: RequestEvent) {
         // Parse the RSS/Atom feed
         const items = parseRSSFeed(text);
 
-        return json({ items });
+        return new Response(JSON.stringify({ items }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
     } catch (error) {
         console.error('Error fetching RSS feed:', error);
-        return json({ error: 'Failed to fetch or parse RSS feed' }, { status: 500 });
+        return new Response(JSON.stringify({ error: 'Failed to fetch or parse RSS feed' }), { 
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
-};
+}
 
 function parseRSSFeed(xml: string): Array<{
     title: string;

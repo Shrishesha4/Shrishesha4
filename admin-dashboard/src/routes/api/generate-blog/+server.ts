@@ -1,19 +1,20 @@
-import { json } from '@sveltejs/kit';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { env } from '$env/dynamic/private';
 
-export async function POST({ request }) {
+export async function POST({ request }: { request: Request }) {
     try {
         const { title, description, style } = await request.json();
         
-        const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
         if (!apiKey) {
-            return json({ error: 'Gemini API key not configured' }, { status: 500 });
+            console.error('Gemini API key not configured');
+            return new Response(JSON.stringify({ error: 'Gemini API key not configured' }), { 
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-flash-latest which is widely available
         const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         const prompt = `Write a detailed blog post titled "${title}". 
@@ -24,7 +25,7 @@ export async function POST({ request }) {
         1. Include headings (H2, H3).
         2. Include an introduction and a conclusion.
         3. Format the output as clean HTML suitable for a WYSIWYG editor (do not include <html>, <head>, or <body> tags, just the content).
-        4. Do not include markdown code blocks (like \`\`\`html).`;
+        4. Do not include markdown code blocks.`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -33,9 +34,18 @@ export async function POST({ request }) {
         // Clean up markdown code blocks if present
         const cleanContent = text.replace(/```html/g, '').replace(/```/g, '').trim();
 
-        return json({ content: cleanContent });
-    } catch (error) {
+        return new Response(JSON.stringify({ content: cleanContent }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error: any) {
         console.error('Error generating blog:', error);
-        return json({ error: 'Failed to generate blog content' }, { status: 500 });
+        return new Response(JSON.stringify({ 
+            error: 'Failed to generate blog content', 
+            details: error.message 
+        }), { 
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }

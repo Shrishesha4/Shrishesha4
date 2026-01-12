@@ -123,8 +123,9 @@ function createRSSFeedsStore() {
             }
             
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
-                const unsub = subscribe((value) => {
-                    unsub();
+                let unsub: (() => void) | undefined;
+                unsub = subscribe((value) => {
+                    if (unsub) unsub();
                     resolve(value);
                 });
             });
@@ -146,8 +147,9 @@ function createRSSFeedsStore() {
             }
             
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
-                const unsub = subscribe((value) => {
-                    unsub();
+                let unsub: (() => void) | undefined;
+                unsub = subscribe((value) => {
+                    if (unsub) unsub();
                     resolve(value);
                 });
             });
@@ -162,8 +164,9 @@ function createRSSFeedsStore() {
             }
             
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
-                const unsub = subscribe((value) => {
-                    unsub();
+                let unsub: (() => void) | undefined;
+                unsub = subscribe((value) => {
+                    if (unsub) unsub();
                     resolve(value);
                 });
             });

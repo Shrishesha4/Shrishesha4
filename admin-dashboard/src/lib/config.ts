@@ -1,3 +1,2 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD 
-  ? 'https://shrishesha.space/api' 
-  : '/api');
+// All API endpoints are now served from the admin dashboard itself
+export const API_BASE_URL = '/api';
