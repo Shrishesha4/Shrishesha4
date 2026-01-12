@@ -14,8 +14,8 @@ export async function POST({ request }: RequestEvent) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-1.5-flash which is widely available
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use gemini-flash-latest which is widely available
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // Clean up description/content from HTML
         const cleanDescription = (description || '').replace(/<[^>]*>/g, '').trim();

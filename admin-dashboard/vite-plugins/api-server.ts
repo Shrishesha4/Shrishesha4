@@ -92,7 +92,7 @@ export function apiServerPlugin(): Plugin {
               }
               
               const genAI = new GoogleGenerativeAI(apiKey);
-              const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+              const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
               
               const prompt = `Write a detailed blog post titled "${title}". 
               Summary context: ${description || 'No summary provided'}. 
