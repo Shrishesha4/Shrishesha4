@@ -9,11 +9,13 @@ export async function POST({ request }: RequestEvent) {
         const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
+            console.error('Gemini API key not found');
             return json({ error: 'Gemini API key not configured' }, { status: 500 });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        // Use gemini-1.5-flash which is widely available
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         // Clean up description/content from HTML
         const cleanDescription = (description || '').replace(/<[^>]*>/g, '').trim();

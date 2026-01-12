@@ -118,6 +118,10 @@ function createRSSFeedsStore() {
             }
         },
         add: async (feed: Omit<RSSFeedSource, 'id' | 'createdAt'>) => {
+            if (!auth.currentUser) {
+                throw new Error('Authentication required');
+            }
+            
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
                 const unsub = subscribe((value) => {
                     unsub();
@@ -132,11 +136,15 @@ function createRSSFeedsStore() {
             };
             
             const updatedFeeds = [...currentFeeds, newFeed];
-            await setDoc(doc(db, 'rssFeeds', auth.currentUser!.uid), { feeds: updatedFeeds });
+            await setDoc(doc(db, 'rssFeeds', auth.currentUser.uid), { feeds: updatedFeeds });
             set(updatedFeeds);
             return newFeed;
         },
         remove: async (feedId: string) => {
+            if (!auth.currentUser) {
+                throw new Error('Authentication required');
+            }
+            
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
                 const unsub = subscribe((value) => {
                     unsub();
@@ -145,10 +153,14 @@ function createRSSFeedsStore() {
             });
             
             const updatedFeeds = currentFeeds.filter(f => f.id !== feedId);
-            await setDoc(doc(db, 'rssFeeds', auth.currentUser!.uid), { feeds: updatedFeeds });
+            await setDoc(doc(db, 'rssFeeds', auth.currentUser.uid), { feeds: updatedFeeds });
             set(updatedFeeds);
         },
         toggle: async (feedId: string) => {
+            if (!auth.currentUser) {
+                throw new Error('Authentication required');
+            }
+            
             const currentFeeds = await new Promise<RSSFeedSource[]>((resolve) => {
                 const unsub = subscribe((value) => {
                     unsub();
@@ -159,7 +171,7 @@ function createRSSFeedsStore() {
             const updatedFeeds = currentFeeds.map(f => 
                 f.id === feedId ? { ...f, enabled: !f.enabled } : f
             );
-            await setDoc(doc(db, 'rssFeeds', auth.currentUser!.uid), { feeds: updatedFeeds });
+            await setDoc(doc(db, 'rssFeeds', auth.currentUser.uid), { feeds: updatedFeeds });
             set(updatedFeeds);
         },
         cleanup: () => {

@@ -17,10 +17,33 @@
     let hasFetchedOnce = $state(false);
     let visibleCount = $state(10); // Lazy load: show 10 items initially
     let abortController: AbortController | null = null;
+    let searchQuery = $state('');
 
     // New feed form
     let newFeedTitle = $state('');
     let newFeedUrl = $state('');
+    
+    // Get filtered items based on search
+    function getFilteredItems() {
+        if (!searchQuery.trim()) return feedItems;
+        const query = searchQuery.toLowerCase();
+        return feedItems.filter(item => 
+            item.title?.toLowerCase().includes(query) ||
+            item.description?.toLowerCase().includes(query) ||
+            item.sourceTitle?.toLowerCase().includes(query)
+        );
+    }
+    
+    // Get visible items (filtered + lazy loaded)
+    function getVisibleItems() {
+        const filtered = getFilteredItems();
+        return filtered.slice(0, visibleCount);
+    }
+    
+    // Get total filtered count
+    function getFilteredCount() {
+        return getFilteredItems().length;
+    }
 
     onMount(async () => {
         await rssFeeds.load();
@@ -41,12 +64,7 @@
 
     // Load more items for infinite scroll
     function loadMore() {
-        visibleCount = Math.min(visibleCount + 10, feedItems.length);
-    }
-
-    // Get visible items (lazy loaded)
-    function getVisibleItems() {
-        return feedItems.slice(0, visibleCount);
+        visibleCount = Math.min(visibleCount + 10, getFilteredCount());
     }
 
     async function fetchFeedItems() {
@@ -133,10 +151,16 @@
             return;
         }
 
+        // Validate URL first
         try {
-            // Validate URL
-            new URL(newFeedUrl);
-            
+            new URL(newFeedUrl.trim());
+        } catch {
+            toast.show('Invalid URL format', 'error');
+            return;
+        }
+        
+        // Now try to add to Firebase
+        try {
             await rssFeeds.add({
                 title: newFeedTitle.trim(),
                 url: newFeedUrl.trim(),
@@ -148,10 +172,13 @@
             showAddForm = false;
             toast.show('RSS feed added successfully', 'success');
             
-            // Refresh feed items
-            fetchFeedItems();
-        } catch (err) {
-            toast.show('Invalid URL format', 'error');
+            // Refresh feed items if we've fetched before
+            if (hasFetchedOnce) {
+                fetchFeedItems();
+            }
+        } catch (err: any) {
+            console.error('Error adding feed:', err);
+            toast.show(err?.message || 'Failed to add RSS feed', 'error');
         }
     }
 
@@ -161,18 +188,22 @@
         try {
             await rssFeeds.remove(feedId);
             toast.show('RSS feed removed', 'success');
-            fetchFeedItems();
-        } catch (err) {
-            toast.show('Failed to remove feed', 'error');
+            if (hasFetchedOnce) {
+                fetchFeedItems();
+            }
+        } catch (err: any) {
+            console.error('Error removing feed:', err);
+            toast.show(err?.message || 'Failed to remove feed', 'error');
         }
     }
 
     async function handleToggleFeed(feedId: string) {
         try {
             await rssFeeds.toggle(feedId);
-            fetchFeedItems();
-        } catch (err) {
-            toast.show('Failed to toggle feed', 'error');
+            // Don't auto-refresh on toggle, just update the UI
+        } catch (err: any) {
+            console.error('Error toggling feed:', err);
+            toast.show(err?.message || 'Failed to toggle feed', 'error');
         }
     }
 
@@ -348,7 +379,7 @@
     <!-- Source Filter -->
     <div class="flex flex-wrap gap-2">
         <button
-            onclick={() => { selectedSource = 'all'; fetchFeedItems(); }}
+            onclick={() => { selectedSource = 'all'; if (hasFetchedOnce) fetchFeedItems(); }}
             class="px-4 py-2 rounded-xl text-sm font-medium transition-all {selectedSource === 'all' 
                 ? 'bg-orange-500 text-white' 
                 : 'bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/20'}"
@@ -357,7 +388,7 @@
         </button>
         {#each feedSources.filter(f => f.enabled) as feed}
             <button
-                onclick={() => { selectedSource = feed.id; fetchFeedItems(); }}
+                onclick={() => { selectedSource = feed.id; if (hasFetchedOnce) fetchFeedItems(); }}
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all {selectedSource === feed.id 
                     ? 'bg-orange-500 text-white' 
                     : 'bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/20'}"
@@ -366,6 +397,34 @@
             </button>
         {/each}
     </div>
+    
+    <!-- Search Bar (only show when we have items) -->
+    {#if feedItems.length > 0}
+        <div class="relative">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+            <input
+                type="text"
+                bind:value={searchQuery}
+                placeholder="Search articles by title, description, or source..."
+                class="glass-input w-full pl-11 pr-4 py-3 text-sm"
+                oninput={() => visibleCount = 10}
+            />
+            {#if searchQuery}
+                <button
+                    onclick={() => { searchQuery = ''; visibleCount = 10; }}
+                    aria-label="Clear search"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            {/if}
+        </div>
+        {#if searchQuery}
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Found {getFilteredCount()} results for "{searchQuery}"
+            </p>
+        {/if}
+    {/if}
 
     <!-- Feed Items -->
     {#if loading}
@@ -465,14 +524,14 @@
         </div>
         
         <!-- Load More Button -->
-        {#if visibleCount < feedItems.length}
+        {#if visibleCount < getFilteredCount()}
             <div class="flex justify-center pt-4">
                 <button
                     onclick={loadMore}
                     class="glass-button-outline px-6 py-2 rounded-xl text-sm flex items-center gap-2"
                 >
                     <i class="fas fa-chevron-down"></i>
-                    Load More ({feedItems.length - visibleCount} remaining)
+                    Load More ({getFilteredCount() - visibleCount} remaining)
                 </button>
             </div>
         {/if}

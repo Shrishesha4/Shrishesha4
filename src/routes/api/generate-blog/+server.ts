@@ -13,7 +13,8 @@ export async function POST({ request }) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        // Use gemini-1.5-flash which is widely available
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `Write a detailed blog post titled "${title}". 
         Summary context: ${description || 'No summary provided'}. 
