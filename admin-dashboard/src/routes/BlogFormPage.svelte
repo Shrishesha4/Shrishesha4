@@ -13,7 +13,7 @@
     const isFromRSS = search.includes('from=rss');
     const id = isEdit ? path.split('/edit/')[1] : null;
 
-    let blog: any = {
+    let blog = $state<any>({
         id: crypto.randomUUID(),
         title: '',
         content: '',
@@ -22,13 +22,17 @@
         date: new Date().toISOString().split('T')[0],
         tags: [],
         slug: ''
-    };
-    let loading = true;
-    let rssSourceInfo: { sourceUrl?: string; sourceTitle?: string } | null = null;
+    });
+    let loading = $state(true);
+    let rssSourceInfo = $state<{ sourceUrl?: string; sourceTitle?: string } | null>(null);
 
     // LLM generation state
-    let llmStyle: string = '';
-    let llmLoading: boolean = false;
+    let llmStyle = $state('');
+    let llmLoading = $state(false);
+    let regeneratingTitle = $state(false);
+    let regeneratingSummary = $state(false);
+    let regeneratingContent = $state(false);
+    let regeneratingTags = $state(false);
 
     onMount(async () => {
         if (!auth.currentUser) {
@@ -54,6 +58,7 @@
                     blog.title = draftData.title || '';
                     blog.description = draftData.description || '';
                     blog.content = draftData.content || '';
+                    blog.tags = draftData.tags || [];
                     rssSourceInfo = {
                         sourceUrl: draftData.sourceUrl,
                         sourceTitle: draftData.sourceTitle
@@ -135,7 +140,7 @@
                 return;
             }
 
-            const content = data.content;
+            const { content, tags } = data;
             
             if (!content) {
                 toast.show('No content returned', 'error');
@@ -145,8 +150,11 @@
 
             // Put the generated content in the editor
             blog.content = content;
-
-            // If description is empty try to extract the first sentence/line
+            
+            if (tags && Array.isArray(tags)) {
+                blog.tags = tags;
+            }
+            
             if (!blog.description) {
                 const firstLine = content.replace(/<[^>]*>/g, '').split('\n').find(Boolean) || '';
                 blog.description = firstLine.slice(0, 200);
@@ -159,6 +167,127 @@
             toast.show(`Network error: ${err?.message || 'Failed to reach server'}`, 'error');
         } finally {
             llmLoading = false;
+        }
+    }
+
+    async function regenerateTitle() {
+        if (!blog.content && !blog.description) {
+            toast.show('Add some content or summary first', 'error');
+            return;
+        }
+        regeneratingTitle = true;
+        try {
+            const res = await fetch(`${API_BASE_URL}/generate-blog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: blog.title || 'Generate a title',
+                    description: blog.description,
+                    content: blog.content,
+                    generateOnly: 'title'
+                })
+            });
+            const data = await res.json();
+            console.log('Title regenerate response:', data);
+            if (res.ok && data.title) {
+                blog.title = data.title;
+                toast.show('Title regenerated', 'success');
+            } else {
+                toast.show(data.error || 'No title returned', 'error');
+            }
+        } catch (err) {
+            console.error('Title regenerate error:', err);
+            toast.show('Failed to regenerate title', 'error');
+        } finally {
+            regeneratingTitle = false;
+        }
+    }
+
+    async function regenerateSummary() {
+        if (!blog.content && !blog.title) {
+            toast.show('Add a title or content first', 'error');
+            return;
+        }
+        regeneratingSummary = true;
+        try {
+            const res = await fetch(`${API_BASE_URL}/generate-blog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: blog.title,
+                    description: blog.description || '',
+                    content: blog.content,
+                    generateOnly: 'summary'
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.summary) {
+                blog.description = data.summary;
+                toast.show('Summary regenerated', 'success');
+            }
+        } catch (err) {
+            toast.show('Failed to regenerate summary', 'error');
+        } finally {
+            regeneratingSummary = false;
+        }
+    }
+
+    async function regenerateContent() {
+        if (!blog.title) {
+            toast.show('Add a title first', 'error');
+            return;
+        }
+        regeneratingContent = true;
+        try {
+            const res = await fetch(`${API_BASE_URL}/generate-blog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: blog.title,
+                    description: blog.description,
+                    content: blog.content,
+                    style: llmStyle,
+                    generateOnly: 'content'
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.content) {
+                blog.content = data.content;
+                toast.show('Content regenerated', 'success');
+            }
+        } catch (err) {
+            toast.show('Failed to regenerate content', 'error');
+        } finally {
+            regeneratingContent = false;
+        }
+    }
+
+    async function regenerateTags() {
+        if (!blog.title && !blog.content) {
+            toast.show('Add a title or content first', 'error');
+            return;
+        }
+        regeneratingTags = true;
+        try {
+            const res = await fetch(`${API_BASE_URL}/generate-blog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: blog.title,
+                    description: blog.description,
+                    content: blog.content,
+                    generateOnly: 'tags'
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.tags) {
+                blog.tags = data.tags;
+                toast.show('Tags regenerated', 'success');
+            }
+        } catch (err) {
+            toast.show('Failed to regenerate tags', 'error');
+        } finally {
+            regeneratingTags = false;
         }
     }
 </script>
@@ -205,7 +334,18 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="md:col-span-2 space-y-6">
                                 <div>
-                                    <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Article Title</label>
+                                    <div class="flex items-center justify-between mb-2 ml-1">
+                                        <label class="block text-xs font-black uppercase tracking-widest text-neutral-400">Article Title</label>
+                                        <button 
+                                            type="button"
+                                            onclick={regenerateTitle}
+                                            disabled={regeneratingTitle}
+                                            class="text-orange-500 hover:text-orange-600 transition-colors disabled:opacity-50"
+                                            title="Regenerate title"
+                                        >
+                                            <i class="fas {regeneratingTitle ? 'fa-spinner fa-spin' : 'fa-sync-alt'}"></i>
+                                        </button>
+                                    </div>
                                     <input 
                                         type="text" 
                                         bind:value={blog.title}
@@ -216,7 +356,18 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Summary</label>
+                                    <div class="flex items-center justify-between mb-2 ml-1">
+                                        <label class="block text-xs font-black uppercase tracking-widest text-neutral-400">Summary</label>
+                                        <button 
+                                            type="button"
+                                            onclick={regenerateSummary}
+                                            disabled={regeneratingSummary}
+                                            class="text-orange-500 hover:text-orange-600 transition-colors disabled:opacity-50"
+                                            title="Regenerate summary"
+                                        >
+                                            <i class="fas {regeneratingSummary ? 'fa-spinner fa-spin' : 'fa-sync-alt'}"></i>
+                                        </button>
+                                    </div>
                                     <textarea 
                                         bind:value={blog.description}
                                         required
@@ -227,7 +378,18 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Content Editor</label>
+                                    <div class="flex items-center justify-between mb-2 ml-1">
+                                        <label class="block text-xs font-black uppercase tracking-widest text-neutral-400">Content Editor</label>
+                                        <button 
+                                            type="button"
+                                            onclick={regenerateContent}
+                                            disabled={regeneratingContent}
+                                            class="text-orange-500 hover:text-orange-600 transition-colors disabled:opacity-50"
+                                            title="Regenerate content"
+                                        >
+                                            <i class="fas {regeneratingContent ? 'fa-spinner fa-spin' : 'fa-sync-alt'}"></i>
+                                        </button>
+                                    </div>
                                     <div class="border border-neutral-200 dark:border-white/10 rounded-[2rem] overflow-hidden bg-white dark:bg-neutral-950 shadow-inner">
                                         <div class="bg-neutral-50 dark:bg-white/5 border-b border-neutral-200 dark:border-white/10 p-3 flex flex-wrap gap-1 sticky top-0 z-10">
                                             <button type="button" onclick={() => execCommand('bold')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors" title="Bold"><i class="fas fa-bold"></i></button>
@@ -261,7 +423,18 @@
                                             <ImageUpload currentImage={blog.image} onImageUploaded={(url) => blog.image = url} />
                                         </div>
                                         <div>
-                                            <span class="block text-[10px] font-bold text-neutral-400 uppercase mb-1">Tags</span>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="block text-[10px] font-bold text-neutral-400 uppercase">Tags</span>
+                                                <button 
+                                                    type="button"
+                                                    onclick={regenerateTags}
+                                                    disabled={regeneratingTags}
+                                                    class="text-orange-500 hover:text-orange-600 transition-colors disabled:opacity-50 text-xs"
+                                                    title="Regenerate tags"
+                                                >
+                                                    <i class="fas {regeneratingTags ? 'fa-spinner fa-spin' : 'fa-sync-alt'}"></i>
+                                                </button>
+                                            </div>
                                             <input 
                                                 type="text" 
                                                 value={blog.tags ? blog.tags.join(', ') : ''}

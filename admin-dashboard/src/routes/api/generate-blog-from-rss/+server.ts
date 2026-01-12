@@ -45,14 +45,31 @@ REQUIREMENTS:
 - Do NOT include source attribution in the content (that will be added separately)
 - Make it approximately 800-1200 words
 
+After the HTML content, on a new line add a JSON array of 3-5 relevant tags in this exact format:
+TAGS: ["tag1", "tag2", "tag3"]
+
 Write the blog post now:`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
         
+        // Extract tags if present
+        const tagsMatch = text.match(/TAGS:\s*(\[.*?\])/s);
+        let tags: string[] = [];
+        let cleanedContent = text;
+        
+        if (tagsMatch) {
+            try {
+                tags = JSON.parse(tagsMatch[1]);
+                cleanedContent = text.replace(/TAGS:\s*\[.*?\]/s, '').trim();
+            } catch {
+                // Ignore parse error
+            }
+        }
+        
         // Clean up markdown code blocks if present
-        let cleanedContent = text.replace(/```html/g, '').replace(/```/g, '').trim();
+        cleanedContent = cleanedContent.replace(/```html/g, '').replace(/```/g, '').trim();
         
         // Add source attribution at the end
         cleanedContent += `
@@ -62,7 +79,10 @@ Write the blog post now:`;
   <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="text-orange-500 hover:underline">Read the original article →</a>
 </p>`;
 
-        return new Response(JSON.stringify({ content: cleanedContent }), {
+        return new Response(JSON.stringify({ 
+            content: cleanedContent,
+            tags: tags.length > 0 ? tags : ['news', 'technology', 'article']
+        }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });

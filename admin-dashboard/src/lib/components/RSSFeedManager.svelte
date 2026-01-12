@@ -236,6 +236,7 @@
                 title: item.title,
                 description: item.description?.replace(/<[^>]*>/g, '').slice(0, 200) || '',
                 content: data.content,
+                tags: data.tags || [],
                 sourceUrl: item.link,
                 sourceTitle: item.sourceTitle
             }));
