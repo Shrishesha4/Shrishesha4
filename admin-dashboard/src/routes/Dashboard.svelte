@@ -12,6 +12,7 @@
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
+    import { rssFeeds } from '$lib/stores/rssFeeds';
     import ContactEditor from '$lib/components/ContactEditor.svelte';
 
     let activeTab = $state('profile');
@@ -38,7 +39,8 @@
             blogs.load(),
             projects.load(),
             profile.load(),
-            contact.load()
+            contact.load(),
+            rssFeeds.load()
         ]);
     });
 
@@ -56,6 +58,7 @@
         projects.cleanup();
         profile.cleanup();
         contact.cleanup();
+        rssFeeds.cleanup();
     });
 
     $effect(() => {

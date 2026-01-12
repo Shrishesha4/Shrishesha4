@@ -8,7 +8,9 @@
     import { API_BASE_URL } from '$lib/config';
 
     const path = window.location.pathname;
+    const search = window.location.search;
     const isEdit = path.includes('/edit/');
+    const isFromRSS = search.includes('from=rss');
     const id = isEdit ? path.split('/edit/')[1] : null;
 
     let blog: any = {
@@ -22,6 +24,7 @@
         slug: ''
     };
     let loading = true;
+    let rssSourceInfo: { sourceUrl?: string; sourceTitle?: string } | null = null;
 
     // LLM generation state
     let llmStyle: string = '';
@@ -41,6 +44,26 @@
             } else {
                 toast.show('Blog post not found', 'error');
                 navigate('/');
+            }
+        } else if (isFromRSS) {
+            // Check for RSS draft data in sessionStorage
+            const rssDraft = sessionStorage.getItem('rss-blog-draft');
+            if (rssDraft) {
+                try {
+                    const draftData = JSON.parse(rssDraft);
+                    blog.title = draftData.title || '';
+                    blog.description = draftData.description || '';
+                    blog.content = draftData.content || '';
+                    rssSourceInfo = {
+                        sourceUrl: draftData.sourceUrl,
+                        sourceTitle: draftData.sourceTitle
+                    };
+                    // Clear the draft after loading
+                    sessionStorage.removeItem('rss-blog-draft');
+                    toast.show('Blog generated from RSS feed! Review and publish.', 'success');
+                } catch (err) {
+                    console.error('Error loading RSS draft:', err);
+                }
             }
         }
         loading = false;

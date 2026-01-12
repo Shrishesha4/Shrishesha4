@@ -5,6 +5,7 @@
     import { navigate } from '$lib/router';
     import { auth } from '$lib/firebase/config';
     import LoadingSpinner from './LoadingSpinner.svelte';
+    import RSSFeedManager from './RSSFeedManager.svelte';
     
     interface Props {
         editingBlog?: any;
@@ -14,6 +15,7 @@
     
     let allBlogs: typeof $blogs = $state([]);
     let loading = $state(true);
+    let activeView: 'posts' | 'rss' = $state('posts');
     
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -64,67 +66,91 @@
     <LoadingSpinner />
 {:else}
     <div class="space-y-6 pb-20 md:pb-0">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Blog Posts</h1>
-                <p class="text-neutral-500 dark:text-neutral-400 text-sm">Manage your editorial content</p>
-            </div>
-            <button 
-                onclick={handleAdd}
-                class="glass-button glass-button-primary px-4 py-2 flex items-center gap-2 shadow-lg shadow-orange-500/20"
+        <!-- View Tabs -->
+        <div class="flex gap-2 border-b border-neutral-200 dark:border-white/10 pb-4">
+            <button
+                onclick={() => activeView = 'posts'}
+                class="px-4 py-2 rounded-xl text-sm font-medium transition-all {activeView === 'posts' 
+                    ? 'bg-orange-500 text-white' 
+                    : 'bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/20'}"
             >
-                <i class="fas fa-plus"></i> <span class="hidden sm:inline">New Post</span>
+                <i class="fas fa-newspaper mr-2"></i>My Posts
+            </button>
+            <button
+                onclick={() => activeView = 'rss'}
+                class="px-4 py-2 rounded-xl text-sm font-medium transition-all {activeView === 'rss' 
+                    ? 'bg-orange-500 text-white' 
+                    : 'bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/20'}"
+            >
+                <i class="fas fa-rss mr-2"></i>RSS Feeds
             </button>
         </div>
 
-        <div class="grid grid-cols-1 gap-4">
-            {#each allBlogs as blog}
-                <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center group hover:border-orange-500/30 transition-all duration-300 overflow-hidden box-border max-w-full">
-                    <!-- Thumbnail -->
-                    <div class="w-full sm:w-24 h-24 sm:h-16 rounded-lg bg-neutral-100 dark:bg-neutral-800 overflow-hidden shrink-0 flex-shrink-0">
-                        {#if blog.image}
-                            <img src={blog.image} alt={blog.title} class="w-full h-full object-cover block" />
-                        {:else}
-                            <div class="w-full h-full flex items-center justify-center text-neutral-300 dark:text-neutral-700">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                        {/if}
-                    </div>
+        {#if activeView === 'rss'}
+            <RSSFeedManager />
+        {:else}
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Blog Posts</h1>
+                    <p class="text-neutral-500 dark:text-neutral-400 text-sm">Manage your editorial content</p>
+                </div>
+                <button 
+                    onclick={handleAdd}
+                    class="glass-button glass-button-primary px-4 py-2 flex items-center gap-2 shadow-lg shadow-orange-500/20"
+                >
+                    <i class="fas fa-plus"></i> <span class="hidden sm:inline">New Post</span>
+                </button>
+            </div>
 
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words leading-tight line-clamp-2">{blog.title}</h3>
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2 break-words max-w-full">{blog.description}</p>
-                        <div class="flex items-center gap-2 mt-2 flex-wrap">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
-                                {new Date(blog.date).toLocaleDateString()}
-                            </span>
-                            {#if blog.tags && blog.tags.length > 0}
-                                <span class="text-xs text-neutral-400">•</span>
-                                <span class="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[120px] sm:max-w-[150px]">
-                                    {blog.tags.join(', ')}
-                                </span>
+            <div class="grid grid-cols-1 gap-4">
+                {#each allBlogs as blog}
+                    <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center group hover:border-orange-500/30 transition-all duration-300 overflow-hidden box-border max-w-full">
+                        <!-- Thumbnail -->
+                        <div class="w-full sm:w-24 h-24 sm:h-16 rounded-lg bg-neutral-100 dark:bg-neutral-800 overflow-hidden shrink-0 flex-shrink-0">
+                            {#if blog.image}
+                                <img src={blog.image} alt={blog.title} class="w-full h-full object-cover block" />
+                            {:else}
+                                <div class="w-full h-full flex items-center justify-center text-neutral-300 dark:text-neutral-700">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
                             {/if}
                         </div>
-                    </div>
 
-                    <!-- Actions -->
-                    <div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
-                        <button 
-                            onclick={() => handleEdit(blog)}
-                            class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
-                        >
-                            <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
-                        </button>
-                        <button 
-                            onclick={() => handleDelete(blog.id)}
-                            class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
-                        >
-                            <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>
-                        </button>
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words leading-tight line-clamp-2">{blog.title}</h3>
+                            <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2 break-words max-w-full">{blog.description}</p>
+                            <div class="flex items-center gap-2 mt-2 flex-wrap">
+                                <span class="text-xs font-medium px-2 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
+                                    {new Date(blog.date).toLocaleDateString()}
+                                </span>
+                                {#if blog.tags && blog.tags.length > 0}
+                                    <span class="text-xs text-neutral-400">•</span>
+                                    <span class="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[120px] sm:max-w-[150px]">
+                                        {blog.tags.join(', ')}
+                                    </span>
+                                {/if}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
+                            <button 
+                                onclick={() => handleEdit(blog)}
+                                class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
+                            >
+                                <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
+                            </button>
+                            <button 
+                                onclick={() => handleDelete(blog.id)}
+                                class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
+                            >
+                                <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            {/each}
-        </div>
+                {/each}
+            </div>
+        {/if}
     </div>
 {/if}
