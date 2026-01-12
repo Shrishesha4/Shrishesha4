@@ -52,7 +52,7 @@
     {:else if error}
         <div class="text-red-500 text-center p-4">{error}</div>
     {:else}
-        <form class="space-y-6" on:submit|preventDefault={saveConfig}>
+        <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); saveConfig(); }}>
                 <div>
                     <label class="block mb-2 text-neutral-700 dark:text-neutral-300">Google Apps Script Link</label>
                     <input 

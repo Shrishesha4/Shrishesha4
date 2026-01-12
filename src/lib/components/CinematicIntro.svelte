@@ -3,12 +3,19 @@
     import { fade } from 'svelte/transition';
     import { profile } from '$lib/stores/profile';
     import { loading } from '$lib/stores/loading';
+    import type { Snippet } from 'svelte';
 
-    let showName = true;
-    let showContent = false;
-    let zoomPhase = 'start';
+    interface Props {
+        children: Snippet;
+    }
+
+    let { children }: Props = $props();
+
+    let showName = $state(true);
+    let showContent = $state(false);
+    let zoomPhase = $state('start');
     let audio: HTMLAudioElement;
-    let isProfileLoaded = false;
+    let isProfileLoaded = $state(false);
 
     async function startAnimation() {
         try {
@@ -76,7 +83,7 @@
         class="relative w-full h-full"
         transition:fade={{ duration: 1500, delay: 300 }}
     >
-        <slot />
+        {@render children()}
     </div>
 {/if}
 

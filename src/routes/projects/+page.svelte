@@ -5,11 +5,11 @@
     import ProjectViewer from '$lib/components/projectviewer.svelte';
     import GithubRepos from '$lib/components/GithubRepos.svelte';
 
-    let githubError = false;
-    let searchQuery = '';
-    let selectedFilter = 'all';
-    let availableCategories: { name: string; count: number }[] = [];
-    let showFilterDropdown = false;
+    let githubError = $state(false);
+    let searchQuery = $state('');
+    let selectedFilter = $state('all');
+    let availableCategories: { name: string; count: number }[] = $state([]);
+    let showFilterDropdown = $state(false);
 
     // Intelligent categorization based on keywords
     const categoryKeywords = {
@@ -25,9 +25,9 @@
         'Social & Networking': ['social', 'chat', 'messaging', 'community', 'forum', 'network', 'communication'],
         'Portfolio & Personal': ['portfolio', 'personal', 'blog', 'resume', 'cv', 'profile'],
         'Other': []
-    };
+    } as const;
 
-    function categorizeProject(title: string, description: string, technologies: string[] = []): string[] {
+    const categorizeProject = (title: string, description: string, technologies: string[] = []): string[] => {
         const text = `${title} ${description} ${technologies.join(' ')}`.toLowerCase();
         const categories: string[] = [];
 
@@ -41,7 +41,7 @@
         }
 
         return categories.length > 0 ? categories : ['Other'];
-    }
+    };
 
     onMount(async () => {
         await projects.load();
@@ -67,9 +67,9 @@
         githubError = true;
     }
 
-    $: updateAvailableCategories(), $projects;
-
-    export { categoryKeywords, categorizeProject };
+    $effect(() => {
+        updateAvailableCategories();
+    });
 </script>
 
 <div class="min-h-screen p-4 md:p-8">
@@ -91,7 +91,7 @@
                     {#if searchQuery}
                         <!-- svelte-ignore a11y_consider_explicit_label -->
                         <button
-                            on:click={() => searchQuery = ''}
+                            onclick={() => searchQuery = ''}
                             class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
                         >
                             <i class="fas fa-times"></i>
@@ -102,7 +102,7 @@
                 <!-- Filter Dropdown -->
                 <div class="relative">
                     <button
-                        on:click={() => showFilterDropdown = !showFilterDropdown}
+                        onclick={() => showFilterDropdown = !showFilterDropdown}
                         class="px-5 py-3 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
                     >
                         <i class="fas fa-filter text-neutral-500 dark:text-neutral-400"></i>
@@ -114,7 +114,7 @@
                         <div class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 shadow-xl z-50 backdrop-blur-md overflow-hidden">
                             <div class="p-2">
                                 <button
-                                    on:click={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
+                                    onclick={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
                                     class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors {selectedFilter === 'all' ? 'bg-primary-100 dark:bg-primary-900' : ''}"
                                 >
                                     <span class="font-medium">All Projects</span>
@@ -124,7 +124,7 @@
                                     <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 px-3 py-1">Categories</div>
                                     {#each availableCategories as category}
                                         <button
-                                            on:click={() => { selectedFilter = category.name; showFilterDropdown = false; }}
+                                            onclick={() => { selectedFilter = category.name; showFilterDropdown = false; }}
                                             class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors text-sm {selectedFilter === category.name ? 'bg-primary-100 dark:bg-primary-900' : ''}"
                                         >
                                             <div class="flex items-center justify-between">
@@ -143,7 +143,7 @@
         
         <ProjectViewer {searchQuery} {selectedFilter} {categorizeProject} />
         {#if !githubError}
-            <GithubRepos on:error={handleGithubError} {searchQuery} {selectedFilter} {categorizeProject} />
+            <GithubRepos onerror={handleGithubError} {searchQuery} {selectedFilter} {categorizeProject} />
         {/if}
     </div>
 </div>

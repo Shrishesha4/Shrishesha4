@@ -2,8 +2,12 @@
     import { onMount } from 'svelte';
     import { blogs } from './../stores/blogs';
 
-    export let searchQuery = '';
-    export let selectedFilter = 'all';
+    interface Props {
+        searchQuery?: string;
+        selectedFilter?: string;
+    }
+
+    let { searchQuery = $bindable(''), selectedFilter = $bindable('all') }: Props = $props();
 
     onMount(async () => {
         await blogs.load();
@@ -14,7 +18,7 @@
         return text.slice(0, limit).trim() + '...';
     }
 
-    $: filteredBlogs = $blogs.filter(blog => {
+    let filteredBlogs = $derived($blogs.filter(blog => {
         const matchesSearch = !searchQuery ||
             blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             blog.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -24,14 +28,14 @@
             (blog.tags && blog.tags.some(tag => tag.toLowerCase() === selectedFilter.toLowerCase()));
 
         return matchesSearch && matchesFilter;
-    });
+    }));
 </script>
 
 <div class="space-y-8">
     {#each filteredBlogs as blog}
         <a 
             href="/blogs/{blog.slug}"
-            class="glass-card glass-card-hover block flex flex-col sm:flex-row sm:items-stretch overflow-hidden group"
+            class="glass-card glass-card-hover flex flex-col sm:flex-row sm:items-stretch overflow-hidden group"
         >
             {#if blog.image}
                 <div class="w-full sm:w-2/5 h-48 sm:h-auto flex-shrink-0">

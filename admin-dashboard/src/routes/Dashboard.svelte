@@ -14,8 +14,8 @@
     import { contact } from '$lib/stores/contact';
     import ContactEditor from '$lib/components/ContactEditor.svelte';
 
-    let activeTab = 'profile';
-    let editingBlog: typeof $blogs[0] | null = null;
+    let activeTab = $state('profile');
+    let editingBlog: typeof $blogs[0] | null = $state(null);
 
     function setActiveTab(tab: string) {
         activeTab = tab;
@@ -58,9 +58,11 @@
         contact.cleanup();
     });
 
-    $: if (activeTab !== 'blogs') {
-        editingBlog = null;
-    }
+    $effect(() => {
+        if (activeTab !== 'blogs') {
+            editingBlog = null;
+        }
+    });
 </script>
 
 {#if $isAuthenticated}
@@ -70,36 +72,36 @@
             <div class="flex-1 md:flex-none flex items-center justify-between md:flex-col gap-3 sm:gap-6 w-full md:w-auto px-3">
                 <button
                     class="dock-item group {activeTab === 'profile' ? 'active' : ''}"
-                    on:click={() => setActiveTab('profile')}
+                    onclick={() => setActiveTab('profile')}
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-user"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'projects' ? 'active' : ''}"
-                    on:click={() => setActiveTab('projects')}
+                    onclick={() => setActiveTab('projects')}
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-cubes"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'blogs' ? 'active' : ''}"
-                    on:click={() => setActiveTab('blogs')}
+                    onclick={() => setActiveTab('blogs')}
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-edit"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'contact' ? 'active' : ''}"
-                    on:click={() => setActiveTab('contact')}
+                    onclick={() => setActiveTab('contact')}
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fas fa-address-book"></i></div>
                 </button>
                 <button
                     class="dock-item group {activeTab === 'repos' ? 'active' : ''}"
-                    on:click={() => setActiveTab('repos')}
+                    onclick={() => setActiveTab('repos')}
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14"><i class="fab fa-github"></i></div>
                 </button>
                 <button
-                    on:click={handleLogout}
+                    onclick={handleLogout}
                     class="dock-item group"
                 >
                     <div class="icon-container w-12 h-12 sm:w-14 sm:h-14 bg-red-500/5 dark:bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">

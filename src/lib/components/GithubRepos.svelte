@@ -1,28 +1,35 @@
 <script lang="ts">
     import LoadingSpinner from './LoadingSpinner.svelte';
     import { onMount } from 'svelte';
-    import { createEventDispatcher } from 'svelte';
     import { githubService } from '$lib/services/github';
     import { browser } from '$app/environment';
 
-    const dispatch = createEventDispatcher();
-    
-    export let searchQuery = '';
-    export let selectedFilter = 'all';
-    export let categorizeProject: (title: string, description: string, technologies: string[]) => string[];
+    interface Props {
+        searchQuery?: string;
+        selectedFilter?: string;
+        categorizeProject?: (title: string, description: string, technologies: string[]) => string[];
+        onerror?: () => void;
+    }
 
-    let repos: any[] = [];
-    let loading = true;
-    let error = '';
-    let visibleCards: Set<number> = new Set();
+    let { 
+        searchQuery = '', 
+        selectedFilter = 'all', 
+        categorizeProject = () => [],
+        onerror 
+    }: Props = $props();
+
+    let repos: any[] = $state([]);
+    let loading = $state(true);
+    let error = $state('');
+    let visibleCards: Set<number> = $state(new Set());
     // Track which card is expanded on small screens (tap-to-toggle)
-    let expandedCards: Set<number> = new Set();
+    let expandedCards: Set<number> = $state(new Set());
     // Store element refs for per-card detail containers to animate height
     let detailEls: Map<number, HTMLElement> = new Map();
-    let isSmall: boolean = false;
+    let isSmall: boolean = $state(false);
     let mediaQueryList: MediaQueryList | null = null;
     // Responsive columns count (1/2/3)
-    let columns: number = 3;
+    let columns: number = $state(3);
     let observer: IntersectionObserver | null = null;
 
     onMount(() => {
@@ -145,7 +152,7 @@
             console.error('Error fetching repositories:', err);
             error = 'Failed to load repositories';
             loading = false;
-            dispatch('error');
+            onerror?.();
         }
     }
 
@@ -246,7 +253,7 @@
     }
 
     // Filter repos based on search query and selected filter
-    $: filteredRepos = repos.filter(repo => {
+    let filteredRepos = $derived(repos.filter(repo => {
         // Search filter
         const matchesSearch = !searchQuery || 
             repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -259,17 +266,19 @@
                 .includes(selectedFilter);
         
         return matchesSearch && matchesFilter;
-    });
+    }));
     
     // Re-trigger observer when filter changes (and filtered list is rendered)
-    $: if (filteredRepos && browser) {
-        setTimeout(() => {
-            if (browser) {
-                const cards = document.querySelectorAll('.repo-card');
-                cards.forEach((card) => observer?.observe(card));
-            }
-        }, 100);
-    }
+    $effect(() => {
+        if (filteredRepos && browser) {
+            setTimeout(() => {
+                if (browser) {
+                    const cards = document.querySelectorAll('.repo-card');
+                    cards.forEach((card) => observer?.observe(card));
+                }
+            }, 100);
+        }
+    });
 </script>
 
 {#if loading}
@@ -293,8 +302,8 @@
                                 class:opacity-0={!visibleCards.has(index)}
                                 class:animate-fade-in-up={visibleCards.has(index)}
                                 style="animation-delay: {getAnimationDelay(index)};"
-                                on:click={(e) => { if (isSmall) { e.stopPropagation(); toggleDetails(index); } }}
-                                on:keydown={(e) => { if (isSmall && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) { e.preventDefault(); e.stopPropagation(); toggleDetails(index); } }}
+                                onclick={(e) => { if (isSmall) { e.stopPropagation(); toggleDetails(index); } }}
+                                onkeydown={(e) => { if (isSmall && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) { e.preventDefault(); e.stopPropagation(); toggleDetails(index); } }}
                                 role="button"
                                 tabindex="0"
                                 aria-expanded={isSmall ? expandedCards.has(index) : undefined}
@@ -349,7 +358,7 @@
                                                 href={repo.html_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                on:click|stopPropagation
+                                                onclick={(e) => e.stopPropagation()}
                                                 class="flex items-center justify-center gap-1.5 px-2 py-1 md:px-3 md:py-2 rounded-md bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-[11px] transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 origin-bottom z-30 w-full"
                                             >
                                                 <i class="fab fa-github text-[11px]"></i>

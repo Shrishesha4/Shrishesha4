@@ -3,12 +3,16 @@
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
     
-    export let posts: Blog[] = [];
-    export let error: string = '';
-    export let onRetry: () => void;
+    interface Props {
+        posts?: Blog[];
+        error?: string;
+        onRetry: () => void;
+    }
 
-    let visibleCards: Set<number> = new Set();
-    let observer: IntersectionObserver | null = null;
+    let { posts = [], error = '', onRetry }: Props = $props();
+
+    let visibleCards: Set<number> = $state(new Set());
+    let observer: IntersectionObserver | null = $state(null);
 
     onMount(() => {
         setupObserver();
@@ -41,22 +45,24 @@
         }, 100);
     }
 
-    // Re-run observer when posts update (e.g., loading finishes)
-    $: if (browser && sortedPosts && sortedPosts.length > 0) {
-        visibleCards = new Set(); // Reset visibility to re-animate on sort/filter
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.post-card');
-            cards.forEach((card) => observer?.observe(card));
-        }, 100);
-    }
+    // Sort posts by date in descending order
+    let sortedPosts = $derived([...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 
     function truncateText(text: string, limit: number = 80): string {
         if (text.length <= limit) return text;
         return text.slice(0, limit).trim() + '...';
     }
 
-    // Sort posts by date in descending order
-    $: sortedPosts = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Re-run observer when posts update (e.g., loading finishes)
+    $effect(() => {
+        if (browser && sortedPosts && sortedPosts.length > 0) {
+            visibleCards = new Set(); // Reset visibility to re-animate on sort/filter
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.post-card');
+                cards.forEach((card) => observer?.observe(card));
+            }, 100);
+        }
+    });
 </script>
 
 <div>
@@ -64,7 +70,7 @@
     {#if error}
         <div class="mb-8 rounded-lg bg-red-50 p-4 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400">
             {error}
-            <button class="ml-4 text-sm underline" on:click={onRetry}>Try again</button>
+            <button class="ml-4 text-sm underline" onclick={onRetry}>Try again</button>
         </div>
     {:else if posts.length > 0}
         <div class="space-y-6">

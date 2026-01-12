@@ -146,7 +146,7 @@
     <header class="glass-card h-20 px-6 flex items-center justify-between border-neutral-200 dark:border-white/5 shrink-0 shadow-2xl">
         <div class="flex items-center gap-4">
             <button 
-                on:click={() => navigate('/?tab=blogs')}
+                onclick={() => navigate('/?tab=blogs')}
                 class="w-12 h-12 rounded-2xl bg-white dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-all shadow-sm active:scale-95"
             >
                 <i class="fas fa-arrow-left"></i>
@@ -178,7 +178,7 @@
             <!-- svelte-ignore a11y_label_has_associated_control -->
             <div class="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                 <div class="max-w-4xl mx-auto space-y-8 animate-workspace-in">
-                    <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-8">
+                    <form id="blogForm" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-8">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="md:col-span-2 space-y-6">
                                 <div>
@@ -207,14 +207,14 @@
                                     <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Content Editor</label>
                                     <div class="border border-neutral-200 dark:border-white/10 rounded-[2rem] overflow-hidden bg-white dark:bg-neutral-950 shadow-inner">
                                         <div class="bg-neutral-50 dark:bg-white/5 border-b border-neutral-200 dark:border-white/10 p-3 flex flex-wrap gap-1 sticky top-0 z-10">
-                                            <button type="button" on:click={() => execCommand('bold')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors" title="Bold"><i class="fas fa-bold"></i></button>
-                                            <button type="button" on:click={() => execCommand('italic')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors" title="Italic"><i class="fas fa-italic"></i></button>
+                                            <button type="button" onclick={() => execCommand('bold')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors" title="Bold"><i class="fas fa-bold"></i></button>
+                                            <button type="button" onclick={() => execCommand('italic')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors" title="Italic"><i class="fas fa-italic"></i></button>
                                             <div class="w-px h-6 bg-neutral-300 dark:bg-white/10 mx-2 my-auto"></div>
-                                            <button type="button" on:click={() => execCommand('formatBlock', '<h2>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H2</button>
-                                            <button type="button" on:click={() => execCommand('formatBlock', '<h3>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H3</button>
+                                            <button type="button" onclick={() => execCommand('formatBlock', '<h2>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H2</button>
+                                            <button type="button" onclick={() => execCommand('formatBlock', '<h3>')} class="px-3 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-sm font-black text-neutral-600 dark:text-neutral-300 transition-colors">H3</button>
                                             <div class="w-px h-6 bg-neutral-300 dark:bg-white/10 mx-2 my-auto"></div>
                                             <!-- svelte-ignore a11y_consider_explicit_label -->
-                                            <button type="button" on:click={() => execCommand('insertUnorderedList')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors"><i class="fas fa-list-ul"></i></button>
+                                            <button type="button" onclick={() => execCommand('insertUnorderedList')} class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-white/10 rounded-xl text-neutral-600 dark:text-neutral-300 transition-colors"><i class="fas fa-list-ul"></i></button>
                                         </div>
                                         <div 
                                             contenteditable="true"
@@ -242,7 +242,7 @@
                                             <input 
                                                 type="text" 
                                                 value={blog.tags ? blog.tags.join(', ') : ''}
-                                                on:input={(e) => {
+                                                oninput={(e) => {
                                                     if (e.target) {
                                                         blog.tags = (e.target as HTMLInputElement).value.split(',').map(t => t.trim()).filter(Boolean);
                                                     }
@@ -260,7 +260,7 @@
                                             <input type="text" bind:value={llmStyle} placeholder="e.g. conversational, technical, concise" class="glass-input w-full text-sm mb-2" />
 
                                             <div class="flex items-center gap-3">
-                                                <button on:click={generateWithLLM} class="glass-button glass-button-primary px-3 py-1.5" disabled={llmLoading}>
+                                                <button onclick={generateWithLLM} class="glass-button glass-button-primary px-3 py-1.5" disabled={llmLoading}>
                                                     {#if llmLoading}
                                                         Generating…
                                                     {:else}

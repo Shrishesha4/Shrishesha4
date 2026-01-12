@@ -1,10 +1,14 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     
-    export let quantity = 30;
-    export let staticity = 50;
-    export let ease = 50;
-    export let speed = 1; // New parameter for controlling particle speed
+    interface Props {
+        quantity?: number;
+        staticity?: number;
+        ease?: number;
+        speed?: number;
+    }
+
+    let { quantity = 30, staticity = 50, ease = 50, speed = 1 }: Props = $props();
     
     let canvas: HTMLCanvasElement;
     let container: HTMLDivElement;
@@ -13,8 +17,21 @@
     let mouse = { x: 0, y: 0 };
     let canvasSize = { w: 0, h: 0 };
     let animationFrame: number;
-    let dpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
+    let dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1; // Cap DPR for performance
     let isMobile = false;
+    let isReducedMotion = false;
+
+    // Performance optimizations
+    let lastFrameTime = 0;
+    const TARGET_FPS = 30; // Lower FPS for better battery life
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+    // Check for reduced motion preference
+    function checkReducedMotion() {
+        if (typeof window !== 'undefined') {
+            isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+    }
 
     // Add check for mobile
     function checkMobile() {
@@ -23,6 +40,7 @@
     }
 
     function getParticleCount() {
+        if (isReducedMotion) return Math.floor(quantity / 4);
         return isMobile ? Math.floor(quantity / 10) : quantity;
     }
 
@@ -77,50 +95,56 @@
     let deltaTime = 0;
 
     function animate(currentTime: number) {
-
-        deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+        // Frame limiting for performance
+        const elapsed = currentTime - lastFrameTime;
+        if (elapsed < FRAME_INTERVAL) {
+            animationFrame = requestAnimationFrame(animate);
+            return;
+        }
+        lastFrameTime = currentTime - (elapsed % FRAME_INTERVAL);
+        
+        deltaTime = (currentTime - lastTime) / 1000;
         lastTime = currentTime;
 
         clearContext();
-        circles.forEach((circle, i) => {
-            const edge = [
-                circle.x + circle.translateX - circle.size,
-                canvasSize.w - circle.x - circle.translateX - circle.size,
-                circle.y + circle.translateY - circle.size,
-                canvasSize.h - circle.y - circle.translateY - circle.size,
-            ];
-            const closestEdge = edge.reduce((a, b) => Math.min(a, b));
-            const remapClosestEdge = parseFloat(
-                remapValue(closestEdge, 0, 20, 0, 1).toFixed(2)
+        
+        const now = currentTime; // Use passed time instead of Date.now() for consistency
+        const circleCount = circles.length;
+        const halfW = canvasSize.w / 2;
+        const halfH = canvasSize.h / 2;
+        
+        for (let i = 0; i < circleCount; i++) {
+            const circle = circles[i];
+            
+            // Simplified edge calculation
+            const posX = circle.x + circle.translateX;
+            const posY = circle.y + circle.translateY;
+            const closestEdge = Math.min(
+                posX - circle.size,
+                canvasSize.w - posX - circle.size,
+                posY - circle.size,
+                canvasSize.h - posY - circle.size
             );
+            const remapClosestEdge = closestEdge <= 0 ? 0 : Math.min(1, closestEdge / 20);
 
-            if (remapClosestEdge > 1) {
-                circle.alpha += 0.02;
-                if (circle.alpha > circle.targetAlpha) {
-                    circle.alpha = circle.targetAlpha;
-                }
+            // Simplified alpha calculation
+            circle.alpha = circle.targetAlpha * remapClosestEdge;
+
+            // Simplified movement (skip sin/cos variations on mobile for performance)
+            if (!isMobile && !isReducedMotion) {
+                const timeOffset = now * 0.0005 + i;
+                circle.x += (circle.dx * speed) + Math.sin(timeOffset) * (0.05 * speed);
+                circle.y += (circle.dy * speed) + Math.cos(timeOffset) * (0.05 * speed);
             } else {
-                // Add twinkling effect
-                const twinkle = Math.sin(Date.now() * circle.twinkleSpeed! + circle.twinklePhase!) * 0.3;
-                const baseAlpha = circle.targetAlpha * remapClosestEdge;
-                circle.alpha = baseAlpha + (circle.isComet ? twinkle * 0.2 : twinkle);
-
-                circle.alpha = circle.targetAlpha * remapClosestEdge;
+                circle.x += circle.dx * speed;
+                circle.y += circle.dy * speed;
             }
-
-            // Increase movement speed and responsiveness
-            // Add natural flowing movement
-            // Reduce the natural movement amplitude
-            // Adjust movement speed with the speed parameter
-            circle.x += (circle.dx * speed) + Math.sin(Date.now() * 0.0005 + i) * (0.05 * speed);
-            circle.y += (circle.dy * speed) + Math.cos(Date.now() * 0.0005 + i) * (0.05 * speed);
             
+            // Mouse interaction (simplified)
+            const moveX = (mouse.x - halfW) / (staticity / circle.magnetism);
+            const moveY = (mouse.y - halfH) / (staticity / circle.magnetism);
             
-            // Enhanced particle movement with slower response
-            const moveX = (mouse.x - canvasSize.w / 2) / (staticity / circle.magnetism);
-            const moveY = (mouse.y - canvasSize.h / 2) / (staticity / circle.magnetism);
-            
-            circle.translateX += (moveX - circle.translateX) / (ease * 1.5); // Increased ease factor
+            circle.translateX += (moveX - circle.translateX) / (ease * 1.5);
             circle.translateY += (moveY - circle.translateY) / (ease * 1.5);
 
             // Reset particles when they go off screen
@@ -130,21 +154,13 @@
                 circle.y < -circle.size ||
                 circle.y > canvasSize.h + circle.size
             ) {
-                circles[i] = circleParams();
-            } else {
-                drawCircle(
-                    {
-                        ...circle,
-                        x: circle.x,
-                        y: circle.y,
-                        translateX: circle.translateX,
-                        translateY: circle.translateY,
-                        alpha: Math.max(0, Math.min(1, circle.alpha)), // Clamp alpha between 0 and 1
-                    },
-                    true
-                );
+                Object.assign(circles[i], circleParams());
+                lastPositions.delete(circle);
+            } else if (circle.alpha > 0.01) {
+                // Only draw if visible
+                drawCircleDirect(circle, circle.alpha);
             }
-        });
+        }
         animationFrame = requestAnimationFrame(animate);
     }
 
@@ -153,98 +169,92 @@
         resizeCanvas();
         drawParticles();
         lastTime = performance.now();
+        lastFrameTime = lastTime;
         animate(lastTime);
     }
 
     // Add these variables at the top of the script
-    let lastPositions: { [key: number]: { x: number; y: number } } = {};
+    let lastPositions: Map<Circle, { x: number; y: number }> = new Map();
 
-    function drawCircle(circle: Circle, update = false) {
-        if (context) {
-            const { x, y, translateX, translateY, size, alpha, isComet, trail } = circle;
-            
-            // Improved motion blur effect
-            if (lastPositions[circles.indexOf(circle)]) {
-                const lastPos = lastPositions[circles.indexOf(circle)];
-                const speed = Math.sqrt(
-                    Math.pow(x - lastPos.x, 2) + 
-                    Math.pow(y - lastPos.y, 2)
+    // Optimized direct draw function that avoids object creation
+    function drawCircleDirect(circle: Circle, clampedAlpha: number) {
+        if (!context || clampedAlpha < 0.01) return;
+        
+        const { x, y, translateX, translateY, size, isComet, trail, dx, dy } = circle;
+        const posX = x + translateX;
+        const posY = y + translateY;
+        
+        // Skip motion blur on mobile for performance
+        if (!isMobile && !isReducedMotion) {
+            const lastPos = lastPositions.get(circle);
+            if (lastPos) {
+                const moveSpeed = Math.sqrt(
+                    (x - lastPos.x) ** 2 + (y - lastPos.y) ** 2
                 );
                 
-                if (speed > 0.1) {
-                    // Draw multiple segments for smoother trails
-                    const steps = isComet ? 8 : 4;
-                    for (let i = 0; i < steps; i++) {
-                        const t = i / steps;
-                        const trailX = lastPos.x + (x - lastPos.x) * t;
-                        const trailY = lastPos.y + (y - lastPos.y) * t;
-                        
-                        context.beginPath();
-                        context.arc(
-                            trailX + translateX,
-                            trailY + translateY,
-                            isComet ? size * 2 : size * 0.5,
-                            0,
-                            2 * Math.PI
-                        );
-                        context.fillStyle = `rgba(255, 255, 255, ${(alpha * 0.1 * (1 - t))})`; 
-                        context.fill();
-                    }
+                // Only draw motion blur for faster moving particles
+                if (moveSpeed > 0.5 && isComet) {
+                    // Simplified motion blur - just 2 steps
+                    const trailX = lastPos.x + (x - lastPos.x) * 0.5;
+                    const trailY = lastPos.y + (y - lastPos.y) * 0.5;
+                    
+                    context.beginPath();
+                    context.arc(trailX + translateX, trailY + translateY, size, 0, Math.PI * 2);
+                    context.fillStyle = `rgba(255, 255, 255, ${clampedAlpha * 0.2})`;
+                    context.fill();
                 }
             }
+        }
 
-            // Store current position for next frame
-            lastPositions[circles.indexOf(circle)] = { x, y };
+        // Store current position for next frame
+        lastPositions.set(circle, { x, y });
+        
+        // Simplified comet rendering for mobile
+        if (isComet && trail && !isMobile && !isReducedMotion) {
+            context.save();
+            context.translate(posX, posY);
+            context.rotate(Math.atan2(dy, dx));
             
-            if (isComet && trail) {
-                context.save();
-                context.translate(x + translateX, y + translateY);
-                context.rotate(Math.atan2(circle.dy, circle.dx));
-                
-                // Brighter gradient for comet trail
-                const gradient = context.createLinearGradient(
-                    -trail, 0,
-                    size * 2, 0
-                );
-                gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-                gradient.addColorStop(0.3, `rgba(255, 255, 255, ${alpha * 0.6})`);
-                gradient.addColorStop(0.7, `rgba(255, 255, 255, ${alpha * 0.8})`);
-                gradient.addColorStop(1, `rgba(255, 255, 255, ${alpha})`);
-                
-                // Add glow effect
-                context.shadowColor = 'rgba(255, 255, 255, 0.8)';
-                context.shadowBlur = 15;
-                
-                // Draw tapered trail
-                context.beginPath();
-                context.moveTo(-trail, -size * 0.1);
-                context.lineTo(size * 2, -size * 2);
-                context.lineTo(size * 2, size * 2);
-                context.lineTo(-trail, size * 0.1);
-                context.closePath();
-                
-                context.fillStyle = gradient;
-                context.fill();
-                
-                // Reset shadow for other elements
-                context.shadowBlur = 0;
-                context.restore();
-            }
+            // Simplified gradient with fewer color stops
+            const gradient = context.createLinearGradient(-trail * 0.5, 0, size, 0);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            gradient.addColorStop(1, `rgba(255, 255, 255, ${clampedAlpha})`);
+            
+            // Skip shadow on mobile
+            context.shadowColor = 'rgba(255, 255, 255, 0.5)';
+            context.shadowBlur = 8;
+            
+            // Simpler triangle trail
+            context.beginPath();
+            context.moveTo(-trail * 0.5, 0);
+            context.lineTo(size, -size * 1.5);
+            context.lineTo(size, size * 1.5);
+            context.closePath();
+            
+            context.fillStyle = gradient;
+            context.fill();
+            context.shadowBlur = 0;
+            context.restore();
+        }
 
-            // Draw the main particle with glow for comets
-            if (isComet) {
-                context.shadowColor = 'rgba(255, 255, 255, 0.8)';
-                context.shadowBlur = 20;
-            }
+        // Draw the main particle
+        context.beginPath();
+        context.arc(posX, posY, isComet ? size * 2 : size, 0, Math.PI * 2);
+        context.fillStyle = `rgba(255, 255, 255, ${clampedAlpha})`;
+        context.fill();
+    }
+
+    // Simplified drawCircle for initial particle creation only
+    function drawCircle(circle: Circle, update = false) {
+        if (context) {
+            const { x, y, translateX, translateY, size, alpha, isComet } = circle;
             
+            // Simple initial draw - animation loop handles complex effects
             context.beginPath();
             context.arc(x + translateX, y + translateY, 
-                isComet ? size * 3 : size, 0, 2 * Math.PI);
+                isComet ? size * 2 : size, 0, Math.PI * 2);
             context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
             context.fill();
-            
-            // Reset shadow
-            context.shadowBlur = 0;
 
             if (!update) {
                 circles.push(circle);
@@ -260,6 +270,7 @@
     function resizeCanvas() {
         if (container && canvas && context) {
             circles = [];
+            lastPositions.clear(); // Clear position cache on resize
             canvasSize.w = container.offsetWidth;
             canvasSize.h = container.offsetHeight;
             canvas.width = canvasSize.w * dpr;
@@ -324,8 +335,13 @@
     onMount(() => {
         const init = async () => {
             context = canvas.getContext('2d');
+            checkReducedMotion(); // Check for reduced motion preference
             checkMobile();
             animate(performance.now());
+
+            // Listen for reduced motion preference changes
+            const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            mediaQuery.addEventListener('change', checkReducedMotion);
 
             if (isMobile && DeviceOrientationEvent) {
                 try {

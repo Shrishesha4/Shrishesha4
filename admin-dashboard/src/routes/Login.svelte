@@ -4,12 +4,12 @@
     import { signInWithEmailAndPassword } from 'firebase/auth';
     import { auth } from '$lib/firebase/config';
 
-    let username = '';
-    let password = '';
-    let error = '';
-    let successMessage = '';
-    let isLoading = false;
-    let isResettingPassword = false;
+    let username = $state('');
+    let password = $state('');
+    let error = $state('');
+    let successMessage = $state('');
+    let isLoading = $state(false);
+    let isResettingPassword = $state(false);
 
     async function handleLogin() {
         try {
@@ -50,7 +50,7 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-2 font-medium">System Authentication Required</p>
         </div>
 
-        <form class="space-y-6" on:submit|preventDefault={handleLogin}>
+        <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); handleLogin(); }}>
             {#if error}
                 <div class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold p-4 rounded-2xl text-center backdrop-blur-md uppercase tracking-widest">
                     {error}
@@ -101,17 +101,17 @@
                     </button>
                 {:else}
                     {#if isResettingPassword}
-                        <button type="button" on:click={handleResetPassword} class="w-full glass-button glass-button-primary">
+                        <button type="button" onclick={handleResetPassword} class="w-full glass-button glass-button-primary">
                             Authorize Reset
                         </button>
-                        <button type="button" on:click={() => { isResettingPassword = false; error = ''; successMessage = ''; }} class="w-full text-xs font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white uppercase tracking-widest transition-all">
+                        <button type="button" onclick={() => { isResettingPassword = false; error = ''; successMessage = ''; }} class="w-full text-xs font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white uppercase tracking-widest transition-all">
                             Back to Access
                         </button>
                     {:else}
                         <button type="submit" class="w-full glass-button glass-button-primary">
                             Gain Access
                         </button>
-                        <button type="button" on:click={() => { isResettingPassword = true; error = ''; successMessage = ''; }} class="w-full text-xs font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white uppercase tracking-widest transition-all">
+                        <button type="button" onclick={() => { isResettingPassword = true; error = ''; successMessage = ''; }} class="w-full text-xs font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white uppercase tracking-widest transition-all">
                             Lost Access Key?
                         </button>
                     {/if}

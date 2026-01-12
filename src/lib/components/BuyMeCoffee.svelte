@@ -1,5 +1,9 @@
 <script lang="ts">
-    export let mode: 'icon' | 'button' | 'minimal' = 'icon';
+    interface Props {
+        mode?: 'icon' | 'button' | 'minimal';
+    }
+
+    let { mode = 'icon' }: Props = $props();
 </script>
 
 <!-- class="glass-button inline-flex items-center gap-2 px-4 py-2 bg-[#FFA500]/20 hover:bg-[#FFA500]/30 text-[#FFA500] rounded-full transition-all duration-300 backdrop-blur-md hover:scale-105" -->

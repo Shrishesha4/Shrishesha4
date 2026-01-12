@@ -1,22 +1,25 @@
 <script lang="ts">
-    import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
 
-    export let text: string;
-    export let isPlaying = false;
+    interface Props {
+        text: string;
+        isPlaying?: boolean;
+        onspeech?: (e: SpeechSynthesisEvent) => void;
+    }
 
-    const dispatch = createEventDispatcher();
+    let { text, isPlaying = $bindable(false), onspeech }: Props = $props();
 
-    let showSettings = false;
-    let error: string | null = null;
-    let synth: SpeechSynthesis | null = null;
-    let utterance: SpeechSynthesisUtterance | null = null;
-    let voices: SpeechSynthesisVoice[] = [];
-    let selectedVoiceURI = '';
-    let playbackRate = 1.0;
+    let showSettings = $state(false);
+    let error: string | null = $state(null);
+    let synth: SpeechSynthesis | null = $state(null);
+    let utterance: SpeechSynthesisUtterance | null = $state(null);
+    let voices: SpeechSynthesisVoice[] = $state([]);
+    let selectedVoiceURI = $state('');
+    let playbackRate = $state(1.0);
 
     // Determine clean text locally or use what's passed. 
     // Assuming 'text' passed from parent is already stripped of HTML.
-    $: cleanText = text.trim();
+    let cleanText = $derived(text.trim());
 
     onMount(() => {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -88,7 +91,7 @@
             // Some mobile browsers fire boundary events frequently
             // We only care about 'word'
             if (e.name === 'word') {
-                dispatch('speech', e);
+                onspeech?.(e);
             }
         };
 
@@ -145,7 +148,7 @@
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-neutral-900 dark:text-white text-sm uppercase tracking-wide">Voice Settings</h3>
                 <button 
-                    on:click={() => showSettings = false} 
+                    onclick={() => showSettings = false} 
                     class="text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
                     aria-label="Close settings"
                 >
@@ -160,7 +163,7 @@
                     <select 
                         id="voice-select"
                         bind:value={selectedVoiceURI} 
-                        on:change={handleVoiceChange}
+                        onchange={handleVoiceChange}
                         class="w-full appearance-none rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-sm p-2.5 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none transition-shadow"
                     >
                         {#each voices as voice}
@@ -188,7 +191,7 @@
                     max="2.0" 
                     step="0.1" 
                     bind:value={playbackRate} 
-                    on:input={handleSpeedChange}
+                    oninput={handleSpeedChange}
                     class="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
                 />
             </div>
@@ -204,7 +207,7 @@
         {/if}
 
         <button 
-            on:click={() => showSettings = !showSettings}
+            onclick={() => showSettings = !showSettings}
             class="w-12 h-12 rounded-full bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center border border-neutral-200 dark:border-neutral-700 z-50"
             title="Voice Settings"
             aria-label="Voice Settings"
@@ -214,7 +217,7 @@
         </button>
 
         <button 
-            on:click={togglePlay}
+            onclick={togglePlay}
             class="w-16 h-16 rounded-full bg-primary-600 text-white shadow-xl shadow-primary-900/20 hover:shadow-primary-600/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-2xl relative overflow-hidden z-50"
             aria-label={isPlaying ? "Pause Speech" : "Start Speech"}
         >

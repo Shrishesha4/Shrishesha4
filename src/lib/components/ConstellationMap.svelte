@@ -40,6 +40,7 @@
     const transitionSpeed = 0.08;
     const DOUBLE_CLICK_THRESHOLD = 20; // Distance threshold to consider it the same star
     const GALAXY_CAMERA_POS = new THREE.Vector3(0, 80, 450);
+    const TRANSITION_DELAY = 1000; // ms delay before camera starts moving on double-click
 
     // Thresholds
     const ZOOM_ENTER_THRESHOLD = 30; // Distance to trigger system view
@@ -680,7 +681,27 @@
         const intersects = raycaster.intersectObject(galaxy);
 
         if (intersects.length > 0) {
-            const clickedPoint = intersects[0].point;
+            // For a Points geometry, we need to find the actual star position
+            // intersects[0].index gives us which point was clicked
+            const intersection = intersects[0];
+            const positions = (galaxy.geometry as THREE.BufferGeometry).getAttribute('position') as THREE.BufferAttribute;
+            
+            let clickedPoint: THREE.Vector3;
+            if (intersection.index !== null && intersection.index !== undefined) {
+                // Use the exact star position from the geometry (local coordinates)
+                const idx = (intersection.index as number) * 3;
+                clickedPoint = new THREE.Vector3(
+                    positions.array[idx],
+                    positions.array[idx + 1],
+                    positions.array[idx + 2]
+                );
+                // Transform from local galaxy coordinates to world coordinates
+                galaxy.updateMatrixWorld();
+                clickedPoint.applyMatrix4(galaxy.matrixWorld);
+            } else {
+                // Fallback to intersection point if index is not available (already in world space)
+                clickedPoint = intersection.point.clone();
+            }
             
             // Check if this is a double-click on the same star
             const isSameStar = lastClickedPosition && clickedPoint.distanceTo(lastClickedPosition) < DOUBLE_CLICK_THRESHOLD;
@@ -700,20 +721,25 @@
                 viewMode = 'SYSTEM';
                 createSolarSystem(focusedStarPosition);
                 
-                // Set up smooth camera transition
-                const starPos = focusedStarPosition.clone();
-                let dir = camera.position.clone().sub(starPos);
-                if (dir.length() < 0.1) dir = new THREE.Vector3(0, 10, 40);
-                dir.normalize();
+                // Delay camera transition to give visual feedback
+                setTimeout(() => {
+                    if (focusedStarPosition && activeSun) {
+                        // Set up smooth camera transition
+                        const starPos = focusedStarPosition.clone();
+                        let dir = camera.position.clone().sub(starPos);
+                        if (dir.length() < 0.1) dir = new THREE.Vector3(0, 10, 40);
+                        dir.normalize();
+                        
+                        const sunRadius = (activeSun && (activeSun.geometry as any)?.parameters?.radius) ?? 12;
+                        const desiredDistance = Math.max(80, sunRadius * 4);
+                        
+                        targetCameraPos = starPos.clone().add(dir.multiplyScalar(desiredDistance));
+                        targetLookAt = starPos.clone();
+                        isTransitioning = true;
+                    }
+                }, TRANSITION_DELAY);
                 
-                const sunRadius = (activeSun && (activeSun.geometry as any)?.parameters?.radius) ?? 12;
-                const desiredDistance = Math.max(80, sunRadius * 4);
-                
-                targetCameraPos = starPos.clone().add(dir.multiplyScalar(desiredDistance));
-                targetLookAt = starPos.clone();
-                isTransitioning = true;
                 controls.autoRotate = false;
-                
                 lastClickedPosition = null; // Reset after double-click
             } else {
                 // First click: Show reticle but keep rotating around it
@@ -724,14 +750,15 @@
                 focusedStarPosition = clickedPoint.clone();
                 lastClickedPosition = clickedPoint.clone();
                 updateReticle(focusedStarPosition);
-                
-                // Anchor rotation to the selected star immediately
-                targetLookAt.copy(focusedStarPosition);
-                controls.autoRotate = true; // KEEP ROTATING
 
                 // Delay to allow for potential double-click
                 clickTimeout = setTimeout(() => {
                     clickTimeout = null;
+                    // Only update anchor AFTER double-click window expires (no double-click detected)
+                    if (focusedStarPosition) {
+                        targetLookAt.copy(focusedStarPosition);
+                        controls.autoRotate = true; // Start rotating only after double-click window expires
+                    }
                 }, DOUBLE_CLICK_WINDOW) as unknown as number;
             }
         } else {

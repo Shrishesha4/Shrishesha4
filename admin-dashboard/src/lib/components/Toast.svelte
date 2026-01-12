@@ -7,7 +7,10 @@
         console.log('Toast component mounted');
     });
 
-    $: console.log('Toast store changed:', $toast);
+    $effect(() => {
+        // Use $inspect for debugging state without triggering the console.log warning
+        $inspect($toast);
+    });
 </script>
 
 <!-- Always visible debug marker to confirm component renders -->

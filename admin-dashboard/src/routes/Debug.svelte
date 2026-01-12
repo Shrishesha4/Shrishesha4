@@ -7,13 +7,13 @@
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
 
-    let debugResult = 'Testing...';
-    let isLoggedIn = false;
-    let migrationStatus = '';
+    let debugResult = $state('Testing...');
+    let isLoggedIn = $state(false);
+    let migrationStatus = $state('');
 
-    let email = '';
-    let password = '';
-    let loginError = '';
+    let email = $state('');
+    let password = $state('');
+    let loginError = $state('');
 
     async function login() {
         try {
@@ -121,7 +121,7 @@
                 />
             </div>
             <button 
-                on:click={login}
+                onclick={login}
                 class="w-full bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700"
             >
                 Login
@@ -139,7 +139,7 @@
     <div class="mb-4">
         <button 
             class="bg-primary-600 text-white px-4 py-2 rounded mr-2"
-            on:click={initializeData}
+            onclick={initializeData}
             disabled={!isLoggedIn}
         >
             Initialize Firestore Data
@@ -159,7 +159,7 @@
     
     <button 
         class="mt-4 bg-primary-600 text-white px-4 py-2 rounded"
-        on:click={() => location.reload()}
+        onclick={() => location.reload()}
     >
         Retry Test
     </button>

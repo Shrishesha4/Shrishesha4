@@ -1,14 +1,17 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import type { Blog } from '$lib/stores/blogs';
 	import ImageUpload from './ImageUpload.svelte';
 
-    export let show = false;
-    export let blogData: any = null;
+    interface Props {
+        show?: boolean;
+        blogData?: any;
+        onsave?: (blog: any) => void;
+        onclose?: () => void;
+    }
+
+    let { show = $bindable(false), blogData = null, onsave, onclose }: Props = $props();
     
-    const dispatch = createEventDispatcher();
-    
-    let blog: any = {
+    let blog: any = $state({
         id: '',
         title: '',
         content: '',
@@ -17,24 +20,26 @@
         date: new Date().toISOString().split('T')[0],
         tags: [],
         slug: ''
-    };
+    });
 
-    $: if (show) {
-        if (blogData) {
-            blog = JSON.parse(JSON.stringify(blogData));
-        } else {
-            blog = {
-                id: crypto.randomUUID(),
-                title: '',
-                content: '',
-                description: '',
-                image: '',
-                date: new Date().toISOString().split('T')[0],
-                tags: [],
-                slug: ''
-            };
+    $effect(() => {
+        if (show) {
+            if (blogData) {
+                blog = JSON.parse(JSON.stringify(blogData));
+            } else {
+                blog = {
+                    id: crypto.randomUUID(),
+                    title: '',
+                    content: '',
+                    description: '',
+                    image: '',
+                    date: new Date().toISOString().split('T')[0],
+                    tags: [],
+                    slug: ''
+                };
+            }
         }
-    }
+    });
 
     function handleSubmit() {
         // Auto-generate slug if missing
@@ -44,13 +49,13 @@
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-+|-+$/g, '');
         }
-        dispatch('save', blog);
+        onsave?.(blog);
         show = false;
     }
 
     function handleClose() {
         show = false;
-        dispatch('close');
+        onclose?.();
     }
 
     function execCommand(command: string, value: string | null = null) {
@@ -69,14 +74,14 @@
                 <h2 class="text-xl font-bold text-neutral-900 dark:text-white">
                     {blogData ? 'Edit Blog Post' : 'New Blog Post'}
                 </h2>
-                <button on:click={handleClose} class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
+                <button onclick={handleClose} class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
 
             <!-- Scrollable Body -->
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <form id="blogForm" on:submit|preventDefault={handleSubmit} class="space-y-6">
+                <form id="blogForm" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -115,15 +120,15 @@
                         <label class="block mb-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Content</label>
                         <div class="border border-neutral-200 dark:border-white/10 rounded-2xl overflow-hidden bg-white dark:bg-neutral-950">
                             <div class="bg-neutral-50 dark:bg-white/5 border-b border-neutral-200 dark:border-white/10 p-2 flex flex-wrap gap-1">
-                                <button type="button" on:click={() => execCommand('bold')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Bold"><i class="fas fa-bold"></i></button>
-                                <button type="button" on:click={() => execCommand('italic')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Italic"><i class="fas fa-italic"></i></button>
-                                <button type="button" on:click={() => execCommand('underline')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Underline"><i class="fas fa-underline"></i></button>
+                                <button type="button" onclick={() => execCommand('bold')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Bold"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick={() => execCommand('italic')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Italic"><i class="fas fa-italic"></i></button>
+                                <button type="button" onclick={() => execCommand('underline')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded" title="Underline"><i class="fas fa-underline"></i></button>
                                 <div class="w-px h-6 bg-neutral-300 dark:bg-white/20 mx-1 my-auto"></div>
-                                <button type="button" on:click={() => execCommand('formatBlock', '<h2>')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded font-bold text-sm">H2</button>
-                                <button type="button" on:click={() => execCommand('formatBlock', '<h3>')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded font-bold text-sm">H3</button>
+                                <button type="button" onclick={() => execCommand('formatBlock', '<h2>')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded font-bold text-sm">H2</button>
+                                <button type="button" onclick={() => execCommand('formatBlock', '<h3>')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded font-bold text-sm">H3</button>
                                 <div class="w-px h-6 bg-neutral-300 dark:bg-white/20 mx-1 my-auto"></div>
-                                <button type="button" on:click={() => execCommand('insertUnorderedList')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded"><i class="fas fa-list-ul"></i></button>
-                                <button type="button" on:click={() => execCommand('insertOrderedList')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded"><i class="fas fa-list-ol"></i></button>
+                                <button type="button" onclick={() => execCommand('insertUnorderedList')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" onclick={() => execCommand('insertOrderedList')} class="p-2 hover:bg-neutral-200 dark:hover:bg-white/10 rounded"><i class="fas fa-list-ol"></i></button>
                             </div>
                             <div 
                                 contenteditable="true"
@@ -146,7 +151,7 @@
                         <input 
                             type="text" 
                             value={blog.tags ? blog.tags.join(', ') : ''}
-                            on:input={(e) => {
+                            oninput={(e) => {
                                 if (e.target) {
                                     blog.tags = (e.target as HTMLInputElement).value
                                         .split(',')
@@ -165,7 +170,7 @@
             <div class="p-4 border-t border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/5 flex justify-end gap-3">
                 <button 
                     type="button"
-                    on:click={handleClose}
+                    onclick={handleClose}
                     class="px-5 py-2.5 rounded-xl font-medium text-neutral-600 hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-white/10 transition-colors"
                 >
                     Cancel

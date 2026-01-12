@@ -17,19 +17,20 @@
     import { page } from '$app/stores';
     import { beforeNavigate, afterNavigate } from '$app/navigation';
     import { showNavbar } from '$lib/stores/ui';
-    
-    $: isStargaze = $page.url.pathname.startsWith('/stargaze');
-    $: isResume = $page.url.pathname.startsWith('/resume');
-    
-    let showWarpTransition = false;
-    let warpDirection: 'in' | 'out' = 'in';
-    let contentZoom = '';
-    
-    interface LayoutData {
-        children: any;
+    import type { Snippet } from 'svelte';
+
+    interface Props {
+        children: Snippet;
     }
-    // svelte-ignore export_let_unused
-    export let data: LayoutData;
+
+    let { children }: Props = $props();
+    
+    let isStargaze = $derived($page.url.pathname.startsWith('/stargaze'));
+    let isResume = $derived($page.url.pathname.startsWith('/resume'));
+    
+    let showWarpTransition = $state(false);
+    let warpDirection: 'in' | 'out' = $state('in');
+    let contentZoom = $state('');
 
     if (browser) {
         injectAnalytics();
@@ -77,10 +78,12 @@
         }
     });
 
-    $: if (browser && typeof window !== 'undefined' && 
-        'updateFavicon' in window && $profile.favicon) {
-        (window as any).updateFavicon($profile.favicon);
-    }
+    $effect(() => {
+        if (browser && typeof window !== 'undefined' && 
+            'updateFavicon' in window && $profile.favicon) {
+            (window as any).updateFavicon($profile.favicon);
+        }
+    });
 
     onDestroy(() => {
         blogs.cleanup();
@@ -112,7 +115,7 @@
     {/if}
 
     <main class="{isResume ? '' : 'pt-8 md:pt-28 px-4'}">
-        <slot />
+        {@render children()}
     </main>
     <Toast />
     <LoadingSpinner />

@@ -3,7 +3,7 @@
     import { profile } from '$lib/stores/profile';
 
     let container: HTMLElement;
-    let rows: string[][] = [];
+    let rows: string[][] = $state([]);
 
     /**
      * ACCURATE TEXT WIDTH MEASUREMENT
@@ -103,9 +103,11 @@
     };
 
     // Load data and calculate layout on mount
-    $: if ($profile.skills || $profile.techStack) {
-        tick().then(calculateRows);
-    }
+    $effect(() => {
+        if ($profile.skills || $profile.techStack) {
+            tick().then(calculateRows);
+        }
+    });
 
     // Re-calculate on resize to maintain straight edges
     const handleResize = () => calculateRows();

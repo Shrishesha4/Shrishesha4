@@ -247,6 +247,7 @@
         <button 
             on:click|stopPropagation={closeBadgeModal}
             class="fixed top-6 right-6 z-[60] text-white/70 hover:text-white text-3xl w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            aria-label="Close badge modal"
         >
             <i class="fas fa-times"></i>
         </button>

@@ -114,7 +114,7 @@
         <div class="flex items-center gap-4">
             <!-- svelte-ignore a11y_consider_explicit_label -->
             <button 
-                on:click={() => navigate('/?tab=projects')}
+                onclick={() => navigate('/?tab=projects')}
                 class="w-12 h-12 rounded-2xl bg-white dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-all shadow-sm active:scale-95"
             >
                 <i class="fas fa-arrow-left"></i>
@@ -146,7 +146,7 @@
         <!-- svelte-ignore a11y_label_has_associated_control -->
             <div class="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                 <div class="max-w-3xl mx-auto animate-workspace-in">
-                    <form id="projectForm" on:submit|preventDefault={handleSubmit} class="space-y-8">
+                    <form id="projectForm" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-8">
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-xs font-black uppercase tracking-widest text-neutral-400 mb-2 ml-1">Project Identity</label>
@@ -206,7 +206,7 @@
                                 <input 
                                     type="text" 
                                     value={project.technologies.join(', ')}
-                                    on:input={(e) => {
+                                    oninput={(e) => {
                                         if (e.target) {
                                             project.technologies = (e.target as HTMLInputElement).value
                                                 .split(',')
@@ -237,7 +237,7 @@
                                         </p>
                                         <button 
                                             type="button"
-                                            on:click={generateSummary}
+                                            onclick={generateSummary}
                                             disabled={isGenerating}
                                             class="glass-button px-4 py-2 text-xs font-bold flex items-center gap-2 {isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-orange-500'}"
                                         >
@@ -262,7 +262,7 @@
                                                     <!-- svelte-ignore a11y_consider_explicit_label -->
                                                     <button 
                                                         type="button"
-                                                        on:click={() => {
+                                                        onclick={() => {
                                                             project.resumeSummary = (project.resumeSummary || []).filter((_, idx) => idx !== i);
                                                         }}
                                                         class="text-neutral-400 hover:text-red-500"
@@ -273,7 +273,7 @@
                                             {/each}
                                             <button 
                                                 type="button"
-                                                on:click={() => project.resumeSummary = [...(project.resumeSummary || []), '']}
+                                                onclick={() => project.resumeSummary = [...(project.resumeSummary || []), '']}
                                                 class="text-xs text-orange-500 font-bold hover:underline mt-2"
                                             >
                                                 + Add Point

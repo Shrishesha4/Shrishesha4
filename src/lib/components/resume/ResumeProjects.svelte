@@ -2,12 +2,14 @@
     import { projects } from '$lib/stores/projects';
     import type { Project } from '$lib/types';
 
+    type ProjectWithResume = Project & { resumeSummary?: string[] };
+
     // Sort: featured first
-    $: sortedProjects = [...$projects].sort((a, b) => {
+    let sortedProjects = $derived<ProjectWithResume[]>([...$projects].sort((a, b) => {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
         return 0;
-    }).slice(0, 5); // Limit to top 5 to fit on a resume
+    }).slice(0, 5)); // Limit to top 5 to fit on a resume
 </script>
 
 {#if sortedProjects.length > 0}
@@ -24,12 +26,12 @@
                             {#if project.url || project.github}
                                 <div class="flex gap-2 text-xs print:hidden">
                                     {#if project.github}
-                                        <a href={project.github} target="_blank" class="text-gray-500 hover:text-black">
+                                        <a href={project.github} target="_blank" aria-label="GitHub repository" class="text-gray-500 hover:text-black">
                                             <i class="fa-brands fa-github"></i>
                                         </a>
                                     {/if}
                                     {#if project.url}
-                                        <a href={project.url} target="_blank" class="text-gray-500 hover:text-black">
+                                        <a href={project.url} target="_blank" aria-label="Visit project" class="text-gray-500 hover:text-black">
                                             <i class="fa-solid fa-external-link"></i>
                                         </a>
                                     {/if}

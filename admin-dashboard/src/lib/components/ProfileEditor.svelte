@@ -151,7 +151,7 @@
     <div class="text-red-500 text-center p-4">{error}</div>
 {:else}
     <div>
-        <form class="space-y-6" on:submit|preventDefault={updateProfile}>
+        <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); updateProfile(); }}>
                 <div class="relative">
                     
 
@@ -211,7 +211,7 @@
                                 />
                                 <button 
                                     type="button"
-                                    on:click={() => {
+                                    onclick={() => {
                                         currentProfile.sub_title = currentProfile.sub_title.filter((_, index) => index !== i);
                                     }}
                                     class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -222,7 +222,7 @@
                         {/each}
                         <button 
                             type="button"
-                            on:click={() => {
+                            onclick={() => {
                                 currentProfile.sub_title = [...currentProfile.sub_title, ''];
                             }}
                             class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
@@ -245,7 +245,7 @@
                             <label class="font-bold text-neutral-700 dark:text-neutral-300">Resume Summary (AI Enhanced)</label>
                             <button
                                 type="button"
-                                on:click={enhanceResumeSummary}
+                                onclick={enhanceResumeSummary}
                                 disabled={isEnhancing}
                                 class="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
                             >
@@ -282,7 +282,7 @@
                         <input 
                             type="text" 
                             value={currentProfile.skills.join(', ')} 
-                            on:input={(e) => {
+                            oninput={(e) => {
                                 if (e.target) {
                                     currentProfile.skills = (e.target as HTMLInputElement).value.split(',').map(s => s.trim())
                                 }
@@ -295,7 +295,7 @@
                         <label class="block mb-2 font-bold text-neutral-700 dark:text-neutral-300">Experience (one per line)</label>
                         <textarea 
                             value={currentProfile.experience.join('\n')}
-                            on:input={(e) => {
+                            oninput={(e) => {
                                 if (e.target && e.target instanceof HTMLTextAreaElement) {
                                     currentProfile.experience = e.target.value.split('\n').filter(Boolean);
                                 }
@@ -341,7 +341,7 @@
                                 </div>
                                 <button 
                                     type="button"
-                                    on:click={() => {
+                                    onclick={() => {
                                         currentProfile.education = currentProfile.education.filter((_, index) => index !== i);
                                     }}
                                     class="absolute right-0 py-2 sm:mt-0 mt-14 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -352,7 +352,7 @@
                         {/each}
                         <button 
                             type="button"
-                            on:click={() => currentProfile.education = [...currentProfile.education, { year: '', degree: '', institution: '' }]}
+                            onclick={() => currentProfile.education = [...currentProfile.education, { year: '', degree: '', institution: '' }]}
                             class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-2 border-black dark:border-white"
                         >
                             + Add Education
@@ -373,7 +373,7 @@
                                 />
                                 <button 
                                     type="button"
-                                    on:click={() => {
+                                    onclick={() => {
                                         currentProfile.techStack = currentProfile.techStack.filter((_, index) => index !== i);
                                     }}
                                     class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -384,7 +384,7 @@
                         {/each}
                         <button 
                             type="button"
-                            on:click={() => {
+                            onclick={() => {
                                 currentProfile.techStack = [...currentProfile.techStack, ''];
                             }}
                             class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
@@ -407,7 +407,7 @@
                                     />
                                     <button 
                                         type="button"
-                                        on:click={() => {
+                                        onclick={() => {
                                             currentProfile.badges = currentProfile.badges.filter((_, index) => index !== i);
                                         }}
                                         class="ml-2 px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -428,7 +428,7 @@
                         {/each}
                         <button 
                             type="button"
-                            on:click={() => {
+                            onclick={() => {
                                 currentProfile.badges = [...currentProfile.badges, { title: '', imageUrl: '' }];
                             }}
                             class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"

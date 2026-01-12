@@ -32,9 +32,11 @@
         profile.cleanup();
     });
 
-    $: if (element && $profile.typingStrings && $profile.typingStrings.length > 0) {
-        initTyped($profile.typingStrings);
-    }
+    $effect(() => {
+        if (element && $profile.typingStrings && $profile.typingStrings.length > 0) {
+            initTyped($profile.typingStrings);
+        }
+    });
 </script>
 
 <span bind:this={element}></span>

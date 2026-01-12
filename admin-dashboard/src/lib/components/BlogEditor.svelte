@@ -6,11 +6,14 @@
     import { auth } from '$lib/firebase/config';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
-    // svelte-ignore export_let_unused
-        export let editingBlog: any = null; // Kept for prop compatibility
+    interface Props {
+        editingBlog?: any;
+    }
     
-    let allBlogs: typeof $blogs = [];
-    let loading = true;
+    let { editingBlog = $bindable() }: Props = $props();
+    
+    let allBlogs: typeof $blogs = $state([]);
+    let loading = $state(true);
     
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -31,9 +34,11 @@
         return () => unsubscribe();
     });
 
-    $: if ($blogs) {
-        allBlogs = [...$blogs];
-    }
+    $effect(() => {
+        if ($blogs) {
+            allBlogs = [...$blogs];
+        }
+    });
 
     function handleAdd() {
         navigate('/blogs/new');
@@ -65,7 +70,7 @@
                 <p class="text-neutral-500 dark:text-neutral-400 text-sm">Manage your editorial content</p>
             </div>
             <button 
-                on:click={handleAdd}
+                onclick={handleAdd}
                 class="glass-button glass-button-primary px-4 py-2 flex items-center gap-2 shadow-lg shadow-orange-500/20"
             >
                 <i class="fas fa-plus"></i> <span class="hidden sm:inline">New Post</span>
@@ -106,13 +111,13 @@
                     <!-- Actions -->
                     <div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
                         <button 
-                            on:click={() => handleEdit(blog)}
+                            onclick={() => handleEdit(blog)}
                             class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
                         >
                             <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
                         </button>
                         <button 
-                            on:click={() => handleDelete(blog.id)}
+                            onclick={() => handleDelete(blog.id)}
                             class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
                         >
                             <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>

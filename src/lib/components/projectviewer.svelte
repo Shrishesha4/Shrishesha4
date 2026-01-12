@@ -6,17 +6,21 @@
     import { projects } from '$lib/stores/projects';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
-    export let searchQuery = '';
-    export let selectedFilter = 'all';
-    export let categorizeProject: (title: string, description: string, technologies: string[]) => string[];
+    interface Props {
+        searchQuery?: string;
+        selectedFilter?: string;
+        categorizeProject: (title: string, description: string, technologies: string[]) => string[];
+    }
+
+    let { searchQuery = '', selectedFilter = 'all', categorizeProject }: Props = $props();
     
-    let imageLoading: { [key: string]: boolean } = {};
-    let visibleCards: Set<number> = new Set();
+    let imageLoading: { [key: string]: boolean } = $state({});
+    let visibleCards: Set<number> = $state(new Set());
     // Track which card is expanded on small screens (tap-to-toggle)
-    let expandedCards: Set<number> = new Set();
+    let expandedCards: Set<number> = $state(new Set());
     // Store element refs for per-card detail containers to animate height
     let detailEls: Map<number, HTMLElement> = new Map();
-    let isSmall: boolean = false;
+    let isSmall: boolean = $state(false);
     let mediaQueryList: MediaQueryList | null = null;
     let observer: IntersectionObserver | null = null;
 
@@ -202,13 +206,21 @@
         }
     }
 
-    // Re-run observer when filter changes
-    $: if (browser && filteredProjects) {
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.featured-card');
-            cards.forEach((card) => observer?.observe(card));
-        }, 100);
-    }
+    // Filter projects based on search query and selected filter
+    let filteredProjects = $derived($projects.filter(project => {
+        // Search filter
+        const matchesSearch = !searchQuery || 
+            project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.technologies?.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        // Category filter - use intelligent categorization
+        const matchesFilter = selectedFilter === 'all' || 
+            categorizeProject(project.title, project.description, project.technologies || [])
+                .includes(selectedFilter);
+        
+        return matchesSearch && matchesFilter;
+    }));
 
     function handleImageLoad(index: string) {
         imageLoading[index] = false;
@@ -223,21 +235,15 @@
         if (text.length <= limit) return text;
         return text.slice(0, limit).trim() + '...';
     }
-    
-    // Filter projects based on search query and selected filter
-    $: filteredProjects = $projects.filter(project => {
-        // Search filter
-        const matchesSearch = !searchQuery || 
-            project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.technologies?.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        // Category filter - use intelligent categorization
-        const matchesFilter = selectedFilter === 'all' || 
-            categorizeProject(project.title, project.description, project.technologies || [])
-                .includes(selectedFilter);
-        
-        return matchesSearch && matchesFilter;
+
+    // Re-run observer when filter changes
+    $effect(() => {
+        if (browser && filteredProjects) {
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.featured-card');
+                cards.forEach((card) => observer?.observe(card));
+            }, 100);
+        }
     });
 </script>
 
@@ -256,8 +262,8 @@
                     class:opacity-0={!visibleCards.has(index)}
                     class:animate-fade-in-up={visibleCards.has(index)}
                     style="animation-delay: {index * 100}ms;"
-                    on:click={(e) => { if (isSmall) { e.stopPropagation(); toggleDetails(index); } }}
-                    on:keydown={(e) => { if (isSmall && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) { e.preventDefault(); e.stopPropagation(); toggleDetails(index); } }}
+                    onclick={(e) => { if (isSmall) { e.stopPropagation(); toggleDetails(index); } }}
+                    onkeydown={(e) => { if (isSmall && (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar')) { e.preventDefault(); e.stopPropagation(); toggleDetails(index); } }}
                     role="button"
                     tabindex="0"
                     aria-expanded={isSmall ? expandedCards.has(index) : undefined}
@@ -276,8 +282,8 @@
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt={project.title}
                                 class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
-                                on:load={() => handleImageLoad(project.id)}
-                                on:loadstart={() => handleImageLoadStart(project.id)}
+                                onload={() => handleImageLoad(project.id)}
+                                onloadstart={() => handleImageLoadStart(project.id)}
                             />
                         {/if}
                     </div>
@@ -325,7 +331,7 @@
                                         href={project.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        on:click|stopPropagation
+                                        onclick={(e) => e.stopPropagation()}
                                         class="flex items-center justify-center gap-1 px-2 py-1 md:px-3 md:py-2 rounded-md bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-[11px] transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 origin-bottom z-30"
                                     >
                                         <i class="fas fa-external-link-alt text-[11px]"></i>
@@ -337,7 +343,7 @@
                                         href={project.github}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        on:click|stopPropagation
+                                        onclick={(e) => e.stopPropagation()}
                                         class="flex items-center justify-center gap-1 px-2 py-1 md:px-3 md:py-2 rounded-md bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-[11px] transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 origin-bottom z-30 border border-white/10"
                                     >
                                         <i class="fab fa-github text-[11px]"></i>
@@ -346,7 +352,7 @@
                                 {/if}
                                 <a 
                                     href={`/projects/${createSlug(project.title)}`}
-                                    on:click|stopPropagation
+                                    onclick={(e) => e.stopPropagation()}
                                     class="flex items-center justify-center gap-1 px-2 py-1 md:px-3 md:py-2 rounded-md bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-[11px] transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 origin-bottom z-30 border border-white/10"
                                 >
                                     <i class="fas fa-info-circle text-[11px]"></i>

@@ -1,14 +1,17 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import type { Project } from '$lib/stores/projects';
 	import ImageUpload from './ImageUpload.svelte';
 
-    export let show = false;
-    export let projectData: Project | null = null;
+    interface Props {
+        show?: boolean;
+        projectData?: Project | null;
+        onsave?: (project: Project) => void;
+        onclose?: () => void;
+    }
+
+    let { show = $bindable(false), projectData = null, onsave, onclose }: Props = $props();
     
-    const dispatch = createEventDispatcher();
-    
-    let project: Project = {
+    let project: Project = $state({
         id: '',
         title: '',
         description: '',
@@ -16,34 +19,36 @@
         technologies: [],
         url: '',
         github: ''
-    };
+    });
 
-    $: if (show) {
-        if (projectData) {
-            // Clone to avoid mutating original until saved
-            project = JSON.parse(JSON.stringify(projectData));
-        } else {
-            // Reset for new project
-            project = {
-                id: crypto.randomUUID(),
-                title: '',
-                description: '',
-                image: '',
-                technologies: [],
-                url: '',
-                github: ''
-            };
+    $effect(() => {
+        if (show) {
+            if (projectData) {
+                // Clone to avoid mutating original until saved
+                project = JSON.parse(JSON.stringify(projectData));
+            } else {
+                // Reset for new project
+                project = {
+                    id: crypto.randomUUID(),
+                    title: '',
+                    description: '',
+                    image: '',
+                    technologies: [],
+                    url: '',
+                    github: ''
+                };
+            }
         }
-    }
+    });
 
     function handleSubmit() {
-        dispatch('save', project);
+        onsave?.(project);
         show = false;
     }
 
     function handleClose() {
         show = false;
-        dispatch('close');
+        onclose?.();
     }
 </script>
 
@@ -57,14 +62,14 @@
                 <h2 class="text-xl font-bold text-neutral-900 dark:text-white">
                     {projectData ? 'Edit Project' : 'New Project'}
                 </h2>
-                <button on:click={handleClose} class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
+                <button onclick={handleClose} class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
 
             <!-- Scrollable Body -->
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <form id="projectForm" on:submit|preventDefault={handleSubmit} class="space-y-5">
+                <form id="projectForm" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-5">
                     
                     <div>
                         <label class="block mb-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Title</label>
@@ -123,7 +128,7 @@
                         <input 
                             type="text" 
                             value={project.technologies.join(', ')}
-                            on:input={(e) => {
+                            oninput={(e) => {
                                 if (e.target) {
                                     project.technologies = (e.target as HTMLInputElement).value
                                         .split(',')
@@ -143,7 +148,7 @@
             <div class="p-4 border-t border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/5 flex justify-end gap-3">
                 <button 
                     type="button"
-                    on:click={handleClose}
+                    onclick={handleClose}
                     class="px-5 py-2.5 rounded-xl font-medium text-neutral-600 hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-white/10 transition-colors"
                 >
                     Cancel

@@ -1,8 +1,15 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import type { Snippet } from 'svelte';
     
-    let error: Error | null = null;
-    let errorDetails = '';
+    interface Props {
+        children: Snippet;
+    }
+
+    let { children }: Props = $props();
+    
+    let error: Error | null = $state(null);
+    let errorDetails = $state('');
     
     onMount(() => {
         window.addEventListener('error', (e: ErrorEvent) => {
@@ -34,12 +41,12 @@
             <p class="text-red-500 dark:text-red-300 text-sm">{error.message}</p>
             <button 
                 class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                on:click={() => window.location.reload()}
+                onclick={() => window.location.reload()}
             >
                 Reload Page
             </button>
         </div>
     </div>
 {:else}
-    <slot />
+    {@render children()}
 {/if}

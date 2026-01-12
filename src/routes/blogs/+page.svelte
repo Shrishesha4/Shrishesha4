@@ -4,10 +4,10 @@
     import { blogs } from '$lib/stores/blogs';
     import BlogViewer from '$lib/components/BlogViewer.svelte';
 
-    let searchQuery = '';
-    let selectedFilter = 'all';
-    let showFilterDropdown = false;
-    let availableTags: { name: string; count: number }[] = [];
+    let searchQuery = $state('');
+    let selectedFilter = $state('all');
+    let showFilterDropdown = $state(false);
+    let availableTags: { name: string; count: number }[] = $state([]);
 
     onMount(async () => {
         await blogs.load();
@@ -42,8 +42,9 @@
                 {#if searchQuery}
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
-                on:click={() => searchQuery = ''}
+                onclick={() => searchQuery = ''}
                 class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                aria-label="Clear search"
                 >
                 <i class="fas fa-times"></i>
             </button>
@@ -53,7 +54,7 @@
         <!-- Filter Dropdown -->
         <div class="relative">
             <button
-            on:click={() => showFilterDropdown = !showFilterDropdown}
+            onclick={() => showFilterDropdown = !showFilterDropdown}
             class="px-5 py-3 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
             >
             <i class="fas fa-filter text-neutral-500 dark:text-neutral-400"></i>
@@ -65,7 +66,7 @@
         <div class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 shadow-xl z-50 backdrop-blur-md overflow-hidden">
             <div class="p-2">
                 <button
-                on:click={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
+                onclick={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
                 class={"w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors " + (selectedFilter === 'all' ? 'bg-primary-100 dark:bg-primary-900' : '')}
                 >
                 <span class="font-medium">All Posts</span>
@@ -75,7 +76,7 @@
             <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 px-3 py-1">Tags</div>
             {#each availableTags as tag}
             <button
-            on:click={() => { selectedFilter = tag.name; showFilterDropdown = false; }}
+            onclick={() => { selectedFilter = tag.name; showFilterDropdown = false; }}
             class={"w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors text-sm " + (selectedFilter === tag.name ? 'bg-primary-100 dark:bg-primary-900' : '')}
             >
             <div class="flex items-center justify-between">
@@ -97,7 +98,7 @@
 </div>
 
 <!-- Click outside to close dropdown -->
-<svelte:window on:click={(e: Event) => {
+<svelte:window onclick={(e: Event) => {
     const target = (e.target as HTMLElement) || null;
     if (!target || !target.closest('.relative')) {
         showFilterDropdown = false;

@@ -6,9 +6,9 @@
     import { navigate } from '$lib/router';
     import { toast } from '$lib/stores/toast';
     
-    let searchQuery = '';
-    let selectedFilter = 'all';
-    let showFilterDropdown = false;
+    let searchQuery = $state('');
+    let selectedFilter = $state('all');
+    let showFilterDropdown = $state(false);
 
     // Category keywords for filtering
     const categoryKeywords = {
@@ -32,9 +32,9 @@
         return categories.length > 0 ? categories : ['Other'];
     }
     
-    let currentProjects: Project[] = [];
-    let loading = true;
-    let error = '';
+    let currentProjects: Project[] = $state([]);
+    let loading = $state(true);
+    let error = $state('');
 
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -55,9 +55,11 @@
         return () => unsubscribe();
     });
 
-    $: if ($projects) {
-        currentProjects = [...$projects];
-    }
+    $effect(() => {
+        if ($projects) {
+            currentProjects = [...$projects];
+        }
+    });
 
     function handleAdd() {
         navigate('/projects/new');
@@ -92,7 +94,7 @@
     }
 
     // Filtered projects based on search and category
-    $: filteredProjects = currentProjects.filter(project => {
+    let filteredProjects = $derived(currentProjects.filter(project => {
         const matchesSearch = !searchQuery || 
             project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,10 +104,10 @@
             categorizeProject(project.title, project.description, project.technologies).includes(selectedFilter);
         
         return matchesSearch && matchesFilter;
-    });
+    }));
 
     // Available categories from current projects
-    $: availableCategories = (() => {
+    let availableCategories = $derived((() => {
         const categoryCount = new Map<string, number>();
         currentProjects.forEach(project => {
             const categories = categorizeProject(project.title, project.description, project.technologies);
@@ -114,7 +116,7 @@
         return Array.from(categoryCount.entries())
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count);
-    })();
+    })());
 </script>
 
 {#if loading}
@@ -129,7 +131,7 @@
                 <p class="text-neutral-500 dark:text-neutral-400 text-sm">Manage your portfolio showcase</p>
             </div>
             <button 
-                on:click={handleAdd}
+                onclick={handleAdd}
                 class="glass-button glass-button-primary px-4 py-2 flex items-center gap-2 shadow-lg shadow-orange-500/20"
             >
                 <i class="fas fa-plus"></i> <span class="hidden sm:inline">New Project</span>
@@ -148,8 +150,9 @@
                 />
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
                 {#if searchQuery}
+                    <!-- svelte-ignore a11y_consider_explicit_label -->
                     <button
-                        on:click={() => searchQuery = ''}
+                        onclick={() => searchQuery = ''}
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
                     >
                         <i class="fas fa-times"></i>
@@ -160,7 +163,7 @@
             <!-- Filter Dropdown -->
             <div class="relative">
                 <button
-                    on:click={() => showFilterDropdown = !showFilterDropdown}
+                    onclick={() => showFilterDropdown = !showFilterDropdown}
                     class="px-4 py-2 rounded-lg bg-white/50 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white dark:hover:bg-white/10 transition-all flex items-center gap-2 whitespace-nowrap"
                 >
                     <i class="fas fa-filter text-neutral-500"></i>
@@ -172,7 +175,7 @@
                     <div class="absolute right-0 mt-2 w-56 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl z-50 overflow-hidden">
                         <div class="p-2">
                             <button
-                                on:click={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
+                                onclick={() => { selectedFilter = 'all'; showFilterDropdown = false; }}
                                 class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors {selectedFilter === 'all' ? 'bg-orange-100 dark:bg-orange-900/30' : ''}"
                             >
                                 All Projects
@@ -181,7 +184,7 @@
                                 <div class="border-t border-neutral-200 dark:border-neutral-700 my-2"></div>
                                 {#each availableCategories as category}
                                     <button
-                                        on:click={() => { selectedFilter = category.name; showFilterDropdown = false; }}
+                                        onclick={() => { selectedFilter = category.name; showFilterDropdown = false; }}
                                         class="w-full text-left px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white transition-colors text-sm {selectedFilter === category.name ? 'bg-orange-100 dark:bg-orange-900/30' : ''}"
                                     >
                                         <div class="flex items-center justify-between">
@@ -237,20 +240,20 @@
                         <!-- Actions (match BlogEditor style) -->
                         <div class="mt-4 flex sm:flex-col gap-3 w-full sm:w-auto">
                             <button 
-                                on:click={() => toggleFeatured(project)}
+                                onclick={() => toggleFeatured(project)}
                                 class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 {project.featured ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700' : ''}"
                                 title={project.featured ? 'Remove from featured' : 'Add to featured'}
                             >
                                 <i class="fas fa-star"></i> <span class="sm:hidden">{project.featured ? 'Featured' : 'Feature'}</span>
                             </button>
                             <button 
-                                on:click={() => handleEdit(project)}
+                                onclick={() => handleEdit(project)}
                                 class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:text-orange-600 dark:hover:text-orange-400"
                             >
                                 <i class="fas fa-pen"></i> <span class="sm:hidden">Edit</span>
                             </button>
                             <button 
-                                on:click={() => handleRemove(project)}
+                                onclick={() => handleRemove(project)}
                                 class="w-full sm:w-auto glass-button-outline px-3 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/30"
                             >
                                 <i class="fas fa-trash"></i> <span class="sm:hidden">Delete</span>

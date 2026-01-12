@@ -5,14 +5,18 @@
     import { onMount } from 'svelte';
     import LoadingSpinner from './LoadingSpinner.svelte';
     
-    export let projects: Project[] = [];
-    export let error: string = '';
-    export let onRetry: () => void;
+    interface Props {
+        projects?: Project[];
+        error?: string;
+        onRetry: () => void;
+    }
+
+    let { projects = [], error = '', onRetry }: Props = $props();
     
-    let imageLoading: { [key: string]: boolean } = {};
-    let visibleCards: Set<number> = new Set();
-    let observer: IntersectionObserver | null = null;
-    let activeCard: number | null = null;
+    let imageLoading: { [key: string]: boolean } = $state({});
+    let visibleCards: Set<number> = $state(new Set());
+    let observer: IntersectionObserver | null = $state(null);
+    let activeCard: number | null = $state(null);
 
     onMount(() => {
         // Setup Observer for animations
@@ -69,7 +73,7 @@
     {#if error}
         <div class="rounded-xl bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/10 dark:text-red-400 border border-red-100 dark:border-red-900/30">
             {error}
-            <button class="ml-4 text-sm font-bold underline hover:text-red-800 transition-colors" on:click={onRetry}>
+            <button class="ml-4 text-sm font-bold underline hover:text-red-800 transition-colors" onclick={onRetry}>
                 Try again
             </button>
         </div>
@@ -89,7 +93,7 @@
                     class:opacity-0={!visibleCards.has(index)}
                     class:animate-fade-in-up={visibleCards.has(index)}
                     style="animation-delay: {index * 100}ms;"
-                    on:click={() => toggleModal(index)}
+                    onclick={() => toggleModal(index)}
                     role="button"
                     tabindex="0"
                 >
@@ -107,8 +111,8 @@
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt={project.title}
                                 class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 {activeCard === index ? 'scale-110' : ''}"
-                                on:load={() => handleImageLoad(project.id)}
-                                on:loadstart={() => handleImageLoadStart(project.id)}
+                                onload={() => handleImageLoad(project.id)}
+                                onloadstart={() => handleImageLoadStart(project.id)}
                             />
                         {/if}
                     </div>
@@ -156,7 +160,7 @@
                                         href={project.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        on:click|stopPropagation
+                                        onclick={(e) => e.stopPropagation()}
                                         class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white text-neutral-900 hover:bg-primary-50 font-semibold text-sm transition-all duration-300 hover:scale-105"
                                     >
                                         <i class="fas fa-external-link-alt"></i>
@@ -168,7 +172,7 @@
                                         href={project.github}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        on:click|stopPropagation
+                                        onclick={(e) => e.stopPropagation()}
                                         class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                                     >
                                         <i class="fab fa-github"></i>
@@ -177,7 +181,7 @@
                                 {/if}
                                 <a 
                                     href="/projects/{createSlug(project.title)}"
-                                    on:click|stopPropagation
+                                    onclick={(e) => e.stopPropagation()}
                                     class="flex-1 flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 backdrop-blur-md font-semibold text-sm transition-all duration-300 hover:scale-105 border border-white/10"
                                 >
                                     <i class="fas fa-info-circle"></i>
