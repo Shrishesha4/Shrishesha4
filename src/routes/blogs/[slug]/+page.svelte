@@ -5,17 +5,43 @@
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import TextToSpeech from '$lib/components/TextToSpeech.svelte';
 
-    let currentBlog: typeof $blogs[0] | undefined;
-    let loading = true;
-    let readerMode = false;
-    let contentRef: HTMLElement;
-    let speechText = '';
-    let isPlaying = false;
+    let currentBlog = $state<typeof $blogs[0] | undefined>(undefined);
+    let loading = $state(true);
+    let readerMode = $state(false);
+    let contentRef = $state<HTMLElement>();
+    let speechText = $state('');
+    let isPlaying = $state(false);
+    let darkMode = $state(false);
     
     // Map of character start index -> the specific span element for that word
-    let wordSpans: { start: number; end: number; element: HTMLElement }[] = [];
-    let currentHighlight: HTMLElement | null = null;
-    let isPrepared = false;
+    let wordSpans = $state<{ start: number; end: number; element: HTMLElement }[]>([]);
+    let currentHighlight = $state<HTMLElement | null>(null);
+    let isPrepared = $state(false);
+
+    // Initialize dark mode from system preference or localStorage
+    function initDarkMode() {
+        const stored = localStorage.getItem('blog-dark-mode');
+        if (stored !== null) {
+            darkMode = stored === 'true';
+        } else {
+            darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        applyDarkMode();
+    }
+
+    function applyDarkMode() {
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+
+    function toggleDarkMode() {
+        darkMode = !darkMode;
+        localStorage.setItem('blog-dark-mode', String(darkMode));
+        applyDarkMode();
+    }
 
     // We do not use $: for prepareSpeechData because on mobile, 
     // contentRef might exist but innerHTML might not be rendered yet.
@@ -95,6 +121,7 @@
     }
 
     onMount(async () => {
+        initDarkMode();
         try {
             await blogs.load();
             currentBlog = $blogs.find(blog => blog.slug === $page.params.slug);
@@ -110,10 +137,10 @@
         readerMode = !readerMode;
     }
 
-    function handleSpeech(e: CustomEvent<SpeechSynthesisEvent>) {
+    function handleSpeech(e: SpeechSynthesisEvent) {
         if (!wordSpans.length) return;
         
-        const { charIndex } = e.detail;
+        const { charIndex } = e;
         
         // Remove previous highlight
         if (currentHighlight) {
@@ -148,33 +175,47 @@
 {#if loading}
     <LoadingSpinner />
 {:else if currentBlog}
-    <article class="pt-0 p-4 md:pt-0 md:p-8 transition-all duration-500 ease-in-out">
-        <div class="{readerMode ? 'max-w-2xl' : 'max-w-7xl'} mx-auto transition-all duration-500 ease-in-out">
+    <article class="min-h-screen bg-white dark:bg-neutral-950 pt-0 p-4 md:pt-0 md:p-8 transition-all duration-500 ease-in-out">
+        <!-- Full width header with title -->
+        <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between mb-8">
                 <a href="/blogs" class="inline-flex items-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
                     <i class="fas fa-chevron-left mr-2"></i>
                     Posts
                 </a>
                 
-                <button 
-                    on:click={toggleReaderMode}
-                    class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
-                    title={readerMode ? "Exit Reader Mode" : "Enter Reader Mode"}
-                    aria-label={readerMode ? "Exit Reader Mode" : "Enter Reader Mode"}
-                >
-                    <i class="fas {readerMode ? 'fa-book-open' : 'fa-book'} text-xl"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <!-- Dark Mode Toggle -->
+                    <button 
+                        onclick={toggleDarkMode}
+                        class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+                        title={darkMode ? "Light Mode" : "Dark Mode"}
+                        aria-label={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    >
+                        <i class="fas {darkMode ? 'fa-sun' : 'fa-moon'} text-xl"></i>
+                    </button>
+                    
+                    <!-- Reader Mode Toggle -->
+                    <button 
+                        onclick={toggleReaderMode}
+                        class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+                        title={readerMode ? "Exit Reader Mode" : "Enter Reader Mode"}
+                        aria-label={readerMode ? "Exit Reader Mode" : "Enter Reader Mode"}
+                    >
+                        <i class="fas {readerMode ? 'fa-book-open' : 'fa-book'} text-xl"></i>
+                    </button>
+                </div>
             </div>
 
             <header class="mb-8 {readerMode ? 'text-center' : ''}">
-                <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight {readerMode ? 'text-neutral-900 dark:text-neutral-100' : ''}">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight text-neutral-900 dark:text-neutral-100">
                     {currentBlog.title}
                 </h1>
                 <div class="flex items-center {readerMode ? 'justify-center' : 'justify-between'} gap-4 text-sm text-neutral-500 dark:text-neutral-400">
                     <div class="flex flex-wrap gap-2 items-center">
                         {#if !readerMode}
                             {#each currentBlog.tags as tag}
-                                <span class="px-3 py-1 glass-button dark:bg-neutral-800 rounded-full text-sm flex-shrink-0">
+                                <span class="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full text-sm flex-shrink-0">
                                     {tag}
                                 </span>
                             {/each}
@@ -196,7 +237,10 @@
                     />
                 </div>
             {/if}
+        </div>
 
+        <!-- Constrained width content area -->
+        <div class="{readerMode ? 'max-w-2xl' : 'max-w-3xl'} mx-auto transition-all duration-500 ease-in-out">
             <div class="prose dark:prose-invert max-w-none {readerMode ? 'prose-lg md:prose-xl leading-relaxed' : 'prose-lg'} marker:text-primary-500">
                 <!-- bind:this triggers reactivity, but we handle logic in onMount/tick -->
                 <div bind:this={contentRef} class:tts-blur-mode={isPlaying} class="transition-all duration-300">
@@ -204,7 +248,7 @@
                 </div>
             </div>
             
-            <TextToSpeech text={speechText} on:speech={handleSpeech} bind:isPlaying />
+            <TextToSpeech text={speechText} onspeech={handleSpeech} bind:isPlaying />
         </div>
     </article>
 {:else}

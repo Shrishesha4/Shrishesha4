@@ -28,7 +28,7 @@
             (blog.tags && blog.tags.some(tag => tag.toLowerCase() === selectedFilter.toLowerCase()));
 
         return matchesSearch && matchesFilter;
-    }));
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 </script>
 
 <div class="space-y-8">

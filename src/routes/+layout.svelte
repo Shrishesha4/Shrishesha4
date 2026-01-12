@@ -27,6 +27,7 @@
     
     let isStargaze = $derived($page.url.pathname.startsWith('/stargaze'));
     let isResume = $derived($page.url.pathname.startsWith('/resume'));
+    let isBlogPost = $derived($page.url.pathname.match(/^\/blogs\/[^/]+$/));
     
     let showWarpTransition = $state(false);
     let warpDirection: 'in' | 'out' = $state('in');
@@ -94,7 +95,7 @@
 </script>
 
 <div class="min-h-screen relative {contentZoom}">
-    {#if !isResume}
+    {#if !isResume && !isBlogPost}
         {#if isStargaze}
             <ParticlesBackground
                 quantity={$profile.particlesQuantity/3}
@@ -112,9 +113,13 @@
         {#if $showNavbar}
             <Navbar/>
         {/if}
+    {:else if !isResume}
+        {#if $showNavbar}
+            <Navbar/>
+        {/if}
     {/if}
 
-    <main class="{isResume ? '' : 'pt-8 md:pt-28 px-4'}">
+    <main class="{isResume ? '' : isBlogPost ? '' : 'pt-8 md:pt-28 px-4'}">
         {@render children()}
     </main>
     <Toast />

@@ -357,7 +357,7 @@
                                 aria-label={feed.enabled ? `Disable ${feed.title}` : `Enable ${feed.title}`}
                                 class="w-10 h-6 rounded-full transition-colors relative {feed.enabled ? 'bg-orange-500' : 'bg-neutral-300 dark:bg-neutral-700'}"
                             >
-                                <span class="absolute top-0.5 transition-transform w-5 h-5 bg-white rounded-full shadow {feed.enabled ? 'translate-x-4' : 'translate-x-0.5'}"></span>
+                                <span class="absolute top-0.5 left-0.5 transition-transform w-5 h-5 bg-white rounded-full shadow {feed.enabled ? 'translate-x-4' : 'translate-x-0'}"></span>
                             </button>
                             <div>
                                 <p class="font-medium text-neutral-900 dark:text-white text-sm">{feed.title}</p>
