@@ -1,12 +1,10 @@
 {
-  "rewrites": [
-    { "source": "/api/rss-proxy", "destination": "/api/rss-proxy.ts" },
-    { "source": "/api/generate-blog", "destination": "/api/generate-blog.ts" },
-    { "source": "/api/generate-blog-from-rss", "destination": "/api/generate-blog-from-rss.ts" },
-    { "source": "/api/generate-summary", "destination": "/api/generate-summary.ts" },
-    { "source": "/api/enhance-resume-summary", "destination": "/api/enhance-resume-summary.ts" }
-  ],
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3"
+    }
+  },
   "env": {
-    "VITE_GEMINI_API_KEY": "@gemini-api-key"
+    "GEMINI_API_KEY": "@gemini-api-key"
   }
 }
