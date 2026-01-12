@@ -93,26 +93,10 @@
 
 			// Filter by featured repos from profile, or fallback to top 4
 			const featuredRepoNames = $profile.featuredRepos || [];
-			console.log('=== PROFILE DATA ===');
-			console.log('Full profile:', $profile);
-			console.log('Featured repo names from profile:', featuredRepoNames);
-			console.log(
-				'All repos:',
-				repos.map((r) => r.name)
-			);
-
 			if (featuredRepoNames.length > 0) {
 				featuredRepos = repos.filter((repo) => featuredRepoNames.includes(repo.name));
-				console.log(
-					'Filtered featured repos:',
-					featuredRepos.map((r) => r.name)
-				);
 			} else {
 				featuredRepos = repos.slice(0, 4);
-				console.log(
-					'Using default top 4 repos:',
-					featuredRepos.map((r) => r.name)
-				);
 			}
 
 			loading = false;
