@@ -175,7 +175,7 @@
 {#if loading}
     <LoadingSpinner />
 {:else if currentBlog}
-    <article class="min-h-screen bg-white dark:bg-neutral-950 pt-0 p-4 md:pt-0 md:p-8 transition-all duration-500 ease-in-out">
+    <article class="min-h-screen bg-white dark:bg-neutral-950 pt-4 p-4 md:pt-20 md:p-8 transition-all duration-500 ease-in-out">
         <!-- Full width header with title -->
         <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between mb-8">

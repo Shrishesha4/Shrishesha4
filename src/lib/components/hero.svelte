@@ -128,7 +128,7 @@
             </div>
             
             <!-- Social Links for Desktop -->
-            <div class="hidden md:flex flex-row gap-8 mr-20 mb-3">
+            <div class="hidden md:flex flex-row gap-8 mb-3">
                 {#each $socialLinks.links as link, i (link.id)}
                     <a
                         href={link.url}
@@ -139,7 +139,7 @@
                         aria-label={link.label}
                     >
                         {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
-                            <img src="{link.icon}" alt="{link.label}" class="w-6 h-6" />
+                            <img src="{link.icon}" alt="{link.label}" class="w-9 h-9 text-3xl" />
                         {:else}
                             <i class="{link.icon} text-2xl"></i>
                         {/if}

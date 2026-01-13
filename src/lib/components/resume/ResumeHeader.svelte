@@ -2,11 +2,16 @@
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
     import { socialLinks } from '$lib/stores/socialLinks';
+    import { onMount } from 'svelte';
 
-    // Helper to get hostname for cleaner display
+    onMount(() => {
+        socialLinks.load();
+    });
+
+    // Helper to clean URL for display (remove protocol)
     function getHostname(url: string) {
         try {
-            return new URL(url).hostname;
+            return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
         } catch {
             return url;
         }
@@ -43,11 +48,11 @@
             </div>
 
             <!-- Social Links -->
-             <div class="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-600">
-                {#each $socialLinks.links as link (link.id)}
+                         <div class="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-600">
+                {#each $socialLinks.links.filter(l => l.enabled && !l.url.startsWith('mailto:')) as link (link.id)}
                     <div class="flex items-center gap-2">
                         {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
-                            <img src="{link.icon}" alt="{link.label}" class="w-4 h-4" />
+                            <img src="{link.icon}" alt="{link.label}" class="w-4 h-4 inline-block brightness-0" />
                         {:else}
                             <i class="{link.icon}"></i>
                         {/if}

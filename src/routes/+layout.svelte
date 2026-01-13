@@ -142,9 +142,9 @@
             {#each Array(250) as _, i}
                 {@const angle = (i / 250) * Math.PI * 2 + (Math.random() * 0.1)}
                 {@const delay = Math.random() * 0.15}
-                {@const duration = 0.6 + Math.random() * 0.3}
-                {@const brightness = 0.7 + Math.random() * 0.3}
-                {@const length = 80 + Math.random() * 120}
+                {@const duration = 0.6 + Math.random() * 12}
+                {@const brightness = 0.7 + Math.random() * 1.3}
+                {@const length = 80 + Math.random() * 240}
                 <div 
                     class="star-streak"
                     style="
@@ -256,12 +256,12 @@
         0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
         30% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
         70% { opacity: 1; transform: translate(-50%, -50%) scale(3); }
-        100% { opacity: 1; transform: translate(-50%, -50%) scale(15); }
+        100% { opacity: 1; transform: translate(-50%, -50%) scale(5); }
     }
 
     .star-streak {
         position: absolute;
-        width: 2px;
+        width: 1.5px;
         height: 0;
         transform-origin: center top;
         background: linear-gradient(to bottom, 
@@ -274,11 +274,11 @@
     }
 
     .warp-container.in .star-streak {
-        animation: streakOut 1.5s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+        animation: streakOut 1.5s cubic-bezier(0.4, 0, 0.8, 1) forwards;
     }
 
     .warp-container.out .star-streak {
-        animation: streakIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: streakIn 1.2s cubic-bezier(0.8, 0, 0.4, 1) forwards;
     }
 
     @keyframes streakOut {
