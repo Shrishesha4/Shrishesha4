@@ -193,6 +193,8 @@ export const defaultProfile: Profile = {
 function createProfileStore() {
     const { subscribe, set } = writable<Profile>(defaultProfile);
     let unsubscribe: (() => void) | null = null;
+    let isLoading = false;
+    let loadPromise: Promise<void> | null = null;
 
     return {
         subscribe,
@@ -209,42 +211,57 @@ function createProfileStore() {
             }
         },
         load: async () => {
-            try {
-                if (unsubscribe) {
-                    unsubscribe();
-                }
+            // Prevent concurrent loads - return existing promise if already loading
+            if (isLoading && loadPromise) {
+                return loadPromise;
+            }
+            
+            isLoading = true;
+            loadPromise = (async () => {
+                try {
+                    if (unsubscribe) {
+                        unsubscribe();
+                    }
 
-                const profilesRef = collection(db, 'profiles');
-                const profileSnapshot = await getDocs(profilesRef);
-                
-                if (!profileSnapshot.empty) {
-                    const firstDoc = profileSnapshot.docs[0];
-                    unsubscribe = onSnapshot(
-                        doc(db, 'profiles', firstDoc.id),
-                        (docSnapshot) => {
-                            if (docSnapshot.exists()) {
-                                set(docSnapshot.data() as Profile);
-                            } else {
+                    const profilesRef = collection(db, 'profiles');
+                    const profileSnapshot = await getDocs(profilesRef);
+                    
+                    if (!profileSnapshot.empty) {
+                        const firstDoc = profileSnapshot.docs[0];
+                        unsubscribe = onSnapshot(
+                            doc(db, 'profiles', firstDoc.id),
+                            (docSnapshot) => {
+                                if (docSnapshot.exists()) {
+                                    set(docSnapshot.data() as Profile);
+                                } else {
+                                    set(defaultProfile);
+                                }
+                            },
+                            (error) => {
+                                console.error('Profile snapshot error:', error);
                                 set(defaultProfile);
                             }
-                        },
-                        (error) => {
-                            console.error('Profile snapshot error:', error);
-                            set(defaultProfile);
-                        }
-                    );
-                } else {
+                        );
+                    } else {
+                        set(defaultProfile);
+                    }
+                } catch (error) {
+                    console.error('Error loading profile:', error);
                     set(defaultProfile);
+                } finally {
+                    isLoading = false;
                 }
-            } catch (error) {
-                console.error('Error loading profile:', error);
-                set(defaultProfile);
-            }
+            })();
+            
+            return loadPromise;
         },
         cleanup: () => {
             if (unsubscribe) {
                 unsubscribe();
+                unsubscribe = null;
             }
+            isLoading = false;
+            loadPromise = null;
         }
     };
 }

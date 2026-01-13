@@ -18,27 +18,34 @@
 	let visibleCards: Set<number> = $state(new Set());
 	let observer: IntersectionObserver | null = $state(null);
 	let activeCard: number | null = $state(null);
+	let isMounted = true; // Flag to prevent state updates after unmount
 
 	onMount(() => {
+		isMounted = true;
 		checkMobile();
 		window.addEventListener('resize', checkMobile);
 
 		// Load profile first to get featured repos list and wait for data
 		(async () => {
+			let profileUnsubscribe: (() => void) | null = null;
+			
 			try {
 				await profile.load();
 				// Wait for profile data to be available in the store
 				await new Promise<void>((resolve) => {
-					let unsubscribe: (() => void) | null = null;
-					unsubscribe = profile.subscribe((p) => {
+					profileUnsubscribe = profile.subscribe((p) => {
 						if (p && (p.featuredRepos || p.name)) {
-							if (unsubscribe) unsubscribe();
+							if (profileUnsubscribe) profileUnsubscribe();
+							profileUnsubscribe = null;
 							resolve();
 						}
 					});
 					// Timeout after 2 seconds to prevent hanging
 					setTimeout(() => {
-						if (unsubscribe) unsubscribe();
+						if (profileUnsubscribe) {
+							profileUnsubscribe();
+							profileUnsubscribe = null;
+						}
 						resolve();
 					}, 2000);
 				});
@@ -46,11 +53,14 @@
 				console.error('Error loading profile:', err);
 			}
 
-			// Call async function without blocking cleanup
-			loadRepositories();
+			// Only load repositories if component is still mounted
+			if (isMounted) {
+				loadRepositories();
+			}
 		})();
 
 		return () => {
+			isMounted = false;
 			if (observer) {
 				observer.disconnect();
 			}
@@ -87,8 +97,13 @@
 	});
 
 	async function loadRepositories() {
+		if (!isMounted) return; // Don't update state if component unmounted
+		
 		try {
 			repos = await githubService.getRepositories();
+			
+			if (!isMounted) return; // Check again after async operation
+			
 			repos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
 
 			// Filter by featured repos from profile, or fallback to all repos sorted by stars
@@ -100,12 +115,16 @@
 			}
 
 			loading = false;
-			setTimeout(() => setupScrollObserver(), 200);
+			if (isMounted) {
+				setTimeout(() => setupScrollObserver(), 200);
+			}
 		} catch (err) {
 			console.error('Error fetching repositories:', err);
-			error = 'Failed to load repositories';
-			loading = false;
-			onerror?.();
+			if (isMounted) {
+				error = 'Failed to load repositories';
+				loading = false;
+				onerror?.();
+			}
 		}
 	}
 

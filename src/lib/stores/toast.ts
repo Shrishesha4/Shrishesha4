@@ -9,12 +9,27 @@ interface Toast {
 
 function createToastStore() {
     const { subscribe, set } = writable<Toast | null>(null);
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     return {
         subscribe,
         show: (message: string, type: ToastType) => {
+            // Clear any existing timeout to prevent timer stacking
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
             set({ message, type });
-            setTimeout(() => set(null), 3000);
+            timeoutId = setTimeout(() => {
+                set(null);
+                timeoutId = null;
+            }, 3000);
+        },
+        dismiss: () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            set(null);
         }
     };
 }

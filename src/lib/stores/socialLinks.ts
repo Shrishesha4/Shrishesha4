@@ -23,43 +23,60 @@ const defaultConfig: SocialLinksConfig = {
 function createSocialLinksStore() {
     const { subscribe, set } = writable<SocialLinksConfig>(defaultConfig);
     let unsubscribe: (() => void) | null = null;
+    let isLoading = false;
+    let loadPromise: Promise<void> | null = null;
 
     return {
         subscribe,
         load: async () => {
-            try {
-                if (unsubscribe) {
-                    unsubscribe();
-                }
+            // Prevent concurrent loads - return existing promise if already loading
+            if (isLoading && loadPromise) {
+                return loadPromise;
+            }
+            
+            isLoading = true;
+            loadPromise = (async () => {
+                try {
+                    if (unsubscribe) {
+                        unsubscribe();
+                    }
 
-                unsubscribe = onSnapshot(
-                    doc(db, 'config', 'socialLinks'),
-                    (doc) => {
-                        if (doc.exists()) {
-                            const data = doc.data() as SocialLinksConfig;
-                            // Sort by order and filter only enabled links
-                            const sortedLinks = [...(data.links || [])]
-                                .filter(link => link.enabled)
-                                .sort((a, b) => a.order - b.order);
-                            set({ links: sortedLinks });
-                        } else {
+                    unsubscribe = onSnapshot(
+                        doc(db, 'config', 'socialLinks'),
+                        (doc) => {
+                            if (doc.exists()) {
+                                const data = doc.data() as SocialLinksConfig;
+                                // Sort by order and filter only enabled links
+                                const sortedLinks = [...(data.links || [])]
+                                    .filter(link => link.enabled)
+                                    .sort((a, b) => a.order - b.order);
+                                set({ links: sortedLinks });
+                            } else {
+                                set(defaultConfig);
+                            }
+                        },
+                        (error) => {
+                            console.error('Social links listener error:', error);
                             set(defaultConfig);
                         }
-                    },
-                    (error) => {
-                        console.error('Social links listener error:', error);
-                        set(defaultConfig);
-                    }
-                );
-            } catch (error) {
-                console.error('Error loading social links:', error);
-                set(defaultConfig);
-            }
+                    );
+                } catch (error) {
+                    console.error('Error loading social links:', error);
+                    set(defaultConfig);
+                } finally {
+                    isLoading = false;
+                }
+            })();
+            
+            return loadPromise;
         },
         cleanup: () => {
             if (unsubscribe) {
                 unsubscribe();
+                unsubscribe = null;
             }
+            isLoading = false;
+            loadPromise = null;
         }
     };
 }

@@ -34,14 +34,10 @@
     let warpDirection: 'in' | 'out' = $state('in');
     let contentZoom = $state('');
 
+    // Only inject analytics once - in browser environment
     if (browser) {
         injectAnalytics();
         injectSpeedInsights();
-    }
-    
-    if (!dev) {
-        injectSpeedInsights();
-        injectAnalytics();
     }
 
     beforeNavigate(({ to, from }) => {

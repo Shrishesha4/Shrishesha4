@@ -13,18 +13,44 @@ export const authState = writable(false);
 const storedAuth = typeof window !== 'undefined' ? localStorage.getItem('isAuthenticated') === 'true' : false;
 export const isAuthenticated = writable(storedAuth);
 
-setPersistence(auth, browserLocalPersistence);
+// Store unsubscribe functions to prevent memory leaks
+let authUnsubscribe: (() => void) | null = null;
+let storeUnsubscribe: (() => void) | null = null;
+let isInitialized = false;
 
-isAuthenticated.subscribe(value => {
-    if (typeof window !== 'undefined') {
+// Initialize auth - call this from the app layout
+export function initAuth() {
+    if (isInitialized || typeof window === 'undefined') return;
+    isInitialized = true;
+
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    storeUnsubscribe = isAuthenticated.subscribe(value => {
         localStorage.setItem('isAuthenticated', value.toString());
-    }
-});
+    });
 
-onAuthStateChanged(auth, (user) => {
-    const authState = !!user;
-    isAuthenticated.set(authState);
-});
+    authUnsubscribe = onAuthStateChanged(auth, (user) => {
+        isAuthenticated.set(!!user);
+    });
+}
+
+// Cleanup auth subscriptions - call this when the app unmounts
+export function cleanupAuth() {
+    if (authUnsubscribe) {
+        authUnsubscribe();
+        authUnsubscribe = null;
+    }
+    if (storeUnsubscribe) {
+        storeUnsubscribe();
+        storeUnsubscribe = null;
+    }
+    isInitialized = false;
+}
+
+// Auto-initialize in browser (but can be cleaned up later)
+if (typeof window !== 'undefined') {
+    initAuth();
+}
 
 export async function login(username: string, password: string) {
     try {

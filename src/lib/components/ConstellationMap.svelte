@@ -937,7 +937,59 @@
             document.body.style.overflow = prevBodyOverflow ?? '';
         }
 
-        // dispose geometries/materials...
+        // Dispose Three.js resources to prevent memory leaks
+        if (galaxy) {
+            galaxy.geometry.dispose();
+            (galaxy.material as THREE.Material).dispose();
+        }
+        if (galaxyDust) {
+            galaxyDust.geometry.dispose();
+            (galaxyDust.material as THREE.Material).dispose();
+        }
+        
+        // Clear solar system resources
+        clearSolarSystem();
+        
+        // Clear reticle
+        updateReticle(null);
+        
+        // Dispose post-processing
+        if (composer) {
+            composer.dispose();
+        }
+        
+        // Dispose renderer and release WebGL context
+        if (renderer) {
+            renderer.dispose();
+            renderer.forceContextLoss();
+        }
+        
+        // Dispose controls
+        if (controls) {
+            controls.dispose();
+        }
+        
+        // Clear the scene
+        if (scene) {
+            scene.traverse((object) => {
+                if (object instanceof THREE.Mesh) {
+                    object.geometry?.dispose();
+                    if (object.material) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(m => m.dispose());
+                        } else {
+                            object.material.dispose();
+                        }
+                    }
+                } else if (object instanceof THREE.Points) {
+                    object.geometry?.dispose();
+                    if (object.material) {
+                        (object.material as THREE.Material).dispose();
+                    }
+                }
+            });
+            scene.clear();
+        }
     });
 </script>
 

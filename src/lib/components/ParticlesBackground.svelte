@@ -25,6 +25,7 @@
     let lastFrameTime = 0;
     const TARGET_FPS = 30; // Lower FPS for better battery life
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
+    let destroyed = false; // Flag to stop animation after component unmount
 
     // Check for reduced motion preference
     function checkReducedMotion() {
@@ -95,6 +96,9 @@
     let deltaTime = 0;
 
     function animate(currentTime: number) {
+        // Stop animation if component was destroyed
+        if (destroyed) return;
+        
         // Frame limiting for performance
         const elapsed = currentTime - lastFrameTime;
         if (elapsed < FRAME_INTERVAL) {
@@ -391,9 +395,11 @@
     }
 
     onDestroy(() => {
+        destroyed = true; // Prevent any pending animation frames from running
         if (animationFrame) {
             cancelAnimationFrame(animationFrame);
         }
+        lastPositions.clear(); // Clear the Map to free memory
     });
 </script>
 

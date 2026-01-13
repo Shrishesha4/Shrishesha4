@@ -16,6 +16,8 @@ export interface Project {
 function createProjectsStore() {
     const { subscribe, set } = writable<Project[]>([]);
     let unsubscribe: (() => void) | null = null;
+    let isLoading = false;
+    let loadPromise: Promise<void> | null = null;
 
     return {
         subscribe,
@@ -32,53 +34,68 @@ function createProjectsStore() {
             }
         },
         load: async () => {
-            try {
-                if (unsubscribe) {
-                    unsubscribe();
-                }
+            // Prevent concurrent loads - return existing promise if already loading
+            if (isLoading && loadPromise) {
+                return loadPromise;
+            }
+            
+            isLoading = true;
+            loadPromise = (async () => {
+                try {
+                    if (unsubscribe) {
+                        unsubscribe();
+                    }
 
-                if (auth.currentUser) {
-                    unsubscribe = onSnapshot(
-                        doc(db, 'projects', auth.currentUser.uid),
-                        (doc) => {
-                            if (doc.exists()) {
-                                const projects = doc.data().projects || [];
+                    if (auth.currentUser) {
+                        unsubscribe = onSnapshot(
+                            doc(db, 'projects', auth.currentUser.uid),
+                            (doc) => {
+                                if (doc.exists()) {
+                                    const projects = doc.data().projects || [];
+                                    set(projects);
+                                } else {
+                                    set([]);
+                                }
+                            },
+                            (error) => {
+                                console.error('Projects listener error:', error);
+                                set([]);
+                            }
+                        );
+                    } else {
+                        try {
+                            const projectsRef = collection(db, 'projects');
+                            const projectsSnapshot = await getDocs(projectsRef);
+                            
+                            if (!projectsSnapshot.empty) {
+                                const firstDoc = projectsSnapshot.docs[0];
+                                const projects = firstDoc.data().projects || [];
                                 set(projects);
                             } else {
                                 set([]);
                             }
-                        },
-                        (error) => {
-                            console.error('Projects listener error:', error);
+                        } catch (error) {
+                            console.error('Error fetching public projects:', error);
                             set([]);
                         }
-                    );
-                } else {
-                    try {
-                        const projectsRef = collection(db, 'projects');
-                        const projectsSnapshot = await getDocs(projectsRef);
-                        
-                        if (!projectsSnapshot.empty) {
-                            const firstDoc = projectsSnapshot.docs[0];
-                            const projects = firstDoc.data().projects || [];
-                            set(projects);
-                        } else {
-                            set([]);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching public projects:', error);
-                        set([]);
                     }
+                } catch (error) {
+                    console.error('Error loading projects:', error);
+                    set([]);
+                } finally {
+                    isLoading = false;
                 }
-            } catch (error) {
-                console.error('Error loading projects:', error);
-                set([]);
-            }
+            })();
+            
+            return loadPromise;
         },
         cleanup: () => {
             if (unsubscribe) {
                 unsubscribe();
+                unsubscribe = null;
             }
+            isLoading = false;
+            loadPromise = null;
         }
     };
 }

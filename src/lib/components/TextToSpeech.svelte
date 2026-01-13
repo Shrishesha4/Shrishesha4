@@ -137,6 +137,10 @@
             synth.cancel();
             (window as any).svelteUtterance = null;
         }
+        // Clean up onvoiceschanged handler
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = null;
+        }
     });
 </script>
 

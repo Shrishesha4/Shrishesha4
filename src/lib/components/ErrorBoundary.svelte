@@ -12,7 +12,7 @@
     let errorDetails = $state('');
     
     onMount(() => {
-        window.addEventListener('error', (e: ErrorEvent) => {
+        const handleError = (e: ErrorEvent) => {
             error = e.error;
             errorDetails = e.error?.message || 'An unexpected error occurred';
             console.error('Caught error:', {
@@ -20,18 +20,14 @@
                 stack: e.error?.stack,
                 name: e.error?.name
             });
-        });
+        };
+
+        window.addEventListener('error', handleError);
 
         return () => {
-            window.removeEventListener('error', () => {});
+            window.removeEventListener('error', handleError);
         };
     });
-
-    function handleRetry() {
-        error = null;
-        errorDetails = '';
-        window.location.reload();
-    }
 </script>
 
 {#if error}
