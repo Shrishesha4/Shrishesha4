@@ -29,7 +29,7 @@
 
     onDestroy(() => {
         if (typed) typed.destroy();
-        profile.cleanup();
+        // Note: Don't call profile.cleanup() here - the layout handles it globally
     });
 
     $effect(() => {

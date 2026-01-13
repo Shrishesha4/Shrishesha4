@@ -4,6 +4,7 @@
     import { projects } from '$lib/stores/projects';
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
+    import { socialLinks } from '$lib/stores/socialLinks';
     import ParticlesBackground from '$lib/components/ParticlesBackground.svelte';
     import '../app.postcss';
     import Navbar from '$lib/components/navbar.svelte';
@@ -91,6 +92,7 @@
         projects.cleanup();
         profile.cleanup();
         contact.cleanup();
+        socialLinks.cleanup();
     });
 </script>
 

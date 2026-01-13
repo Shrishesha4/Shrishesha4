@@ -30,8 +30,7 @@
     });
 
     onDestroy(() => {
-        contact.cleanup();
-        socialLinks.cleanup();
+        // Note: Don't call cleanup() here - the layout handles store cleanup globally
     });
 
     async function handleSubmit() {

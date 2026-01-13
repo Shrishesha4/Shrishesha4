@@ -81,8 +81,8 @@
     });
 
     onDestroy(() => {
-        profile.cleanup();
-        socialLinks.cleanup();
+        // Note: Don't call cleanup() here - the layout handles store cleanup globally
+        // Calling cleanup() here disconnects Firebase listeners prematurely
         showNavbar.set(true);
     });
 </script>

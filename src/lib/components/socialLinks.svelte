@@ -48,7 +48,7 @@
     });
 
     onDestroy(() => {
-        socialLinks.cleanup();
+        // Note: Don't call socialLinks.cleanup() here - the layout handles it globally
     });
 </script>
 

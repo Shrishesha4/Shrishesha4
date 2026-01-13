@@ -80,7 +80,7 @@
     {:else if projects.length > 0}
         <!-- GRID LAYOUT: 2 columns on Desktop, 1 on Mobile -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {#each projects.filter(p => p.featured).slice(0, 4) as project, index}
+            {#each projects.filter(p => p.featured) as project, index}
                 <!-- 
                    CARD COMPONENT 
                    Fix: Changed 'transition-all' to 'transition-[box-shadow]' to prevent 

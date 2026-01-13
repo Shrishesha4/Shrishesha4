@@ -91,12 +91,12 @@
 			repos = await githubService.getRepositories();
 			repos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
 
-			// Filter by featured repos from profile, or fallback to top 4
+			// Filter by featured repos from profile, or fallback to all repos sorted by stars
 			const featuredRepoNames = $profile.featuredRepos || [];
 			if (featuredRepoNames.length > 0) {
 				featuredRepos = repos.filter((repo) => featuredRepoNames.includes(repo.name));
 			} else {
-				featuredRepos = repos.slice(0, 4);
+				featuredRepos = repos;
 			}
 
 			loading = false;
@@ -129,7 +129,7 @@
 			</div>
 		{:else if featuredRepos.length > 0}
 			<div class="space-y-8">
-				{#each featuredRepos.slice(0, 4) as repo, index}
+				{#each featuredRepos as repo, index}
 					<div
 						data-index={index}
 						onclick={() => toggleModal(index)}
