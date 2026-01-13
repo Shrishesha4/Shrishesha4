@@ -1,7 +1,8 @@
 <script lang="ts">
     import { asClassComponent } from 'svelte/legacy';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { contact } from '$lib/stores/contact';
+    import { socialLinks } from '$lib/stores/socialLinks';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { db } from '$lib/firebase/config';
     import { collection, addDoc } from 'firebase/firestore';
@@ -20,12 +21,17 @@
 
     onMount(async () => {
         try {
-            await contact.load();
+            await Promise.all([contact.load(), socialLinks.load()]);
             loading = false;
         } catch (err) {
             error = 'Failed to load contact information';
             loading = false;
         }
+    });
+
+    onDestroy(() => {
+        contact.cleanup();
+        socialLinks.cleanup();
     });
 
     async function handleSubmit() {
@@ -144,9 +150,15 @@
                         <BuyMeCoffee mode="button" />
                         <!-- svelte-ignore a11y_consider_explicit_label -->
                          <div class="flex gap-4">
-                             <a href="https://github.com/shrishesha4" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-github text-xl"></i></a>
-                             <a href="https://linkedin.com/in/shrishesha" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-linkedin text-xl"></i></a>
-                             <a href="https://x.com/Shrishesha4" target="_blank" class="text-neutral-400 hover:text-white transition-colors"><i class="fab fa-x-twitter text-xl"></i></a>
+                             {#each $socialLinks.links as link (link.id)}
+                                 <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-neutral-400 hover:text-white transition-colors" aria-label={link.label}>
+                                     {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
+                                         <img src="{link.icon}" alt="{link.label}" class="w-5 h-5" />
+                                     {:else}
+                                         <i class="{link.icon} text-xl"></i>
+                                     {/if}
+                                 </a>
+                             {/each}
                          </div>
                     </div>
                 </div>

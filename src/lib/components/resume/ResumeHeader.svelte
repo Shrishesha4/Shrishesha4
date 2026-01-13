@@ -1,6 +1,7 @@
 <script lang="ts">
     import { profile } from '$lib/stores/profile';
     import { contact } from '$lib/stores/contact';
+    import { socialLinks } from '$lib/stores/socialLinks';
 
     // Helper to get hostname for cleaner display
     function getHostname(url: string) {
@@ -43,18 +44,16 @@
 
             <!-- Social Links -->
              <div class="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-600">
-                <div class="flex items-center gap-2">
-                    <i class="fa-brands fa-github"></i>
-                    <a href="https://github.com/shrishesha4" target="_blank" class="hover:underline">github.com/shrishesha4</a>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fa-brands fa-linkedin"></i>
-                    <a href="https://linkedin.com/in/shrishesha" target="_blank" class="hover:underline">linkedin.com/in/shrishesha</a>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-globe"></i>
-                    <a href="https://shrishesha.space" target="_blank" class="hover:underline">shrishesha.space</a>
-                </div>
+                {#each $socialLinks.links as link (link.id)}
+                    <div class="flex items-center gap-2">
+                        {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
+                            <img src="{link.icon}" alt="{link.label}" class="w-4 h-4" />
+                        {:else}
+                            <i class="{link.icon}"></i>
+                        {/if}
+                        <a href={link.url} target="_blank" class="hover:underline">{getHostname(link.url)}</a>
+                    </div>
+                {/each}
             </div>
         </div>
         

@@ -75,7 +75,7 @@
                         class="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 font-bold transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
                     >
                         <i class="fas fa-external-link-alt"></i>
-                        <span>Live Demo</span>
+                        <span>Live</span>
                     </a>
                 {/if}
                 
@@ -87,7 +87,7 @@
                         class="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 font-bold transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl border border-neutral-200 dark:border-neutral-700"
                     >
                         <i class="fab fa-github"></i>
-                        <span>View Code</span>
+                        <span>Repo</span>
                     </a>
                 {/if}
             </div>

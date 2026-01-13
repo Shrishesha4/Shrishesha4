@@ -2,6 +2,7 @@
     import { profile, techMap } from '$lib/stores/profile';
     import { loading } from '$lib/stores/loading';
     import { showNavbar } from '$lib/stores/ui';
+    import { socialLinks } from '$lib/stores/socialLinks';
     import { onMount, onDestroy } from 'svelte';
     
     let isLoading = true;
@@ -72,7 +73,7 @@
         loading.show();
         isLoading = true;
         try {
-            await profile.load();
+            await Promise.all([profile.load(), socialLinks.load()]);
         } finally {
             isLoading = false;
         }
@@ -81,6 +82,7 @@
 
     onDestroy(() => {
         profile.cleanup();
+        socialLinks.cleanup();
         showNavbar.set(true);
     });
 </script>
@@ -127,22 +129,20 @@
             
             <!-- Social Links for Desktop -->
             <div class="hidden md:flex flex-row gap-8 mr-20 mb-3">
-                {#each ['github', 'linkedin', 'x-twitter', 'envelope'] as social, i}
-                    {@const href = social === 'github' ? 'https://github.com/shrishesha4' : 
-                         social === 'linkedin' ? 'https://linkedin.com/in/shrishesha' : 
-                         social === 'x-twitter' ? 'https://x.com/Shrishesha4' : 
-                         'mailto:shrisheshanarmatesshvara@gmail.com'}
-                    {@const iconPrefix = social === 'envelope' ? 'fas' : 'fa-brands'}
-                    {@const iconName = social === 'envelope' ? 'envelope' : social === 'x-twitter' ? 'x' : social}
+                {#each $socialLinks.links as link, i (link.id)}
                     <a
-                        href={href}
+                        href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         class="text-neutral-700 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 animate-pop-in hover:scale-110"
                         style="animation-delay: {200 + (i * 50)}ms;"
-                        aria-label={social}
+                        aria-label={link.label}
                     >
-                        <i class="{iconPrefix} fa-{iconName} text-2xl"></i>
+                        {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
+                            <img src="{link.icon}" alt="{link.label}" class="w-6 h-6" />
+                        {:else}
+                            <i class="{link.icon} text-2xl"></i>
+                        {/if}
                     </a>
                 {/each}
             </div>
