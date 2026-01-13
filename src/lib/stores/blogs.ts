@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
-import { auth, db } from '$lib/firebase/config';
-import { collection, getDocs, setDoc, doc, onSnapshot } from 'firebase/firestore';
+import { writable, get } from 'svelte/store';
+import { db } from '$lib/firebase/config';
+import { collection, getDocs, doc, onSnapshot } from 'firebase/firestore';
 
 export interface Blog {
     id: string;
@@ -17,75 +17,85 @@ function createBlogsStore() {
     const { subscribe, set } = writable<Blog[]>([]);
     let unsubscribe: (() => void) | null = null;
     let isLoading = false;
-    let loadPromise: Promise<void> | null = null;
+    let loadPromise: Promise<Blog[]> | null = null;
+    let isInitialized = false;
 
     return {
         subscribe,
-        set: async (value: Blog[]) => {
-            try {
-                if (!auth.currentUser) {
-                    throw new Error('Authentication required to save blogs');
-                }
-                await setDoc(doc(db, 'blogs', auth.currentUser.uid), { blogs: value });
-                set(value);
-            } catch (error) {
-                console.error('Error saving blogs:', error);
-                throw error;
+        load: async (): Promise<Blog[]> => {
+            // If already initialized with data, return current data
+            const currentData = get({ subscribe });
+            if (isInitialized && currentData.length > 0) {
+                return currentData;
             }
-        },
-        load: async () => {
+            
             // Prevent concurrent loads - return existing promise if already loading
             if (isLoading && loadPromise) {
                 return loadPromise;
             }
             
             isLoading = true;
-            loadPromise = (async () => {
+            loadPromise = new Promise<Blog[]>(async (resolve) => {
                 try {
                     if (unsubscribe) {
                         unsubscribe();
                     }
 
-                    if (auth.currentUser) {
+                    // Fetch public blogs data
+                    const blogsRef = collection(db, 'blogs');
+                    const blogsSnapshot = await getDocs(blogsRef);
+                    
+                    if (!blogsSnapshot.empty) {
+                        const firstDoc = blogsSnapshot.docs[0];
+                        
+                        // Set up real-time listener for updates
+                        // First callback will resolve the promise with initial data
+                        let firstLoad = true;
                         unsubscribe = onSnapshot(
-                            doc(db, 'blogs', auth.currentUser.uid),
-                            (doc) => {
-                                if (doc.exists()) {
-                                    const blogs = doc.data().blogs || [];
+                            doc(db, 'blogs', firstDoc.id),
+                            (docSnapshot) => {
+                                if (docSnapshot.exists()) {
+                                    const blogs = docSnapshot.data().blogs || [];
                                     set(blogs);
+                                    if (firstLoad) {
+                                        firstLoad = false;
+                                        isInitialized = true;
+                                        isLoading = false;
+                                        resolve(blogs);
+                                    }
                                 } else {
                                     set([]);
+                                    if (firstLoad) {
+                                        firstLoad = false;
+                                        isInitialized = true;
+                                        isLoading = false;
+                                        resolve([]);
+                                    }
                                 }
                             },
                             (error) => {
                                 console.error('Blogs listener error:', error);
-                                set([]); // Set empty array on error
+                                set([]);
+                                if (firstLoad) {
+                                    firstLoad = false;
+                                    isLoading = false;
+                                    resolve([]);
+                                }
                             }
                         );
                     } else {
-                        try {
-                            const blogsRef = collection(db, 'blogs');
-                            const blogsSnapshot = await getDocs(blogsRef);
-                            
-                            if (!blogsSnapshot.empty) {
-                                const firstDoc = blogsSnapshot.docs[0];
-                                const blogs = firstDoc.data().blogs || [];
-                                set(blogs);
-                            } else {
-                                set([]);
-                            }
-                        } catch (error) {
-                            console.error('Error fetching public blogs:', error);
-                            set([]);
-                        }
+                        set([]);
+                        isInitialized = true;
+                        isLoading = false;
+                        resolve([]);
                     }
                 } catch (error) {
                     console.error('Error loading blogs:', error);
-                    set([]); // Set empty array on error
-                } finally {
+                    set([]);
                     isLoading = false;
+                    resolve([]);
                 }
-            })();
+            });
             
             return loadPromise;
         },
@@ -96,6 +106,7 @@ function createBlogsStore() {
             }
             isLoading = false;
             loadPromise = null;
+            isInitialized = false;
         }
     };
 }

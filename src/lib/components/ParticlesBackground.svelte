@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+    import { theme } from '$lib/stores/theme';
     
     interface Props {
         quantity?: number;
@@ -9,6 +10,12 @@
     }
 
     let { quantity = 30, staticity = 50, ease = 50, speed = 1 }: Props = $props();
+    
+    let currentTheme = $state('dark');
+    
+    $effect(() => {
+        currentTheme = $theme;
+    });
     
     let canvas: HTMLCanvasElement;
     let container: HTMLDivElement;
@@ -23,7 +30,7 @@
 
     // Performance optimizations
     let lastFrameTime = 0;
-    const TARGET_FPS = 30; // Lower FPS for better battery life
+    const TARGET_FPS = 240; // Lower FPS for better battery life
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
     let destroyed = false; // Flag to stop animation after component unmount
 
@@ -168,15 +175,6 @@
         animationFrame = requestAnimationFrame(animate);
     }
 
-    // Update the init function to start animation with proper timing
-    function init() {
-        resizeCanvas();
-        drawParticles();
-        lastTime = performance.now();
-        lastFrameTime = lastTime;
-        animate(lastTime);
-    }
-
     // Add these variables at the top of the script
     let lastPositions: Map<Circle, { x: number; y: number }> = new Map();
 
@@ -187,6 +185,9 @@
         const { x, y, translateX, translateY, size, isComet, trail, dx, dy } = circle;
         const posX = x + translateX;
         const posY = y + translateY;
+        
+        // Determine colors based on theme
+        const particleColor = currentTheme === 'dark' ? '255, 255, 255' : '30, 30, 30';
         
         // Skip motion blur on mobile for performance
         if (!isMobile && !isReducedMotion) {
@@ -204,7 +205,7 @@
                     
                     context.beginPath();
                     context.arc(trailX + translateX, trailY + translateY, size, 0, Math.PI * 2);
-                    context.fillStyle = `rgba(255, 255, 255, ${clampedAlpha * 0.2})`;
+                    context.fillStyle = `rgba(${particleColor}, ${clampedAlpha * 0.2})`;
                     context.fill();
                 }
             }
@@ -221,11 +222,11 @@
             
             // Simplified gradient with fewer color stops
             const gradient = context.createLinearGradient(-trail * 0.5, 0, size, 0);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-            gradient.addColorStop(1, `rgba(255, 255, 255, ${clampedAlpha})`);
+            gradient.addColorStop(0, `rgba(${particleColor}, 0)`);
+            gradient.addColorStop(1, `rgba(${particleColor}, ${clampedAlpha})`);
             
             // Skip shadow on mobile
-            context.shadowColor = 'rgba(255, 255, 255, 0.5)';
+            context.shadowColor = `rgba(${particleColor}, 0.5)`;
             context.shadowBlur = 8;
             
             // Simpler triangle trail
@@ -244,7 +245,7 @@
         // Draw the main particle
         context.beginPath();
         context.arc(posX, posY, isComet ? size * 2 : size, 0, Math.PI * 2);
-        context.fillStyle = `rgba(255, 255, 255, ${clampedAlpha})`;
+        context.fillStyle = `rgba(${particleColor}, ${clampedAlpha})`;
         context.fill();
     }
 
@@ -253,11 +254,14 @@
         if (context) {
             const { x, y, translateX, translateY, size, alpha, isComet } = circle;
             
+            // Determine colors based on theme
+            const particleColor = currentTheme === 'dark' ? '255, 255, 255' : '30, 30, 30';
+            
             // Simple initial draw - animation loop handles complex effects
             context.beginPath();
             context.arc(x + translateX, y + translateY, 
                 isComet ? size * 2 : size, 0, Math.PI * 2);
-            context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            context.fillStyle = `rgba(${particleColor}, ${alpha})`;
             context.fill();
 
             if (!update) {
@@ -288,7 +292,11 @@
     function clearContext() {
         if (context) {
             // Adjust alpha value for better trail persistence
-            context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            // Light mode: pastel off-white background
+            const bgColor = currentTheme === 'dark' 
+                ? 'rgba(0, 0, 0, 0.3)' 
+                : 'rgba(250, 248, 245, 0.3)';
+            context.fillStyle = bgColor;
             context.fillRect(0, 0, canvasSize.w, canvasSize.h);
         }
     }
@@ -382,17 +390,6 @@
             }
         };
     });
-
-    function remapValue(
-        value: number,
-        start1: number,
-        end1: number,
-        start2: number,
-        end2: number
-    ): number {
-        const remapped = ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
-        return remapped > 0 ? remapped : 0;
-    }
 
     onDestroy(() => {
         destroyed = true; // Prevent any pending animation frames from running

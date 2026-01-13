@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
-import { auth, db } from '$lib/firebase/config';
-import { doc, setDoc, onSnapshot, collection, getDocs } from 'firebase/firestore';
+import { writable, get } from 'svelte/store';
+import { db } from '$lib/firebase/config';
+import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
 
 export interface Project {
     id: string;
@@ -17,75 +17,85 @@ function createProjectsStore() {
     const { subscribe, set } = writable<Project[]>([]);
     let unsubscribe: (() => void) | null = null;
     let isLoading = false;
-    let loadPromise: Promise<void> | null = null;
+    let loadPromise: Promise<Project[]> | null = null;
+    let isInitialized = false;
 
     return {
         subscribe,
-        set: async (value: Project[]) => {
-            try {
-                if (!auth.currentUser) {
-                    throw new Error('Authentication required to save projects');
-                }
-                await setDoc(doc(db, 'projects', auth.currentUser.uid), { projects: value });
-                set(value);
-            } catch (error) {
-                console.error('Error saving projects:', error);
-                throw error;
+        load: async (): Promise<Project[]> => {
+            // If already initialized with data, return current data
+            const currentData = get({ subscribe });
+            if (isInitialized && currentData.length > 0) {
+                return currentData;
             }
-        },
-        load: async () => {
+            
             // Prevent concurrent loads - return existing promise if already loading
             if (isLoading && loadPromise) {
                 return loadPromise;
             }
             
             isLoading = true;
-            loadPromise = (async () => {
+            loadPromise = new Promise<Project[]>(async (resolve) => {
                 try {
                     if (unsubscribe) {
                         unsubscribe();
                     }
 
-                    if (auth.currentUser) {
+                    // Fetch public projects data
+                    const projectsRef = collection(db, 'projects');
+                    const projectsSnapshot = await getDocs(projectsRef);
+                    
+                    if (!projectsSnapshot.empty) {
+                        const firstDoc = projectsSnapshot.docs[0];
+                        
+                        // Set up real-time listener for updates
+                        // First callback will resolve the promise with initial data
+                        let firstLoad = true;
                         unsubscribe = onSnapshot(
-                            doc(db, 'projects', auth.currentUser.uid),
-                            (doc) => {
-                                if (doc.exists()) {
-                                    const projects = doc.data().projects || [];
+                            doc(db, 'projects', firstDoc.id),
+                            (docSnapshot) => {
+                                if (docSnapshot.exists()) {
+                                    const projects = docSnapshot.data().projects || [];
                                     set(projects);
+                                    if (firstLoad) {
+                                        firstLoad = false;
+                                        isInitialized = true;
+                                        isLoading = false;
+                                        resolve(projects);
+                                    }
                                 } else {
                                     set([]);
+                                    if (firstLoad) {
+                                        firstLoad = false;
+                                        isInitialized = true;
+                                        isLoading = false;
+                                        resolve([]);
+                                    }
                                 }
                             },
                             (error) => {
                                 console.error('Projects listener error:', error);
                                 set([]);
+                                if (firstLoad) {
+                                    firstLoad = false;
+                                    isLoading = false;
+                                    resolve([]);
+                                }
                             }
                         );
                     } else {
-                        try {
-                            const projectsRef = collection(db, 'projects');
-                            const projectsSnapshot = await getDocs(projectsRef);
-                            
-                            if (!projectsSnapshot.empty) {
-                                const firstDoc = projectsSnapshot.docs[0];
-                                const projects = firstDoc.data().projects || [];
-                                set(projects);
-                            } else {
-                                set([]);
-                            }
-                        } catch (error) {
-                            console.error('Error fetching public projects:', error);
-                            set([]);
-                        }
+                        set([]);
+                        isInitialized = true;
+                        isLoading = false;
+                        resolve([]);
                     }
                 } catch (error) {
                     console.error('Error loading projects:', error);
                     set([]);
-                } finally {
                     isLoading = false;
+                    resolve([]);
                 }
-            })();
+            });
             
             return loadPromise;
         },
@@ -96,6 +106,7 @@ function createProjectsStore() {
             }
             isLoading = false;
             loadPromise = null;
+            isInitialized = false;
         }
     };
 }

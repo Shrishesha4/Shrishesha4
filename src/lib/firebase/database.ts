@@ -1,7 +1,7 @@
-import { auth, db } from './config';
+import { db } from './config';
 import type { Profile } from '$lib/stores/profile';
 import type { Project } from '$lib/stores/projects';
-import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { loading } from '$lib/stores/loading';
 import type { ContactConfig } from '$lib/stores/contact';
 
@@ -19,27 +19,6 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     }
 }
 
-export async function saveProfile(userId: string, profile: Profile) {
-    try {
-        await setDoc(doc(db, 'profiles', userId), profile);
-        return true;
-    } catch (error) {
-        console.error('Error saving profile:', error);
-        throw error;
-    }
-}
-
-export async function saveProjects(userId: string, projects: Project[]) {
-    try {
-        await setDoc(doc(db, 'projects', userId), { projects });
-        return true;
-    } catch (error) {
-        console.error('Error saving projects:', error);
-        throw error;
-    }
-}
-
-
 export async function getProjects(userId: string): Promise<Project[]> {
     loading.show();
     try {
@@ -56,9 +35,9 @@ export async function getProjects(userId: string): Promise<Project[]> {
 
 export async function checkFirestoreConnection(): Promise<boolean> {
     try {
-        const testDoc = doc(db, '_test_connection', 'test');
-        await setDoc(testDoc, { timestamp: new Date() });
-        await getDoc(testDoc);
+        // Just try to read from an existing collection
+        const profilesRef = collection(db, 'profiles');
+        await getDocs(profilesRef);
         return true;
     } catch (error) {
         console.error('Firestore connection test failed:', error);
@@ -89,107 +68,6 @@ export async function verifyCollections(): Promise<{
             projectsExist: false,
             error: error instanceof Error ? error.message : 'An unknown error occurred'
         };
-    }
-}
-
-export async function initializeFirestore(userId: string) {
-    try {
-        const profileRef = doc(db, 'profiles', userId);
-        const profileSnapshot = await getDoc(profileRef);
-        
-        if (!profileSnapshot.exists()) {
-            const defaultProfile = {
-                name: "",
-                title: "",
-                bio: "",
-                skills: ["", "", "", ""],
-                experience: [
-                    ""
-                ],
-                education: [
-                    {
-                        year: "",
-                        degree: "",
-                        institution: ""
-                    }
-                ],
-                typingStrings: [
-                    "",
-                    "",
-                    "",
-                    ""
-                ]
-            };
-            await setDoc(profileRef, defaultProfile);
-        }
-
-        const projectsRef = doc(db, 'projects', userId);
-        const projectsSnapshot = await getDoc(projectsRef);
-
-        if (!projectsSnapshot.exists()) {
-            const defaultProjects = {
-                projects: [
-                            {
-                                id: '',
-                                title: '',
-                                description: '',
-                                image: '',
-                                technologies: [''],
-                                github: ''
-                            }
-                ]
-            };
-            await setDoc(projectsRef, defaultProjects);
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Error initializing Firestore:', error);
-        return false;
-    }
-}
-
-export async function debugFirestore() {
-    try {
-        console.log('Testing Firestore connection...');
-        
-        console.log('Current user:', auth.currentUser?.uid);
-        
-        const profileRef = collection(db, 'profiles');
-        const projectsRef = collection(db, 'projects');
-        
-        const profileDocs = await getDocs(profileRef);
-        const projectDocs = await getDocs(projectsRef);
-        
-        return {
-            success: true,
-            userId: auth.currentUser?.uid,
-            isConnected: true,
-            collections: {
-                profiles: !profileDocs.empty,
-                projects: !projectDocs.empty
-            }
-        };
-    } catch (error) {
-        console.error('Firestore debug error:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            isConnected: false
-        };
-    }
-}
-
-export async function saveContactConfig(config: ContactConfig) {
-    loading.show();
-    try {
-        await setDoc(doc(db, 'config', 'contact'), config);
-        return true;
-    } catch (error) {
-        console.error('Error saving contact config:', error);
-        return false;
-    } finally {
-        loading.hide();
     }
 }
 

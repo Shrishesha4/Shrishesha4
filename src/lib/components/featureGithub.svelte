@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { githubService } from '$lib/services/github';
 	import { profile } from '$lib/stores/profile';
+	import { theme } from '$lib/stores/theme';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	interface Props {
@@ -155,7 +156,7 @@
 						onkeydown={(e) => e.key === 'Enter' && toggleModal(index)}
 						role="button"
 						tabindex="0"
-						class="featured-repo-card group relative flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/10 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl dark:border-white/10 dark:bg-black/20 md:flex-row {index %
+						class="featured-repo-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white/80 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl dark:border-white/10 dark:bg-black/20 md:flex-row {index %
 							2 ===
 						1
 							? 'md:flex-row-reverse'
@@ -168,7 +169,7 @@
 							class="from-primary-500/20 to-primary-700/30 relative flex h-64 w-full items-center justify-center overflow-hidden bg-gradient-to-br md:h-96 md:w-1/2"
 						>
 							<i
-								class="fab fa-github text-9xl text-white/30 transition-all duration-500 group-hover:scale-110 group-hover:text-white/50"
+								class="fab fa-github text-9xl transition-all duration-500 group-hover:scale-110 {$theme === 'dark' ? 'text-white/30 group-hover:text-white/50' : 'text-neutral-400/40 group-hover:text-neutral-500/60'}"
 							></i>
 							<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 						</div>

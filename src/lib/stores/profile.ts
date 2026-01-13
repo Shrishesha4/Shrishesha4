@@ -1,6 +1,5 @@
 import { writable } from 'svelte/store';
-import { saveProfile } from '$lib/firebase/database';
-import { auth, db } from '$lib/firebase/config';
+import { db } from '$lib/firebase/config';
 import { collection, doc, getDocs, onSnapshot } from 'firebase/firestore';
 
 export interface Education {
@@ -198,18 +197,6 @@ function createProfileStore() {
 
     return {
         subscribe,
-        set: async (value: Profile) => {
-            try {
-                if (!auth.currentUser) {
-                    throw new Error('Authentication required to save profile');
-                }
-                await saveProfile(auth.currentUser.uid, value);
-                set(value);
-            } catch (error) {
-                console.error('Error saving profile:', error);
-                throw error;
-            }
-        },
         load: async () => {
             // Prevent concurrent loads - return existing promise if already loading
             if (isLoading && loadPromise) {

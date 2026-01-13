@@ -269,9 +269,9 @@
                     aria-expanded={isSmall ? expandedCards.has(index) : undefined}
                 >
                     <!-- Background Image -->
-                    <div class="absolute inset-0 bg-neutral-900">
+                    <div class="absolute inset-0 bg-neutral-900 rounded-3xl overflow-hidden">
                         {#if imageLoading[project.id]}
-                            <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 z-20">
+                            <div class="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 z-20 rounded-3xl">
                                 <LoadingSpinner />
                             </div>
                         {/if}
@@ -281,7 +281,7 @@
                                 srcset={getResponsiveImageSrcSet(project.image)}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt={project.title}
-                                class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                                class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 rounded-3xl will-change-transform"
                                 onload={() => handleImageLoad(project.id)}
                                 onloadstart={() => handleImageLoadStart(project.id)}
                             />
@@ -289,10 +289,10 @@
                     </div>
 
                     <!-- Gradient Overlay (Deepens on Hover/Active) -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-80 transition-opacity duration-500 group-hover:opacity-95"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-80 transition-opacity duration-500 group-hover:opacity-95 rounded-3xl"></div>
                     
                     <!-- Subtle Gradient Glow on Hover/Active -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay rounded-3xl"></div>
 
                     <!-- Content Container -->
                     <div class="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pb-8 md:pb-10 z-10 transition-all duration-500">

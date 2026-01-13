@@ -10,9 +10,9 @@
     import Navbar from '$lib/components/navbar.svelte';
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+    import ThemeToggle from '$lib/components/ThemeToggle.svelte';
     import { browser } from '$app/environment';
     import { onDestroy, onMount } from 'svelte';
-    import { dev } from '$app/environment';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
@@ -29,6 +29,7 @@
     let isStargaze = $derived($page.url.pathname.startsWith('/stargaze'));
     let isResume = $derived($page.url.pathname.startsWith('/resume'));
     let isBlogPost = $derived($page.url.pathname.match(/^\/blogs\/[^/]+$/));
+    let isHome = $derived($page.url.pathname === '/');
     
     let showWarpTransition = $state(false);
     let warpDirection: 'in' | 'out' = $state('in');
@@ -89,6 +90,7 @@
         profile.cleanup();
         contact.cleanup();
         socialLinks.cleanup();
+        theme.cleanup();
     });
 </script>
 
@@ -119,6 +121,11 @@
 
     <main class="{isResume ? '' : isBlogPost ? '' : 'pt-8 md:pt-28 px-4'}">
         {@render children()}
+    
+    {#if isHome}
+        <ThemeToggle />
+    {/if}
+    
     </main>
     <Toast />
     <LoadingSpinner />

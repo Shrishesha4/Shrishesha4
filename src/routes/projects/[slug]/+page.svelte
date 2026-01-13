@@ -1,21 +1,19 @@
 <script lang="ts">
-    import { projects } from '$lib/stores/projects';
+    import { projects, type Project } from '$lib/stores/projects';
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
     import { createSlug } from '$lib/utils/slug';
 
-    let currentProject: typeof $projects[0] | undefined;
-    let loading = true;
+    let currentProject: Project | undefined = $state(undefined);
+    let loading = $state(true);
 
     onMount(async () => {
         try {
-            // Ensure projects are loaded
-            if ($projects.length === 0) {
-                await projects.load();
-            }
-            currentProject = $projects.find(p => createSlug(p.title) === $page.params.slug);
+            // Load projects and wait for data to be available
+            const projectsList = await projects.load();
+            currentProject = projectsList.find(p => createSlug(p.title) === $page.params.slug);
         } finally {
             loading = false;
         }

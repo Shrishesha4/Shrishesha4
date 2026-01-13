@@ -85,7 +85,7 @@
                         type="text"
                         bind:value={searchQuery}
                         placeholder="Search projects..."
-                        class="w-full px-5 py-3 pl-11 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all backdrop-blur-sm"
+                        class="w-full px-5 py-3 pl-11 rounded-2xl bg-neutral-100/80 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all backdrop-blur-sm"
                     />
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400"></i>
                     {#if searchQuery}
@@ -103,7 +103,7 @@
                 <div class="relative">
                     <button
                         onclick={() => showFilterDropdown = !showFilterDropdown}
-                        class="px-5 py-3 rounded-2xl bg-white/5 dark:bg-white/5 border border-neutral-200/20 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-white/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
+                        class="px-5 py-3 rounded-2xl bg-neutral-100/80 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white hover:bg-neutral-200/80 dark:hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
                     >
                         <i class="fas fa-filter text-neutral-500 dark:text-neutral-400"></i>
                         <span class="hidden md:inline font-medium">{selectedFilter === 'all' ? 'All' : selectedFilter}</span>

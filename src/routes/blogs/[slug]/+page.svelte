@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { blogs } from '$lib/stores/blogs';
+    import { blogs, type Blog } from '$lib/stores/blogs';
     import { page } from '$app/stores';
     import { onMount, tick } from 'svelte'; // Import tick
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import TextToSpeech from '$lib/components/TextToSpeech.svelte';
 
-    let currentBlog = $state<typeof $blogs[0] | undefined>(undefined);
+    let currentBlog = $state<Blog | undefined>(undefined);
     let loading = $state(true);
     let readerMode = $state(false);
     let contentRef = $state<HTMLElement>();
@@ -123,8 +123,9 @@
     onMount(async () => {
         initDarkMode();
         try {
-            await blogs.load();
-            currentBlog = $blogs.find(blog => blog.slug === $page.params.slug);
+            // Load blogs and wait for data to be available
+            const blogsList = await blogs.load();
+            currentBlog = blogsList.find(blog => blog.slug === $page.params.slug);
         } finally {
             loading = false;
             // Wait for Svelte to render the HTML content into contentRef

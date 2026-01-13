@@ -94,7 +94,7 @@
         <div class="flex items-center justify-between">
             <div class="relative flex items-start">
                 <h1 class="mb-6 font-bold text-neutral-900 dark:text-neutral-100 flex flex-col relative z-10 animate-fade-in-up" style="animation-delay: 0ms;">
-                    <span class="text-6xl" style="text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.6);">{$profile.name || ''}</span>
+                    <span class="text-6xl" style="text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);">{$profile.name || ''}</span>
                 </h1>
                 
                 <!-- Certification Badges (Dynamic - Fanned Card Deck Style) -->
@@ -169,7 +169,7 @@
                 {@const primary = i === 0}
                 <a
                     href={href}
-                    class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border {primary ? 'border-neutral-300 dark:border-neutral-700' : 'border-neutral-300 dark:border-neutral-700'} {primary ? 'text-white' : 'text-neutral-700 dark:text-neutral-300'} transition px-3 md:px-6 py-2 md:py-3 text-xs md:text-base hover:scale-105 animate-pop-in"
+                    class="glass-card-hover inline-flex items-center rounded-xl md:rounded-3xl border {primary ? 'border-neutral-300 dark:border-neutral-700' : 'border-neutral-300 dark:border-neutral-700'} {primary ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900' : 'text-neutral-700 dark:text-neutral-300'} transition px-3 md:px-6 py-2 md:py-3 text-xs md:text-base hover:scale-105 animate-pop-in"
                     style="animation-delay: {700 + (i * 100)}ms;"
                 >
                     {btn}

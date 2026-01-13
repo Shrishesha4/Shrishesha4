@@ -72,7 +72,7 @@
 </script>
 
 <div class="min-h-screen p-4 pt-0">
-	<div class="fixed right-4 top-4 z-50 mr-12 mt-5 hidden md:block">
+	<div class="fixed right-10 top-4 z-50 mr-12 mt-5 hidden md:block">
 		<BuyMeCoffee mode="button" />
 	</div>
 	<SocialLinks />

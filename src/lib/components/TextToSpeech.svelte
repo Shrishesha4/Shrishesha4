@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+    import { theme } from '$lib/stores/theme';
 
     interface Props {
         text: string;

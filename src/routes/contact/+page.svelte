@@ -86,7 +86,7 @@
         </div>
     </div>
 {:else}
-    <div class="min-h-screen flex items-center justify-center p-4 bg-transparent selection:bg-primary-500 selection:text-white relative overflow-hidden">
+    <div class=" flex items-center justify-center p-4 bg-transparent selection:bg-primary-500 selection:text-white relative overflow-hidden">
         
         <!-- Background Decorative Blobs -->
         <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-[128px] pointer-events-none animate-pulse-slow"></div>
@@ -113,7 +113,7 @@
                                 </div>
                                 <a 
                                     href="mailto:{$contact.email}" 
-                                    class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline break-all whitespace-normal pt-2 flex-1"
+                                    class="text-xs md:text-sm text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline break-all whitespace-normal pt-2 flex-1"
                                 >
                                     {$contact.email}
                                 </a>
@@ -150,9 +150,9 @@
                         <!-- svelte-ignore a11y_consider_explicit_label -->
                          <div class="flex gap-4">
                              {#each $socialLinks.links as link (link.id)}
-                                 <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-neutral-400 hover:text-white transition-colors" aria-label={link.label}>
+                                 <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors" aria-label={link.label}>
                                      {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
-                                         <img src="{link.icon}" alt="{link.label}" class="w-5 h-5" />
+                                         <img src={link.icon} alt={link.label} class="w-5 h-5 social-icon opacity-70 hover:opacity-100 transition-opacity" />
                                      {:else}
                                          <i class="{link.icon} text-xl"></i>
                                      {/if}
@@ -164,7 +164,7 @@
             </div>
 
             <!-- RIGHT PANEL: Form (Light/Glass Themed) -->
-            <div class="w-full md:w-7/12 p-8 md:p-12 bg-white/5 dark:bg-neutral-950/20 relative backdrop-blur-lg">
+            <div class="w-full md:w-7/12 p-8 md:p-12 bg-white/80 dark:bg-neutral-950/20 relative backdrop-blur-lg">
                 
                 <div class="mb-8">
                     <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white">Send a Message</h2>
