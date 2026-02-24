@@ -18,6 +18,15 @@ Thumbs.db
 !.env.example
 !.env.test
 
+# Firebase
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# Data exports
+exports/
+*.backup.json
+
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+Shrishesha4SA.json
