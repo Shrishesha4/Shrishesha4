@@ -819,6 +819,9 @@ export function Pattern() {
         ),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
+            {/* next/image excludes SVGs from optimization by default (dangerouslyAllowSVG),
+                and there's no LCP/bandwidth win for a 16px flag icon anyway. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`https://flagcdn.com/${row.original.flag.toLowerCase()}.svg`}
               alt={row.original.flag}
@@ -863,6 +866,9 @@ export function Pattern() {
     columns.map((column) => column.id as string)
   )
 
+  // TanStack Table's API returns functions that can't be memoized safely —
+  // inherent to the library, not a real issue here.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data: filteredData,

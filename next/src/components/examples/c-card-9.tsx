@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { Badge } from "@/components/reui/badge"
 
 import { Button } from "@/components/ui/button"
@@ -9,7 +11,7 @@ export function Pattern() {
     <Card className="w-full max-w-xs p-0">
       <CardContent className="flex flex-col gap-5 p-0">
         <div className="relative h-48 w-full overflow-hidden">
-          <img
+          <Image
             src="https://picsum.photos/1000/800?grayscale&random=52"
             alt="16:9"
             width={1000}

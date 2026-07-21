@@ -95,6 +95,10 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // Initial sync + subscribe to the embla carousel instance (external
+    // system) — textbook effect use; onSelect is also registered as the
+    // ongoing event handler below.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

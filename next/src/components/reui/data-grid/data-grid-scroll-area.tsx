@@ -222,6 +222,10 @@ function DataGridScrollArea({
     if (!container || !viewport) return
 
     if (!usesCustomVerticalScrollbar) {
+      // resetMetrics syncs an external system (applies inline styles to the
+      // scroll container DOM node) alongside its own setState call — genuine
+      // effect use, not derivable state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       resetMetrics()
       return
     }

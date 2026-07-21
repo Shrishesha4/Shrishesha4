@@ -207,6 +207,9 @@ export function WebGLLiquid({
     try {
       const gl = canvas.getContext("webgl", { antialias: true, alpha: true });
       if (!gl) {
+        // WebGL availability can only be known by attempting to acquire the
+        // context — not derivable at render time.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasWebGLError(true);
         return;
       }

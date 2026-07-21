@@ -7,7 +7,6 @@ import {
   createContext,
   CSSProperties,
   isValidElement,
-  ReactElement,
   ReactNode,
   useCallback,
   useContext,
@@ -49,6 +48,13 @@ import { CSS } from "@dnd-kit/utilities"
 import { createPortal } from "react-dom"
 
 import { cn } from "@/lib/utils"
+
+// Shape assumed for children passed to <Sortable> when locating the active
+// item for the drag overlay — matches SortableItem's `value`/`className` props.
+type SortableOverlayChildProps = {
+  value?: UniqueIdentifier
+  className?: string
+}
 
 // Sortable Item Context
 const SortableItemContext = createContext<{
@@ -150,6 +156,9 @@ function Sortable<T>({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const [mounted, setMounted] = useState(false)
 
+  // SSR/portal mount guard — createPortal below needs document.body, which
+  // doesn't exist until after mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useLayoutEffect(() => setMounted(true), [])
 
   const sensors = useSensors(
@@ -244,10 +253,12 @@ function Sortable<T>({
     if (!activeId) return null
     let result: ReactNode = null
     Children.forEach(children, (child) => {
-      if (isValidElement(child) && (child.props as any).value === activeId) {
-        result = cloneElement(child as ReactElement<any>, {
-          ...(child.props as any),
-          className: cn((child.props as any).className, "z-50"),
+      if (
+        isValidElement<SortableOverlayChildProps>(child) &&
+        child.props.value === activeId
+      ) {
+        result = cloneElement(child, {
+          className: cn(child.props.className, "z-50"),
         })
       }
     })
@@ -412,6 +423,9 @@ function SortableOverlay({
   const { activeId, modifiers } = useContext(SortableInternalContext)
   const [mounted, setMounted] = useState(false)
 
+  // SSR/portal mount guard — createPortal below needs document.body, which
+  // doesn't exist until after mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useLayoutEffect(() => setMounted(true), [])
 
   const content =

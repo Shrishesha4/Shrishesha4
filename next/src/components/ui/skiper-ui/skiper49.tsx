@@ -170,6 +170,10 @@ const Carousel_003 = ({
         >
           {images.map((image, index) => (
             <SwiperSlide key={index} className="">
+              {/* image.src is an arbitrary caller-supplied URL (no fixed host) —
+                  this is a generic reusable component, so next/image's static
+                  domain allowlist can't be pre-configured for it here. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className="h-full w-full object-cover"
                 src={image.src}

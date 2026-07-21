@@ -105,6 +105,10 @@ function Portrait({ item }: { item: OrbitStackItem }) {
   if (item.image) {
     return (
       <div className="relative flex aspect-[1.36] w-full overflow-hidden rounded-[1.45rem] border border-black/[0.08] bg-black/[0.045]">
+        {/* item.image is an arbitrary caller-supplied URL (no fixed host) — this
+            is a generic reusable component, so next/image's static domain
+            allowlist can't be pre-configured for it here. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={item.image}
           alt={item.name}

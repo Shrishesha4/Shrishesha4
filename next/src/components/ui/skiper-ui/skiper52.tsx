@@ -130,6 +130,10 @@ const HoverExpand_001 = ({
                   </motion.div>
                 )}
               </AnimatePresence>
+              {/* image.src is an arbitrary caller-supplied URL (no fixed host) —
+                  this is a generic reusable component, so next/image's static
+                  domain allowlist can't be pre-configured for it here. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.src}
                 className="size-full object-cover"

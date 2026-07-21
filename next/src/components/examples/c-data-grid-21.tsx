@@ -368,6 +368,9 @@ export function Pattern() {
     columns.map((column) => column.id as string)
   )
 
+  // TanStack Table's API returns functions that can't be memoized safely —
+  // inherent to the library, not a real issue here.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data: demoData,

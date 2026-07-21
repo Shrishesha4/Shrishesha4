@@ -557,6 +557,13 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
    * handles width propagation without per-cell getSize() calls or React
    * re-renders of the body.
    */
+  // Visibility/order/pinning change the flat header set, so a column shown
+  // after mount must get its size variable even though sizing is untouched.
+  const columnSizingState = table.getState().columnSizing
+  const columnVisibilityState = table.getState().columnVisibility
+  const columnOrderState = table.getState().columnOrder
+  const columnPinningState = table.getState().columnPinning
+
   const columnSizeVars = useMemo(() => {
     if (!props.tableLayout?.columnsResizable) return undefined
     const headers = table.getFlatHeaders()
@@ -570,16 +577,10 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     props.tableLayout?.columnsResizable,
-    // Visibility/order/pinning change the flat header set, so a column shown
-    // after mount must get its size variable even though sizing is untouched.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    table.getState().columnSizing,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    table.getState().columnVisibility,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    table.getState().columnOrder,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    table.getState().columnPinning,
+    columnSizingState,
+    columnVisibilityState,
+    columnOrderState,
+    columnPinningState,
   ])
 
   return (
@@ -755,6 +756,7 @@ function DataGridTableHead({ children }: { children: ReactNode }) {
 
 function DataGridTableHeadRow({
   children,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rowId,
 }: {
   children: ReactNode
@@ -1646,7 +1648,7 @@ const MemoizedDataGridTableBodyRows = memo(
   (_prev, next) => !!next.table.getState().columnSizingInfo.isResizingColumn
 ) as typeof DataGridTableBodyRows
 
-function DataGridTableHeader<TData>() {
+function DataGridTableHeader() {
   const { table, props } = useDataGrid()
   const mergedHeaderGroups = getDataGridTableMergedHeaderGroups(table)
   const hasRightPinnedColumns = hasDataGridTableRightPinnedColumns(table)
@@ -1715,7 +1717,7 @@ function DataGridTableHeader<TData>() {
   )
 }
 
-function DataGridTable<TData>({
+function DataGridTable({
   footerContent,
   renderHeader = true,
 }: {

@@ -11,7 +11,7 @@ import {
     useAnimationFrame,
     wrap,
 } from "framer-motion";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ScrollBasedVelocityProps {
     text: string;

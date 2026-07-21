@@ -324,6 +324,10 @@ export function Pattern({
                     fileItem.preview ? (
                       <>
                         {/* Image cover */}
+                        {/* fileItem.preview is a blob: object URL for a locally-selected
+                            file — not fetchable by next/image's optimizer, must stay a
+                            plain <img>. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={fileItem.preview}
                           alt={fileItem.file.name}

@@ -182,7 +182,7 @@ function Card({
     const ref = useRef<HTMLDivElement>(null);
 
     // Calculate distance from mouse to center of card
-    const distance = useTransform([mouseX, mouseY, scrollSpring], ([x, y]) => {
+    const distance = useTransform([mouseX, mouseY, scrollSpring], ([x, y]: number[]) => {
         if (!ref.current || variant === "simple") return 200; // Default large distance
         const rect = ref.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -245,7 +245,11 @@ function Card({
             </div>
 
             {/* Image */}
+            {/* item.image is an arbitrary caller-supplied URL (no fixed host) — this
+                is a generic reusable component, so next/image's static domain
+                allowlist can't be pre-configured for it here. */}
             <div className="relative w-full h-full brightness-75 group-hover:brightness-100 transition-all duration-300">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={item.image}
                     alt={item.title}

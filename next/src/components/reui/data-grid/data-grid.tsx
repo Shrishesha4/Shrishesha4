@@ -203,6 +203,11 @@ function DataGridProvider<TData extends object>({
   // otherwise publish a new context value on every consumer render - at
   // mousemove rate during a resize drag, piercing the body-rows memo).
   const propsRef = useRef(props)
+  // Must be synchronous, not a layout effect: consumers read propsRef.current
+  // through the context getter below during their OWN render (before this
+  // component's effects run), so a deferred write would serve stale props
+  // for one full render pass on every props change.
+  // eslint-disable-next-line react-hooks/refs
   propsRef.current = props
 
   // Re-assert an explicit tableLayout resize mode every render so
@@ -213,7 +218,10 @@ function DataGridProvider<TData extends object>({
     props.tableLayout?.columnsResizable &&
     props.tableLayout.columnsResizeMode
   ) {
-    table.options.columnResizeMode = props.tableLayout.columnsResizeMode
+    const resizeMode = props.tableLayout.columnsResizeMode
+    if (table.options.columnResizeMode !== resizeMode) {
+      table.setOptions((prev) => ({ ...prev, columnResizeMode: resizeMode }))
+    }
   }
 
   // One autoSize coordinator per table instance so split header/body viewports
@@ -229,6 +237,9 @@ function DataGridProvider<TData extends object>({
   // ReactNode/function props (messages, onRowClick) are also excluded: they
   // are served fresh through the props getter, so unstable inline identities
   // cannot invalidate the context value.
+  const tableLayoutKey = JSON.stringify(props.tableLayout)
+  const tableClassNamesKey = JSON.stringify(props.tableClassNames)
+
   const value = useMemo(
     () => ({
       get props() {
@@ -247,10 +258,8 @@ function DataGridProvider<TData extends object>({
       props.isLoading,
       props.loadingMode,
       props.className,
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      JSON.stringify(props.tableLayout),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      JSON.stringify(props.tableClassNames),
+      tableLayoutKey,
+      tableClassNamesKey,
       tableState.sorting,
       tableState.pagination,
       tableState.columnFilters,

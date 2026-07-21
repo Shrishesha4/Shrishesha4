@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /profile/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /tasks/{taskId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /projects/{projectId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /tags/{tagId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /inboxItems/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /dailyPlans/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /activity/{activityId} {
+        allow read, create: if request.auth != null && request.auth.uid == uid;
+        allow update, delete: if false; // immutable audit entries
+      }
+    }
+
+    // Default deny for everything else (finance/ai/integrations/etc. not built yet).
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

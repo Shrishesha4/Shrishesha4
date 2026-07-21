@@ -10,6 +10,7 @@ import {
 import React, {
   type ComponentPropsWithoutRef,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -234,9 +235,11 @@ const SmoothInput = ({
   };
 
   const updateCaretRef = useRef(updateCaretFromInput);
-  updateCaretRef.current = updateCaretFromInput;
   const caretOpacityRef = useRef(caretOpacity);
-  caretOpacityRef.current = caretOpacity;
+  useLayoutEffect(() => {
+    updateCaretRef.current = updateCaretFromInput;
+    caretOpacityRef.current = caretOpacity;
+  });
 
   useEffect(() => {
     const input = inputRef.current;

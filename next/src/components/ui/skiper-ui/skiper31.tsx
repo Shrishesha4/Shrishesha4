@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import ReactLenis from "lenis/react";
 import React, { useRef } from "react";
 
@@ -10,7 +10,7 @@ type CharacterProps = {
   char: string;
   index: number;
   centerIndex: number;
-  scrollYProgress: any;
+  scrollYProgress: MotionValue<number>;
 };
 
 const CharacterV1 = ({

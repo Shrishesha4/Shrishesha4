@@ -442,6 +442,9 @@ export function DitheredLogo({
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
+    // Initial sync + subscribe to matchMedia (external system) — textbook
+    // effect use, matches the ongoing "change" listener registered below.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(mq.matches);
     const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches);
     mq.addEventListener("change", handler);

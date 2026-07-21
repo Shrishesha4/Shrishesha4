@@ -464,6 +464,9 @@ function DataGridTableVirtual<TData>({
     [centerRows, customEstimateSize, estimateSize]
   )
 
+  // TanStack Virtual's API returns functions that can't be memoized safely —
+  // inherent to the library, not a real issue here.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: centerRows.length,
     getScrollElement: resolveScrollElement,
@@ -474,6 +477,11 @@ function DataGridTableVirtual<TData>({
     ...virtualizerOptionsRest,
   }) as DataGridTableVirtualizerInstance
 
+  // Deliberately NOT wrapped in useMemo: TanStack Virtual's `virtualizer`
+  // object keeps a stable identity across the scroll-driven re-renders that
+  // are the whole reason this recomputes, so a memo keyed on `virtualizer`
+  // would freeze the visible rows at mount and never update on scroll.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const virtualItems = isVirtualizationEnabled
     ? virtualizer.getVirtualItems()
     : []

@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { Card } from "@/components/ui/card"
 import {
   Carousel,
@@ -20,7 +22,7 @@ export function Pattern() {
           <CarouselItem key={index} className="basis-1/3">
             <div className="p-1">
               <Card className="relative aspect-square overflow-hidden border-0 p-0">
-                <img
+                <Image
                   src={`https://picsum.photos/400/400?grayscale&random=${index + 5}`}
                   alt={`Slide ${index + 1}`}
                   width={400}

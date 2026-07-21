@@ -1,5 +1,3 @@
-import { MapPinIcon } from "lucide-react"
-
 import {
   Avatar,
   AvatarFallback,

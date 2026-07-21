@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -663,10 +664,15 @@ function useFieldOptions<T = unknown>(
   }, [searchInput, isAsync])
 
   const requestIdRef = useRef(0)
-  // Keep the latest loader in a ref so an unmemoized `loadOptions` identity does
-  // not cancel and refire the in-flight request on every parent re-render.
+  // Keep the latest loader/field in refs so unmemoized `field`/`loadOptions`
+  // identities do not cancel and refire the in-flight request on every parent
+  // re-render — the effect below intentionally does not depend on `field`.
   const loaderRef = useRef(field.loadOptions)
-  loaderRef.current = field.loadOptions
+  const fieldRef = useRef(field)
+  useLayoutEffect(() => {
+    loaderRef.current = field.loadOptions
+    fieldRef.current = field
+  })
   useEffect(() => {
     if (!isAsync || !enabled) return
     const loader = loaderRef.current
@@ -681,7 +687,7 @@ function useFieldOptions<T = unknown>(
       .then((result) => {
         // Ignore stale responses (out-of-order guard).
         if (cancelled || requestId !== requestIdRef.current) return
-        const cache = getFieldOptionCache(field)
+        const cache = getFieldOptionCache(fieldRef.current)
         for (const opt of result) cache.set(opt.value, opt)
         setState({ options: result, loading: false, error: false })
       })
@@ -885,6 +891,10 @@ function SelectOptionsPopover<T = unknown>({
   }, [open])
 
   useEffect(() => {
+    // Reset keyboard-nav highlight when the option list or menu open state
+    // changes — standard combobox pattern, not derivable at render time
+    // without duplicating the filtered-list computation here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlightedIndex(-1)
   }, [searchInput, open])
 
@@ -1405,6 +1415,9 @@ function FilterSubmenuContent<T = unknown>({
   }, [isActive, field.searchable, baseId])
 
   useEffect(() => {
+    // Reset keyboard-nav highlight when the search query changes — same
+    // standard combobox pattern as above.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlightedIndex(-1)
   }, [searchInput])
 
@@ -1475,6 +1488,9 @@ function FilterSubmenuContent<T = unknown>({
 
   useEffect(() => {
     if (isActive && filteredOptions.length > 0) {
+      // Auto-select the first option when this field becomes the active
+      // filter-menu selection — standard combobox pattern.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHighlightedIndex(0)
     }
   }, [isActive, filteredOptions.length])
@@ -1684,6 +1700,9 @@ export function Filters<T = unknown>({
   }, [addFilterOpen, activeMenu])
 
   useEffect(() => {
+    // Reset keyboard-nav highlight when the search query changes — same
+    // standard combobox pattern as above.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlightedIndex(-1)
   }, [menuSearchInput])
 
@@ -1698,6 +1717,8 @@ export function Filters<T = unknown>({
 
   useEffect(() => {
     if (!addFilterOpen) {
+      // Close any open submenu when the parent add-filter menu closes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenSubMenu(null)
     }
   }, [addFilterOpen])
@@ -1799,6 +1820,9 @@ export function Filters<T = unknown>({
 
   useEffect(() => {
     if (addFilterOpen && filteredFields.length > 0) {
+      // Auto-select the first field when the add-filter menu opens —
+      // standard combobox pattern.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHighlightedIndex(0)
     }
   }, [addFilterOpen, filteredFields.length])
