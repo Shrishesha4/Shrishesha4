@@ -23,6 +23,7 @@
   },
   "registries": {
     "@componentry": "https://componentry.fun/r/{name}.json",
-    "@skiper-ui": "https://skiper-ui.com/registry/{name}.json"
+    "@skiper-ui": "https://skiper-ui.com/registry/{name}.json",
+    "@reui": "https://reui.io/r/{style}/{name}.json"
   }
 }
