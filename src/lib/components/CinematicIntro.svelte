@@ -1,89 +1,84 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { SvelteSet } from 'svelte/reactivity';
     import { fade } from 'svelte/transition';
     import { profile } from '$lib/stores/profile';
-    import { loading } from '$lib/stores/loading';
-    import type { Snippet } from 'svelte';
 
     interface Props {
-        children: Snippet;
+        oncomplete?: () => void;
     }
 
-    let { children }: Props = $props();
+    let { oncomplete = () => {} }: Props = $props();
 
-    let showName = $state(true);
-    let showContent = $state(false);
+    let visible = $state(true);
     let zoomPhase = $state('start');
-    let audio: HTMLAudioElement;
-    let isProfileLoaded = $state(false);
+    let audio: HTMLAudioElement | null = null;
+    const timers = new SvelteSet<ReturnType<typeof setTimeout>>();
 
-    async function startAnimation() {
-        try {
-            await profile.load();
-            isProfileLoaded = true;
-            
-            // Initialize audio after profile is loaded
-            audio = new Audio('/sounds/cinematic-whoosh.mp3');
-            audio.volume = 0.4;
-            audio.preload = 'auto';
+    function schedule(callback: () => void, delay: number) {
+        const timer = setTimeout(() => {
+            timers.delete(timer);
+            callback();
+        }, delay);
+        timers.add(timer);
+    }
 
-            // Start animation sequence
-            setTimeout(() => {
-                audio?.play().catch(() => {/* ignore audio errors */});
-                zoomPhase = 'zooming';
-                setTimeout(() => {
-                    zoomPhase = 'end';
-                    setTimeout(() => {
-                        showName = false;
-                        showContent = true;
-                    }, 800);
-                }, 2000);
-            }, 800);
-        } catch (error) {
-            console.error('Error loading profile:', error);
-            // Fallback to show content if profile loading fails
-            showName = false;
-            showContent = true;
+    function finish() {
+        visible = false;
+        schedule(oncomplete, 500);
+    }
+
+    function startAnimation() {
+        audio = new Audio('/sounds/cinematic-whoosh.mp3');
+        audio.volume = 0.4;
+        audio.preload = 'auto';
+
+        schedule(() => {
+            void audio?.play().catch(() => {
+                // Browsers may block autoplay; the visual intro still continues.
+            });
+            zoomPhase = 'zooming';
+            schedule(() => {
+                zoomPhase = 'end';
+                schedule(finish, 800);
+            }, 2000);
+        }, 800);
+    }
+
+    function cleanup() {
+        for (const timer of timers) clearTimeout(timer);
+        timers.clear();
+
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.src = '';
+            audio = null;
         }
     }
 
     onMount(() => {
-        loading.show();
-        startAnimation().finally(() => {
-            loading.hide();
-        });
-
-        return () => {
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        };
+        startAnimation();
+        return cleanup;
     });
 </script>
 
-{#if showName && isProfileLoaded}
+{#if visible}
     <div 
         class="fixed inset-0 bg-neutral-900 dark:bg-black z-[100] flex items-center justify-center overflow-hidden"
-        transition:fade={{ duration: 2500 }}
+        transition:fade={{ duration: 500 }}
+        aria-hidden="true"
     >
         <h1 
-            class="text-4xl md:text-6xl lg:text-8xl font-bold text-white transition-all duration-[2500ms] ease-out"
-            class:zoom-start={zoomPhase === 'start'}
-            class:zoom-animate={zoomPhase === 'zooming'}
-            class:zoom-end={zoomPhase === 'end'}
+            class={[
+                'text-4xl md:text-6xl lg:text-8xl font-bold text-white transition-all duration-[2500ms] ease-out',
+                zoomPhase === 'start' && 'zoom-start',
+                zoomPhase === 'zooming' && 'zoom-animate',
+                zoomPhase === 'end' && 'zoom-end'
+            ]}
         >
             {$profile.name || 'Shrishesha'}
         </h1>
-    </div>
-{/if}
-
-{#if showContent}
-    <div 
-        class="relative w-full h-full"
-        transition:fade={{ duration: 1500, delay: 300 }}
-    >
-        {@render children()}
     </div>
 {/if}
 

@@ -11,6 +11,7 @@
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+    import CinematicIntro from '$lib/components/CinematicIntro.svelte';
     import WarpPageTransition from '$lib/components/warp/WarpPageTransition.svelte';
     import type { WarpTransitionKeyframe } from '$lib/components/warp/WarpPageTransition.svelte';
     import { browser } from '$app/environment';
@@ -27,6 +28,7 @@
     }
 
     let { children }: Props = $props();
+    const introSessionKey = 'cinematic-intro-shown';
     
     let isStargaze = $derived($page.url.pathname.startsWith('/stargaze'));
     let isResume = $derived($page.url.pathname.startsWith('/resume'));
@@ -34,6 +36,7 @@
     let isHome = $derived($page.url.pathname === '/');
 
     let warpActive = $state(false);
+    let showCinematicIntro = $state(false);
     let coverNavigation: (() => void) | null = null;
     let coverPromise: Promise<() => void> | null = null;
     const speed = 0.55;
@@ -130,21 +133,31 @@
         return coverPromise;
     });
 
-    onMount(async () => {
+    onMount(() => {
         theme.init();
-        await profile.load();
-        
-        if (browser && typeof window !== 'undefined' && 
-            'updateFavicon' in window && $profile.favicon) {
-            (window as any).updateFavicon($profile.favicon);
-        }
-    });
 
-    $effect(() => {
-        if (browser && typeof window !== 'undefined' && 
-            'updateFavicon' in window && $profile.favicon) {
-            (window as any).updateFavicon($profile.favicon);
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let introAlreadyShown = false;
+
+        try {
+            introAlreadyShown = sessionStorage.getItem(introSessionKey) === 'true';
+            if (!introAlreadyShown) sessionStorage.setItem(introSessionKey, 'true');
+        } catch {
+            // Storage can be unavailable in privacy-restricted browser contexts.
         }
+
+        showCinematicIntro = !introAlreadyShown && !prefersReducedMotion;
+        const unsubscribeProfile = profile.subscribe((profileValue) => {
+            if ('updateFavicon' in window && profileValue.favicon) {
+                (window as any).updateFavicon(profileValue.favicon);
+            }
+        });
+
+        void profile.load().catch((error) => {
+            console.error('Error loading profile:', error);
+        });
+
+        return unsubscribeProfile;
     });
 
     onDestroy(() => {
@@ -208,6 +221,10 @@
     <Toast />
     <LoadingSpinner />
 </div>
+
+{#if showCinematicIntro}
+    <CinematicIntro oncomplete={() => (showCinematicIntro = false)} />
+{/if}
 
 <WarpPageTransition
     active={warpActive}
