@@ -1,18 +1,27 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
+    import type { Attachment } from "svelte/attachments";
     import * as THREE from "three";
     import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
     import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
     import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
     import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+    import { detectWarpHdrCapabilities } from "$lib/components/warp/hdr";
 
     let container: HTMLDivElement;
-    let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer;
+    let renderCanvas: HTMLCanvasElement;
+    let scene: THREE.Scene, camera: THREE.PerspectiveCamera;
+    let renderer: THREE.WebGLRenderer | null = null;
     let controls: OrbitControls;
     let galaxy: THREE.Points;
     let galaxyDust: THREE.Points;
     let reticle: THREE.Object3D | null = null; // Visual indicator for selected star (mesh or line)
-    let composer: EffectComposer;
+    let composer: EffectComposer | null = null;
+    let animationFrame = 0;
+    let initialized = false;
+    let destroyed = false;
+    let hdrActive = false;
+
+    const HDR_HEADROOM = 2.4;
 
     // Solar System Objects
     let activeSun: THREE.Mesh | null = null;
@@ -60,11 +69,16 @@
         outerColor: '#1b3984', 
     };
 
-    let clock = new THREE.Clock();
+    let timer: THREE.Timer;
 
     // Store original overflow styles so we can restore them when leaving the view
     let prevHtmlOverflow: string | null = null;
     let prevBodyOverflow: string | null = null;
+
+    function luminousColor(color: THREE.ColorRepresentation) {
+        const result = new THREE.Color(color);
+        return hdrActive ? result.multiplyScalar(HDR_HEADROOM) : result;
+    }
 
     // --- Texture Generators ---
 
@@ -247,6 +261,7 @@
             mixedColor.r = Math.min(1, Math.max(0, mixedColor.r + variation));
             mixedColor.g = Math.min(1, Math.max(0, mixedColor.g + variation));
             mixedColor.b = Math.min(1, Math.max(0, mixedColor.b + variation));
+            if (hdrActive) mixedColor.multiplyScalar(HDR_HEADROOM);
 
             colors[i3] = mixedColor.r;
             colors[i3 + 1] = mixedColor.g;
@@ -291,6 +306,7 @@
 
             const dColor = colorOuter.clone();
             dColor.lerp(new THREE.Color('#440066'), Math.random()); // Add some purple/deep hues
+            if (hdrActive) dColor.multiplyScalar(HDR_HEADROOM);
             dustColors[i3] = dColor.r;
             dustColors[i3 + 1] = dColor.g;
             dustColors[i3 + 2] = dColor.b;
@@ -359,7 +375,7 @@
             particleGeo.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
             
             const particleMat = new THREE.PointsMaterial({
-                color: 0x88ccff,
+                color: luminousColor(0x88ccff),
                 size: 0.2,
                 transparent: true,
                 opacity: 0.8,
@@ -374,7 +390,7 @@
             const glowTex = createGlowTexture('#00ffff', 128);
             const spriteMat = new THREE.SpriteMaterial({ 
                 map: glowTex, 
-                color: 0x00ffff, 
+                color: luminousColor(0x00ffff),
                 transparent: true, 
                 opacity: 0.6, 
                 blending: THREE.AdditiveBlending,
@@ -387,7 +403,7 @@
             // 3. Outer Ring (Event Horizonish)
             const ringGeo = new THREE.RingGeometry(2.8, 3.0, 64);
             const ringMat = new THREE.MeshBasicMaterial({ 
-                color: 0xffffff, 
+                color: luminousColor(0xffffff),
                 side: THREE.DoubleSide, 
                 transparent: true, 
                 opacity: 0.3,
@@ -458,7 +474,7 @@
         const baseColorHex = sv.color;
         const sunMat = new THREE.MeshStandardMaterial({
             map: createSunTexture(baseColorHex),
-            emissive: new THREE.Color(baseColorHex),
+            emissive: luminousColor(baseColorHex),
             emissiveIntensity: sv.intensity,
             emissiveMap: createSunTexture(baseColorHex),
             color: new THREE.Color(baseColorHex).multiplyScalar(0.9),
@@ -472,7 +488,7 @@
         const glowTex = createGlowTexture(baseColorHex, 512);
         const spriteMat = new THREE.SpriteMaterial({ 
             map: glowTex, 
-            color: new THREE.Color(baseColorHex), 
+            color: luminousColor(baseColorHex),
             transparent: true, 
             blending: THREE.AdditiveBlending,
             opacity: 0.85
@@ -489,14 +505,16 @@
         if (galaxyDust) galaxyDust.visible = false;
 
         // Add light source at the sun (strength and range scaled with size)
-        const sunLight = new THREE.PointLight(baseColorHex, sv.intensity * (sunSize/12), 300 + sunSize * 8, 1.5);
+        const lightIntensity = sv.intensity * (sunSize/12) * (hdrActive ? HDR_HEADROOM : 1);
+        const pulsingLightIntensity = sv.intensity * (hdrActive ? HDR_HEADROOM : 1);
+        const sunLight = new THREE.PointLight(baseColorHex, lightIntensity, 300 + sunSize * 8, 1.5);
         sunLight.position.set(0, 0, 0); // Relative to sun mesh
         activeSun.add(sunLight);
 
         // Store some animation data so pulsing can occur in the animation loop
         // Set a dynamic exit threshold based on star size so that larger suns require more zoom-out to exit
         currentExitThreshold = Math.max(ZOOM_EXIT_THRESHOLD, sunSize * 25);
-        (activeSun as any).userData = { pulseSpeed: 0.8 + Math.random() * 1.6, baseIntensity: sv.intensity, lightRef: sunLight, spriteRef: sprite, exitThreshold: currentExitThreshold };
+        (activeSun as any).userData = { pulseSpeed: 0.8 + Math.random() * 1.6, baseIntensity: pulsingLightIntensity, lightRef: sunLight, spriteRef: sprite, exitThreshold: currentExitThreshold };
 
         // 2. Generate Planets (spaced based on sun size to avoid intersections)
         const planetColors = [0x2266ff, 0xff4422, 0x88cc88, 0xcccccc, 0xaa55aa];
@@ -535,7 +553,7 @@
 
             if (Math.random() > 0.6) {
                 const ringGeo = new THREE.RingGeometry(pSize * 1.4, pSize * 2.2, 32);
-                const ringMat = new THREE.MeshBasicMaterial({ color: colorHex, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+                const ringMat = new THREE.MeshBasicMaterial({ color: luminousColor(colorHex), side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.rotation.x = Math.PI / 2;
                 planet.add(ring);
@@ -556,43 +574,68 @@
         try { return camera.position.distanceTo(target); } catch { return null; }
     }
 
+    function setRendererMetadata(
+        canvas: HTMLCanvasElement,
+        dynamicRange: 'high' | 'standard',
+        engine: string
+    ) {
+        canvas.dataset.dynamicRange = dynamicRange;
+        canvas.dataset.engine = engine;
+        canvas.dataset.hdrEnhancement = String(hdrActive);
+        container.dataset.dynamicRange = dynamicRange;
+        container.dataset.engine = engine;
+        container.dataset.hdrEnhancement = String(hdrActive);
+    }
+
+    function createWebGlRenderer() {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const webglRenderer = new THREE.WebGLRenderer({
+            canvas: renderCanvas,
+            antialias: false,
+            powerPreference: "high-performance"
+        });
+        webglRenderer.setSize(width, height);
+        // Guard window access for SSR
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? Math.min(window.devicePixelRatio, 1.5) : 1;
+        webglRenderer.setPixelRatio(dpr);
+        
+        // The canvas remains SDR; half-float post-processing preserves highlight headroom before output.
+        webglRenderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        webglRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+        webglRenderer.toneMappingExposure = hdrActive ? 1.65 : 1.5;
+        setRendererMetadata(webglRenderer.domElement, 'standard', 'Three WebGL + UnrealBloomPass');
+
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(width / 2, height / 2),
+            hdrActive ? 3.1 : 2.5, 0.5, 0.05
+        );
+
+        // EffectComposer uses HalfFloatType render targets by default in three.js r185.
+        composer = new EffectComposer(webglRenderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+        return webglRenderer;
+    }
+
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000); 
+        scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.FogExp2(0x000000, 0.001); // Adjusted fog for distance
 
         camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 2000);
         // Position camera to view the galaxy face-on (less edge-on which created a vertical line effect)
         camera.position.set(0, 80, 450);
 
-        renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        // Guard window access for SSR
-        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? Math.min(window.devicePixelRatio, 1.5) : 1;
-        renderer.setPixelRatio(dpr);
-        
-        // Reverting to standard sRGB to fix runtime error
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.5;
-        container.appendChild(renderer.domElement);
-
+        hdrActive = detectWarpHdrCapabilities().displayHdr;
+        renderer = createWebGlRenderer();
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enablePan = false;
         // Removed min/max distance limits so user can zoom freely across thresholds
-        
-        const renderScene = new RenderPass(scene, camera);
-        const bloomPass = new UnrealBloomPass(
-            new THREE.Vector2(container.clientWidth / 2, container.clientHeight / 2), 
-            2.5, 0.5, 0.05 
-        );
-
-        composer = new EffectComposer(renderer);
-        composer.addPass(renderScene);
-        composer.addPass(bloomPass);
 
         // Ambient stars
         const bgGeo = new THREE.BufferGeometry();
@@ -600,7 +643,7 @@
         for(let i=0; i<5000*3; i++) bgPos[i] = (Math.random()-0.5)*1500;
         bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPos, 3));
         scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({
-            color: 0xffffff, 
+            color: luminousColor(0xffffff),
             size: 1.0, 
             transparent: true, 
             opacity: 0.4, 
@@ -626,14 +669,16 @@
         container.addEventListener('pointerdown', onPointerDown);
         window.addEventListener('resize', onResize);
 
-        animate();
+        initialized = true;
+        animationFrame = requestAnimationFrame(animate);
     }
 
     function onResize() {
+        if (!initialized || !renderer) return;
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
-        composer.setSize(container.clientWidth, container.clientHeight);
+        composer?.setSize(container.clientWidth, container.clientHeight);
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -685,7 +730,7 @@
             // intersects[0].index gives us which point was clicked
             const intersection = intersects[0];
             const positions = (galaxy.geometry as THREE.BufferGeometry).getAttribute('position') as THREE.BufferAttribute;
-            
+
             let clickedPoint: THREE.Vector3;
             if (intersection.index !== null && intersection.index !== undefined) {
                 // Use the exact star position from the geometry (local coordinates)
@@ -702,10 +747,10 @@
                 // Fallback to intersection point if index is not available (already in world space)
                 clickedPoint = intersection.point.clone();
             }
-            
+
             // Check if this is a double-click on the same star
             const isSameStar = lastClickedPosition && clickedPoint.distanceTo(lastClickedPosition) < DOUBLE_CLICK_THRESHOLD;
-            
+
             if (isSameStar) {
                 // Double-click detected: Clear timeout and auto-zoom into the system
                 if (clickTimeout !== null) {
@@ -777,9 +822,10 @@
 
     // --- Animation Loop ---
 
-    function animate() {
-        requestAnimationFrame(animate);
-        const dt = clock.getDelta();
+    function animate(timestamp: number) {
+        timer.update(timestamp);
+        if (destroyed || !initialized || !renderer) return;
+        const dt = timer.getDelta();
 
         // 1. Smoothly interpolate Controls Target to the desired LookAt point
         // If we are mid-transition, smoothly move the camera towards the target position and lookAt target
@@ -819,7 +865,7 @@
                         ud.swirl.rotation.z -= 0.05; // Spin the swirl
                     }
                     if (ud.ring) {
-                        const pulse = 1 + Math.sin(clock.elapsedTime * 8) * 0.05;
+                        const pulse = 1 + Math.sin(timer.getElapsed() * 8) * 0.05;
                         ud.ring.scale.set(pulse, pulse, 1);
                     }
                 }
@@ -866,7 +912,7 @@
                 // Subtle pulsing of the sun's light and glow (if present)
                 const sUD = (activeSun as any).userData;
                 if (sUD && sUD.lightRef) {
-                    const flicker = Math.sin(clock.getElapsedTime() * sUD.pulseSpeed) * 0.35;
+                    const flicker = Math.sin(timer.getElapsed() * sUD.pulseSpeed) * 0.35;
                     sUD.lightRef.intensity = Math.max(0.1, sUD.baseIntensity + flicker);
                     // Adjust glow sprite a bit
                     if (sUD.spriteRef) {
@@ -908,10 +954,25 @@
         }
 
         controls.update();
-        composer.render();
+        if (composer) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
+        animationFrame = requestAnimationFrame(animate);
     }
 
-    onMount(() => {
+    const attachConstellation: Attachment<HTMLDivElement> = (node) => {
+        container = node;
+        const attachedCanvas = node.querySelector<HTMLCanvasElement>('[data-render-canvas="webgl"]');
+        if (!attachedCanvas) {
+            throw new Error('ConstellationMap renderer canvas is missing.');
+        }
+        renderCanvas = attachedCanvas;
+        destroyed = false;
+        timer = new THREE.Timer();
+        timer.connect(document);
+
         // Prevent page scrolling while the map is active
         if (typeof document !== 'undefined') {
             prevHtmlOverflow = document.documentElement.style.overflow || '';
@@ -921,78 +982,88 @@
         }
 
         init();
-    });
 
-    onDestroy(() => {
-        if (clickTimeout !== null) {
-            clearTimeout(clickTimeout);
-        }
-        if (container) container.removeEventListener('pointerdown', onPointerDown);
-        // Guard window access for SSR
-        if (typeof window !== 'undefined') window.removeEventListener('resize', onResize);
+        return () => {
+            destroyed = true;
+            initialized = false;
+            if (animationFrame !== 0) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = 0;
+            }
+            timer.dispose();
 
-        // Restore document scroll behavior
-        if (typeof document !== 'undefined') {
-            document.documentElement.style.overflow = prevHtmlOverflow ?? '';
-            document.body.style.overflow = prevBodyOverflow ?? '';
-        }
+            if (clickTimeout !== null) {
+                clearTimeout(clickTimeout);
+            }
+            node.removeEventListener('pointerdown', onPointerDown);
+            // Guard window access for SSR
+            if (typeof window !== 'undefined') window.removeEventListener('resize', onResize);
 
-        // Dispose Three.js resources to prevent memory leaks
-        if (galaxy) {
-            galaxy.geometry.dispose();
-            (galaxy.material as THREE.Material).dispose();
-        }
-        if (galaxyDust) {
-            galaxyDust.geometry.dispose();
-            (galaxyDust.material as THREE.Material).dispose();
-        }
-        
-        // Clear solar system resources
-        clearSolarSystem();
-        
-        // Clear reticle
-        updateReticle(null);
-        
-        // Dispose post-processing
-        if (composer) {
-            composer.dispose();
-        }
-        
-        // Dispose renderer and release WebGL context
-        if (renderer) {
-            renderer.dispose();
-            renderer.forceContextLoss();
-        }
-        
-        // Dispose controls
-        if (controls) {
-            controls.dispose();
-        }
-        
-        // Clear the scene
-        if (scene) {
-            scene.traverse((object) => {
-                if (object instanceof THREE.Mesh) {
-                    object.geometry?.dispose();
-                    if (object.material) {
-                        if (Array.isArray(object.material)) {
-                            object.material.forEach(m => m.dispose());
-                        } else {
-                            object.material.dispose();
+            // Restore document scroll behavior
+            if (typeof document !== 'undefined') {
+                document.documentElement.style.overflow = prevHtmlOverflow ?? '';
+                document.body.style.overflow = prevBodyOverflow ?? '';
+            }
+
+            // Clear solar system resources
+            if (scene) clearSolarSystem();
+
+            // Clear reticle
+            if (scene) updateReticle(null);
+
+            // Dispose post-processing
+            if (composer) {
+                composer.dispose();
+                composer = null;
+            }
+
+            // Dispose controls
+            if (controls) {
+                controls.dispose();
+            }
+
+            // Clear the scene
+            if (scene) {
+                scene.traverse((object) => {
+                    if (object instanceof THREE.Mesh) {
+                        object.geometry?.dispose();
+                        if (object.material) {
+                            if (Array.isArray(object.material)) {
+                                object.material.forEach(m => m.dispose());
+                            } else {
+                                object.material.dispose();
+                            }
+                        }
+                    } else if (object instanceof THREE.Points) {
+                        object.geometry?.dispose();
+                        if (object.material) {
+                            (object.material as THREE.Material).dispose();
                         }
                     }
-                } else if (object instanceof THREE.Points) {
-                    object.geometry?.dispose();
-                    if (object.material) {
-                        (object.material as THREE.Material).dispose();
-                    }
-                }
-            });
-            scene.clear();
-        }
-    });
+                });
+                scene.clear();
+            }
+
+            if (renderer) {
+                renderer.dispose();
+                renderer.forceContextLoss();
+                renderer = null;
+            }
+        };
+    };
 </script>
 
 <!-- Container -->
-<!-- svelte-ignore element_invalid_self_closing_tag -->
-<div bind:this={container} class="fixed inset-0 bg-black cursor-crosshair z-10"></div>
+<div
+    {@attach attachConstellation}
+    class="fixed inset-0 overflow-hidden bg-black cursor-crosshair z-10"
+    data-dynamic-range="standard"
+    data-engine="Three WebGL + UnrealBloomPass"
+    data-hdr-enhancement="false"
+>
+    <canvas
+        class="absolute inset-0 h-full w-full"
+        data-render-canvas="webgl"
+        aria-hidden="true"
+    ></canvas>
+</div>

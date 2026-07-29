@@ -5,6 +5,7 @@
     import { browser } from '$app/environment';
     import { projects } from '$lib/stores/projects';
     import LoadingSpinner from './LoadingSpinner.svelte';
+    import { safeHref } from '$lib/utils/safeUrl';
     
     interface Props {
         searchQuery?: string;
@@ -328,7 +329,7 @@
                             <div class="relative z-20 grid grid-cols-3 gap-2 pt-2 border-t border-white/10 md:flex md:flex-row md:gap-2">
                                 {#if project.url}
                                     <a 
-                                        href={project.url}
+                                        href={safeHref(project.url)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onclick={(e) => e.stopPropagation()}
@@ -340,7 +341,7 @@
                                 {/if}
                                 {#if project.github}
                                     <a 
-                                        href={project.github}
+                                        href={safeHref(project.github)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onclick={(e) => e.stopPropagation()}

@@ -11,12 +11,14 @@
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+    import WarpPageTransition from '$lib/components/warp/WarpPageTransition.svelte';
+    import type { WarpTransitionKeyframe } from '$lib/components/warp/WarpPageTransition.svelte';
     import { browser } from '$app/environment';
     import { onDestroy, onMount } from 'svelte';
     import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import { page } from '$app/stores';
-    import { beforeNavigate, afterNavigate } from '$app/navigation';
+    import { onNavigate } from '$app/navigation';
     import { showNavbar } from '$lib/stores/ui';
     import type { Snippet } from 'svelte';
 
@@ -30,10 +32,60 @@
     let isResume = $derived($page.url.pathname.startsWith('/resume'));
     let isBlogPost = $derived($page.url.pathname.match(/^\/blogs\/[^/]+$/));
     let isHome = $derived($page.url.pathname === '/');
-    
-    let showWarpTransition = $state(false);
-    let warpDirection: 'in' | 'out' = $state('in');
-    let contentZoom = $state('');
+
+    let warpActive = $state(false);
+    let coverNavigation: (() => void) | null = null;
+    let coverPromise: Promise<() => void> | null = null;
+    const speed = 0.55;
+    const density = 280;
+    const trail = 1.8;
+    const transitionBoost = 3;
+    const transitionDuration = 900;
+    const transitionKeyframes = $derived.by<readonly WarpTransitionKeyframe[]>(() => {
+        const peakTrail = Math.min(5, trail * 2.5 + 0.5);
+
+        return [
+            {
+                offset: 0,
+                speed,
+                trail,
+                opacity: 0.45,
+                brightness: 6,
+                glowIntensity: 4,
+                flareIntensity: 0,
+                easing: 'ease-in-cubic'
+            },
+            {
+                offset: 0.22,
+                speed: speed * (1 + (transitionBoost - 1) * 0.32),
+                trail: trail + (peakTrail - trail) * 0.32,
+                opacity: 0.78,
+                brightness: 10,
+                glowIntensity: 7,
+                flareIntensity: 0.6,
+                easing: 'ease-in-out-cubic'
+            },
+            {
+                offset: 0.68,
+                speed: speed * (1 + (transitionBoost - 1) * 0.78),
+                trail: trail + (peakTrail - trail) * 0.78,
+                opacity: 1,
+                brightness: 14,
+                glowIntensity: 10,
+                flareIntensity: 1.1,
+                easing: 'ease-out-cubic'
+            },
+            {
+                offset: 1,
+                speed: speed * transitionBoost,
+                trail: peakTrail,
+                opacity: 1,
+                brightness: 16,
+                glowIntensity: 12,
+                flareIntensity: 1.4
+            }
+        ];
+    });
 
     // Only inject analytics once - in browser environment
     if (browser) {
@@ -41,30 +93,41 @@
         injectSpeedInsights();
     }
 
-    beforeNavigate(({ to, from }) => {
-        const toStargaze = to?.url.pathname.startsWith('/stargaze');
-        const fromStargaze = from?.url.pathname.startsWith('/stargaze');
-        
-        if (toStargaze && !fromStargaze) {
-            // Entering stargaze
-            warpDirection = 'in';
-            contentZoom = 'zoom-out';
-            showWarpTransition = true;
-        } else if (!toStargaze && fromStargaze) {
-            // Exiting stargaze
-            warpDirection = 'out';
-            contentZoom = 'zoom-in';
-            showWarpTransition = true;
-        }
-    });
+    onNavigate(({ from, to, willUnload }) => {
+        const fromStargaze = from?.url.pathname.startsWith('/stargaze') ?? false;
+        const toStargaze = to?.url.pathname.startsWith('/stargaze') ?? false;
 
-    afterNavigate(() => {
-        if (showWarpTransition) {
-            setTimeout(() => {
-                showWarpTransition = false;
-                contentZoom = '';
-            }, 1800);
+        if (
+            willUnload ||
+            !from ||
+            !to ||
+            to.route.id === null ||
+            fromStargaze === toStargaze ||
+            from.url.href === to.url.href
+        ) {
+            return;
         }
+
+        if (coverPromise) return coverPromise;
+
+        warpActive = true;
+        coverPromise = new Promise<() => void>((resolve) => {
+            let cleanedUp = false;
+
+            coverNavigation = () => {
+                if (!coverNavigation) return;
+                coverNavigation = null;
+
+                resolve(() => {
+                    if (cleanedUp) return;
+                    cleanedUp = true;
+                    warpActive = false;
+                    coverPromise = null;
+                });
+            };
+        });
+
+        return coverPromise;
     });
 
     onMount(async () => {
@@ -94,7 +157,7 @@
     });
 </script>
 
-<div class="min-h-screen relative {contentZoom}">
+<div class={['min-h-screen relative', warpActive && 'transitioning']}>
     {#if !isResume && !isBlogPost}
         {#if isStargaze}
             <ParticlesBackground
@@ -119,198 +182,137 @@
         {/if}
     {/if}
 
-    <main class="{isResume ? '' : isBlogPost ? '' : 'pt-8 md:pt-28 px-4'}">
-        {@render children()}
-    
-    {#if isHome}
-        <ThemeToggle />
-    {/if}
-    
-    </main>
+    <div class="route-stage" style:--transition-duration={`${transitionDuration}ms`}>
+        {#key $page.url.href}
+            <div class="route-page" style:--arrival-duration={`${transitionDuration}ms`}>
+                <main class="{isResume ? '' : isBlogPost ? '' : 'pt-8 md:pt-28 px-4'}">
+                    {@render children()}
+
+                {#if isHome}
+                    <ThemeToggle />
+                {/if}
+
+                </main>
+                {#if !isResume}
+                <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
+                    <div class="container mx-auto flex justify-center items-center">
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                            © {new Date().getFullYear()} . Shrishesha
+                        </p>
+                    </div>
+                </footer>
+                {/if}
+            </div>
+        {/key}
+    </div>
     <Toast />
     <LoadingSpinner />
-    {#if !isResume}
-    <footer class="w-full py-3 px-4 mt-16 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
-        <div class="container mx-auto flex justify-center items-center">
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                © {new Date().getFullYear()} . Shrishesha
-            </p>
-        </div>
-    </footer>
-    {/if}
 </div>
 
-<!-- Warp Speed Transition -->
-{#if showWarpTransition}
-    <div class="fixed inset-0 z-[9999] pointer-events-none overflow-hidden bg-black warp-container {warpDirection}">
-        <div class="warp-speed">
-            {#each Array(250) as _, i}
-                {@const angle = (i / 250) * Math.PI * 2 + (Math.random() * 0.1)}
-                {@const delay = Math.random() * 0.15}
-                {@const duration = 0.6 + Math.random() * 12}
-                {@const brightness = 0.7 + Math.random() * 1.3}
-                {@const length = 80 + Math.random() * 240}
-                <div 
-                    class="star-streak"
-                    style="
-                        left: 50%;
-                        top: 50%;
-                        animation-delay: {delay}s;
-                        animation-duration: {duration}s;
-                        --brightness: {brightness};
-                        --angle: {angle}rad;
-                        --length: {length}vh;
-                        transform: rotate({angle}rad);
-                    "
-                ></div>
-            {/each}
-        </div>
-        <div class="center-flash"></div>
-    </div>
-{/if}
+<WarpPageTransition
+    active={warpActive}
+    variant="flare"
+    background="#141516"
+    colorShift={2}
+    {density}
+    duration={transitionDuration}
+    keyframes={transitionKeyframes}
+    oncovered={() => coverNavigation?.()}
+/>
 
 <style>
-    .zoom-out {
-        animation: pageZoomOut 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    .route-stage {
+        min-width: 0;
+        perspective: 75rem;
+        perspective-origin: 50% 46%;
+        transform-origin: 50% 46%;
+        backface-visibility: hidden;
     }
-    
-    .zoom-in {
-        animation: pageZoomIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+
+    .transitioning .route-stage {
+        animation: route-warp-depart var(--transition-duration, 900ms)
+            cubic-bezier(0.55, 0.02, 0.88, 0.32) both;
     }
-    
-    @keyframes pageZoomOut {
+
+    @keyframes route-warp-depart {
         0% {
-            transform: scale(1);
             opacity: 1;
+            filter: blur(0) saturate(1);
+            transform: perspective(75rem) translateZ(0) scale(1) skew(0);
         }
-        50% {
-            transform: scale(0.8);
-            opacity: 0.5;
+
+        34% {
+            opacity: 0.96;
+            filter: blur(0.08rem) saturate(1.12);
+            transform: perspective(75rem) translateZ(3rem) scale(1.045, 0.97) skewX(-0.8deg);
         }
+
+        72% {
+            opacity: 0.68;
+            filter: blur(0.28rem) saturate(1.38) hue-rotate(8deg);
+            transform: perspective(75rem) translateZ(13rem) scale(1.28, 0.84) skewX(2.5deg);
+        }
+
         100% {
-            transform: scale(3);
-            opacity: 0;
+            opacity: 0.08;
+            filter: blur(0.9rem) saturate(1.8) hue-rotate(-12deg);
+            transform: perspective(75rem) translateZ(34rem) scale(2.15, 0.58) skewX(-5deg);
         }
     }
-    
-    @keyframes pageZoomIn {
+
+    .route-page {
+        position: relative;
+        transform-origin: 50% 46%;
+        backface-visibility: hidden;
+        animation: route-hyperdrive-arrival var(--arrival-duration, 900ms)
+            cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes route-hyperdrive-arrival {
         0% {
-            transform: scale(0.1);
-            opacity: 0;
+            opacity: 0.08;
+            filter: blur(0.75rem) saturate(0.72);
+            transform: perspective(75rem) translateZ(-28rem) scale(0.72, 1.14) skewX(-5deg);
+            will-change: transform, opacity, filter;
         }
-        50% {
-            transform: scale(0.5);
-            opacity: 0.3;
+
+        38% {
+            opacity: 0.86;
+            filter: blur(0.2rem) saturate(0.9);
+            transform: perspective(75rem) translateZ(-5rem) scale(0.94, 1.025) skewX(1.2deg);
+            will-change: transform, opacity, filter;
         }
-        100% {
-            transform: scale(1);
+
+        68% {
             opacity: 1;
+            filter: blur(0) saturate(1.035);
+            transform: perspective(75rem) translateZ(1.25rem) scale(1.035, 0.985) skewX(-0.35deg);
+            will-change: transform, opacity, filter;
         }
-    }
 
-    .warp-container {
-        animation: containerFade 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    
-    .warp-container.out {
-        animation: containerFadeReverse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    @keyframes containerFade {
-        0% { opacity: 1; }
-        85% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    
-    @keyframes containerFadeReverse {
-        0% { opacity: 1; }
-        80% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-
-    .warp-speed {
-        position: absolute;
-        inset: 0;
-    }
-
-    .center-flash {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow: 0 0 60px 30px rgba(255, 255, 255, 0.8),
-                    0 0 100px 60px rgba(255, 255, 255, 0.4);
-        animation: flashPulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    
-    .out .center-flash {
-        animation: flashPulseReverse 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    @keyframes flashPulse {
-        0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        30% { opacity: 1; transform: translate(-50%, -50%) scale(3); }
-        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    }
-    
-    @keyframes flashPulseReverse {
-        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
-        30% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-        70% { opacity: 1; transform: translate(-50%, -50%) scale(3); }
-        100% { opacity: 1; transform: translate(-50%, -50%) scale(5); }
-    }
-
-    .star-streak {
-        position: absolute;
-        width: 1.5px;
-        height: 0;
-        transform-origin: center top;
-        background: linear-gradient(to bottom, 
-            rgba(255, 255, 255, 1) 0%,
-            rgba(200, 220, 255, 0.8) 30%,
-            rgba(150, 180, 255, 0.4) 70%,
-            rgba(100, 150, 255, 0) 100%
-        );
-        opacity: var(--brightness);
-    }
-
-    .warp-container.in .star-streak {
-        animation: streakOut 1.5s cubic-bezier(0.4, 0, 0.8, 1) forwards;
-    }
-
-    .warp-container.out .star-streak {
-        animation: streakIn 1.2s cubic-bezier(0.8, 0, 0.4, 1) forwards;
-    }
-
-    @keyframes streakOut {
-        0% {
-            height: 0;
-            opacity: 0;
-        }
-        15% {
-            opacity: var(--brightness);
-        }
-        100% {
-            height: var(--length);
-            opacity: 0;
-        }
-    }
-
-    @keyframes streakIn {
-        0% {
-            height: var(--length);
-            opacity: 0;
-        }
-        25% {
-            opacity: var(--brightness);
-        }
-        100% {
-            height: 0;
+        92% {
             opacity: 1;
+            filter: blur(0) saturate(1);
+            transform: perspective(75rem) translateZ(0) scale(1);
+            will-change: transform, opacity, filter;
+        }
+
+        100% {
+            opacity: 1;
+            filter: none;
+            transform: none;
+            will-change: auto;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .route-page,
+        .transitioning .route-stage {
+            animation: none;
+            opacity: 1;
+            filter: none;
+            transform: none;
+            will-change: auto;
         }
     }
 </style>

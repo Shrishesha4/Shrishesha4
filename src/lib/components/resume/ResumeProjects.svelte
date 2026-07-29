@@ -1,6 +1,7 @@
 <script lang="ts">
     import { projects } from '$lib/stores/projects';
     import type { Project } from '$lib/types';
+    import { safeHref } from '$lib/utils/safeUrl';
 
     type ProjectWithResume = Project & { resumeSummary?: string[] };
 
@@ -26,12 +27,12 @@
                             {#if project.url || project.github}
                                 <div class="flex gap-2 text-xs print:hidden">
                                     {#if project.github}
-                                        <a href={project.github} target="_blank" aria-label="GitHub repository" class="text-gray-500 hover:text-black">
+                                        <a href={safeHref(project.github)} target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" class="text-gray-500 hover:text-black">
                                             <i class="fa-brands fa-github"></i>
                                         </a>
                                     {/if}
                                     {#if project.url}
-                                        <a href={project.url} target="_blank" aria-label="Visit project" class="text-gray-500 hover:text-black">
+                                        <a href={safeHref(project.url)} target="_blank" rel="noopener noreferrer" aria-label="Visit project" class="text-gray-500 hover:text-black">
                                             <i class="fa-solid fa-external-link"></i>
                                         </a>
                                     {/if}

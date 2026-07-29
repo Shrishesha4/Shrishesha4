@@ -1,18 +1,17 @@
 <script lang="ts">
-    import { asClassComponent } from 'svelte/legacy';
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
     import { contact } from '$lib/stores/contact';
     import { socialLinks } from '$lib/stores/socialLinks';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-    import { db } from '$lib/firebase/config';
-    import { collection, addDoc } from 'firebase/firestore';
     import BuyMeCoffee from '$lib/components/BuyMeCoffee.svelte';
+    import { safeHref } from '$lib/utils/safeUrl';
 
     let formData = {
         name: '',
         email: '',
         subject: '',
-        message: ''
+        message: '',
+        website: '' // honeypot
     };
     let loading = true;
     let sending = false;
@@ -23,54 +22,39 @@
         try {
             await Promise.all([contact.load(), socialLinks.load()]);
             loading = false;
-        } catch (err) {
+        } catch {
             error = 'Failed to load contact information';
             loading = false;
         }
-    });
-
-    onDestroy(() => {
-        // Note: Don't call cleanup() here - the layout handles store cleanup globally
     });
 
     async function handleSubmit() {
         sending = true;
         success = false;
         error = '';
-        
+
         try {
-            await addDoc(collection(db, 'messages'), {
-                ...formData,
-                timestamp: new Date(),
-                read: false
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    subject: formData.subject,
+                    message: formData.message,
+                    website: formData.website,
+                    spreadsheetUrl: $contact.spreadsheetUrl || ''
+                })
             });
-        
-            if ($contact.spreadsheetUrl) {
-                try {
-                    const response = await fetch($contact.spreadsheetUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            ...formData,
-                            timestamp: new Date().toISOString()
-                        }).toString()
-                    });
-                    
-                    if (!response.ok && response.type !== 'opaque') {
-                        throw new Error('Failed to submit to spreadsheet');
-                    }
-                } catch (err) {
-                    console.warn('Spreadsheet submission error:', err);
-                }
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error(data.message || 'Failed to send message');
             }
-            
+
             success = true;
-            formData = { name: '', email: '', subject: '', message: '' };
-        } catch (err) {
-            console.error('Error sending message:', err);
+            formData = { name: '', email: '', subject: '', message: '', website: '' };
+        } catch {
             error = 'Failed to send message. Please try again.';
         } finally {
             sending = false;
@@ -136,7 +120,7 @@
                                 <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-pink-400 group-hover/item:bg-pink-500 group-hover/item:text-white transition-colors">
                                     <i class="fa-solid fa-location-dot"></i>
                                 </div>
-                                <a href="https://www.google.com/maps/search/?api=1&query={encodeURIComponent($contact.location)}" target="_blank" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
+                                <a href="https://www.google.com/maps/search/?api=1&query={encodeURIComponent($contact.location)}" target="_blank" rel="noopener noreferrer" class="text-sm md:text-base text-neutral-200 group-hover/item:text-white underline-offset-4 hover:underline">
                                     {$contact.location}
                                 </a>
                             </div>
@@ -150,7 +134,7 @@
                         <!-- svelte-ignore a11y_consider_explicit_label -->
                          <div class="flex gap-4">
                              {#each $socialLinks.links as link (link.id)}
-                                 <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors" aria-label={link.label}>
+                                 <a href={safeHref(link.url)} target="_blank" rel="noopener noreferrer" class="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors" aria-label={link.label}>
                                      {#if link.icon.startsWith('http://') || link.icon.startsWith('https://')}
                                          <img src={link.icon} alt={link.label} class="w-5 h-5 social-icon opacity-70 hover:opacity-100 transition-opacity" />
                                      {:else}
@@ -191,7 +175,19 @@
                 {/if}
 
                 <form on:submit|preventDefault={handleSubmit} class="space-y-6">
-                    
+                    <!-- Honeypot (hidden from users) -->
+                    <div class="absolute -left-[9999px] opacity-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                        <label for="website">Website</label>
+                        <input
+                            type="text"
+                            id="website"
+                            name="website"
+                            tabindex="-1"
+                            autocomplete="off"
+                            bind:value={formData.website}
+                        />
+                    </div>
+
                     <!-- Name & Email Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="relative group">

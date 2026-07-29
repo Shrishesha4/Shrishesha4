@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { socialLinks } from '$lib/stores/socialLinks';
+    import { safeHref } from '$lib/utils/safeUrl';
 
     onMount(() => {
         // Load social links
@@ -57,7 +58,7 @@
     <div class="mb-3 flex justify-center gap-8 md:hidden">
         {#each $socialLinks.links as link (link.id)}
             <a
-                href={link.url}
+                href={safeHref(link.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-neutral-700 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"

@@ -5,6 +5,7 @@
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import { optimizeImage, getResponsiveImageSrcSet } from '$lib/utils/imageOptimizer';
     import { createSlug } from '$lib/utils/slug';
+    import { safeHref } from '$lib/utils/safeUrl';
 
     let currentProject: Project | undefined = $state(undefined);
     let loading = $state(true);
@@ -67,7 +68,7 @@
             <div class="flex flex-wrap gap-4 mb-10">
                 {#if currentProject.url}
                     <a 
-                        href={currentProject.url}
+                        href={safeHref(currentProject.url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         class="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 font-bold transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
@@ -79,7 +80,7 @@
                 
                 {#if currentProject.github}
                     <a 
-                        href={currentProject.github}
+                        href={safeHref(currentProject.github)}
                         target="_blank"
                         rel="noopener noreferrer"
                         class="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 font-bold transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl border border-neutral-200 dark:border-neutral-700"

@@ -4,18 +4,13 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-    kit: {
-        adapter: adapter({
-            runtime: 'nodejs22.x'
-        }),
-        csrf: {
-            checkOrigin: false,
-        }
-    },
-    preprocess: sequence([
-        vitePreprocess(),
-        preprocessMeltUI()
-    ])
+	kit: {
+		adapter: adapter({
+			runtime: 'nodejs22.x'
+		})
+		// CSRF origin checks enabled by default (production only)
+	},
+	preprocess: sequence([vitePreprocess(), preprocessMeltUI()])
 };
 
 export default config;

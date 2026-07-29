@@ -4,6 +4,7 @@
     import { createSlug } from '$lib/utils/slug';
     import { onMount } from 'svelte';
     import LoadingSpinner from './LoadingSpinner.svelte';
+    import { safeHref } from '$lib/utils/safeUrl';
     
     interface Props {
         projects?: Project[];
@@ -157,7 +158,7 @@
                             <div class="flex flex-col md:flex-row gap-3 pt-2 border-t border-white/10">
                                 {#if project.url}
                                     <a 
-                                        href={project.url}
+                                        href={safeHref(project.url)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onclick={(e) => e.stopPropagation()}
@@ -169,7 +170,7 @@
                                 {/if}
                                 {#if project.github}
                                     <a 
-                                        href={project.github}
+                                        href={safeHref(project.github)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onclick={(e) => e.stopPropagation()}

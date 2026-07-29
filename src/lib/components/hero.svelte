@@ -4,6 +4,7 @@
     import { showNavbar } from '$lib/stores/ui';
     import { socialLinks } from '$lib/stores/socialLinks';
     import { onMount, onDestroy } from 'svelte';
+    import { safeHref } from '$lib/utils/safeUrl';
     
     let isLoading = true;
     let showBadgeModal = false;
@@ -131,7 +132,7 @@
             <div class="hidden md:flex flex-row gap-8 mb-3">
                 {#each $socialLinks.links as link, i (link.id)}
                     <a
-                        href={link.url}
+                        href={safeHref(link.url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         class="text-neutral-700 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 animate-pop-in hover:scale-110"

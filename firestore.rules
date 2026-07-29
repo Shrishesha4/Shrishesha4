@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin app (admin.shrishesha.space) uses the Firebase client SDK.
+    // Prefer a custom claim: admin: true on your Firebase Auth user.
+    // Fallback: uncomment the UID line with your admin account's UID.
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.admin == true
+        // || request.auth.uid == 'YOUR_ADMIN_UID'
+      );
+    }
+
+    // Public portfolio — anyone can read; only admin can write
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin saves the first profiles doc (ID may not equal auth.uid)
+    match /profiles/{userId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /config/contact {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /config/socialLinks {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin store uses auth.uid as the document ID
+    match /rssFeeds/{userId} {
+      allow read, write: if isAdmin() && request.auth.uid == userId;
+    }
+
+    // Public contact form writes via portfolio Admin SDK (bypasses rules).
+    // Do not allow browser creates — that was the spam vector.
+    match /messages/{messageId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

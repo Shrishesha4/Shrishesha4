@@ -3,6 +3,7 @@
     import { contact } from '$lib/stores/contact';
     import { socialLinks } from '$lib/stores/socialLinks';
     import { onMount } from 'svelte';
+    import { safeHref } from '$lib/utils/safeUrl';
 
     onMount(() => {
         socialLinks.load();
@@ -56,7 +57,7 @@
                         {:else}
                             <i class="{link.icon}"></i>
                         {/if}
-                        <a href={link.url} target="_blank" class="hover:underline">{getHostname(link.url)}</a>
+                        <a href={safeHref(link.url)} target="_blank" rel="noopener noreferrer" class="hover:underline">{getHostname(link.url)}</a>
                     </div>
                 {/each}
             </div>

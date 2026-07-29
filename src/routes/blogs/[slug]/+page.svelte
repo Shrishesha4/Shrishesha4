@@ -4,6 +4,7 @@
     import { onMount, tick } from 'svelte'; // Import tick
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import TextToSpeech from '$lib/components/TextToSpeech.svelte';
+    import { sanitizeHtml } from '$lib/utils/sanitize';
 
     let currentBlog = $state<Blog | undefined>(undefined);
     let loading = $state(true);
@@ -245,7 +246,7 @@
             <div class="prose dark:prose-invert max-w-none {readerMode ? 'prose-lg md:prose-xl leading-relaxed' : 'prose-lg'} marker:text-primary-500">
                 <!-- bind:this triggers reactivity, but we handle logic in onMount/tick -->
                 <div bind:this={contentRef} class:tts-blur-mode={isPlaying} class="transition-all duration-300">
-                    {@html currentBlog.content}
+                    {@html sanitizeHtml(currentBlog.content)}
                 </div>
             </div>
             
