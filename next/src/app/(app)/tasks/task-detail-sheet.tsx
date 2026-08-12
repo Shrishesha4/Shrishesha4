@@ -3,6 +3,7 @@
 import * as React from "react"
 import { addDays } from "date-fns"
 import { toast } from "sonner"
+import { SparklesIcon } from "lucide-react"
 import {
   Sheet,
   SheetContent,
@@ -24,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { TaskBreakdownDialog } from "@/components/app/task-breakdown-dialog"
 import { useAuth } from "@/lib/auth/auth-context"
 import { useTasks } from "@/hooks/use-tasks"
 import {
@@ -51,6 +53,7 @@ export function TaskDetailSheet({
   const { user } = useAuth()
   const { tasks } = useTasks()
   const [editOpen, setEditOpen] = React.useState(false)
+  const [breakdownOpen, setBreakdownOpen] = React.useState(false)
   const task = tasks.find((t) => t.id === taskId) ?? null
 
   async function handleComplete() {
@@ -112,6 +115,10 @@ export function TaskDetailSheet({
                 <Button variant="outline" onClick={() => setEditOpen(true)}>
                   Edit
                 </Button>
+                <Button variant="outline" onClick={() => setBreakdownOpen(true)}>
+                  <SparklesIcon />
+                  Break down
+                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger render={<Button variant="destructive" />}>
                     Archive
@@ -142,6 +149,15 @@ export function TaskDetailSheet({
         </SheetContent>
       </Sheet>
       <TaskFormDialog open={editOpen} onOpenChange={setEditOpen} task={task} />
+      {task && (
+        <TaskBreakdownDialog
+          open={breakdownOpen}
+          onOpenChange={setBreakdownOpen}
+          title={task.title}
+          description={task.description}
+          projectId={task.projectId}
+        />
+      )}
     </>
   )
 }

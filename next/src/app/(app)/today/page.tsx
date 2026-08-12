@@ -15,6 +15,7 @@ import {
   type ScoringContext,
 } from "@/lib/scoring/recommend"
 import { TaskRow } from "./task-row"
+import { AiDailyPlanCard } from "./ai-daily-plan-card"
 import { TaskDetailSheet } from "../tasks/task-detail-sheet"
 
 function todayISODate(): string {
@@ -64,9 +65,12 @@ export default function TodayPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold">Today</h1>
-        <p className="text-muted-foreground text-sm">{today}</p>
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-semibold">Today</h1>
+          <p className="text-muted-foreground text-sm">{today}</p>
+        </div>
+        <AiDailyPlanCard tasks={tasks} />
       </div>
 
       {suggested && (

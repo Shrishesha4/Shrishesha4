@@ -22,6 +22,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ThemeToggle } from "@/components/app/theme-toggle"
+import { TelegramCard } from "./telegram-card"
+import { NotificationPreferencesCard } from "./notification-preferences-card"
 import { useAuth } from "@/lib/auth/auth-context"
 import { db } from "@/lib/firebase/client"
 import {
@@ -121,6 +123,9 @@ export default function SettingsPage() {
           </AlertDialog>
         </CardContent>
       </Card>
+
+      <TelegramCard />
+      <NotificationPreferencesCard />
 
       <Card>
         <CardHeader>

@@ -5,7 +5,16 @@ import type { Timestamp } from "firebase/firestore"
 // (create-only, enforced in firestore.rules), so there is no updatedAt.
 export type ActivityEntry = {
   id: string
-  entityType: "task" | "project" | "inboxItem" | "tag"
+  entityType:
+    | "task"
+    | "project"
+    | "inboxItem"
+    | "tag"
+    | "financeAccount"
+    | "transaction"
+    | "budget"
+    | "recurringRule"
+    | "financialGoal"
   entityId: string
   action: "created" | "updated" | "completed" | "archived" | "deleted"
   summary: string

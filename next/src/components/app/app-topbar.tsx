@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { SearchIcon, PlusIcon } from "lucide-react"
+import { SearchIcon, PlusIcon, SparklesIcon } from "lucide-react"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { CommandPalette } from "@/components/app/command-palette"
 import { QuickCaptureDialog } from "@/components/app/quick-capture-dialog"
+import { AssistantSheet } from "@/components/app/assistant-sheet"
 import { SyncStatusIndicator } from "@/components/app/sync-status-indicator"
 import { NotificationCenter } from "@/components/app/notification-center"
 import { UserMenu } from "@/components/app/user-menu"
@@ -16,6 +17,7 @@ import { useCommandPalette } from "@/hooks/use-command-palette"
 export function AppTopbar() {
   const { open, setOpen } = useCommandPalette()
   const [quickCaptureOpen, setQuickCaptureOpen] = React.useState(false)
+  const [assistantOpen, setAssistantOpen] = React.useState(false)
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
@@ -41,6 +43,10 @@ export function AppTopbar() {
           <PlusIcon />
           <span className="sr-only">Quick capture</span>
         </Button>
+        <Button variant="ghost" size="icon-sm" onClick={() => setAssistantOpen(true)}>
+          <SparklesIcon />
+          <span className="sr-only">Assistant</span>
+        </Button>
         <SyncStatusIndicator />
         <NotificationCenter />
         <Separator orientation="vertical" className="mx-1 h-4" />
@@ -49,6 +55,7 @@ export function AppTopbar() {
 
       <CommandPalette open={open} onOpenChange={setOpen} />
       <QuickCaptureDialog open={quickCaptureOpen} onOpenChange={setQuickCaptureOpen} />
+      <AssistantSheet open={assistantOpen} onOpenChange={setAssistantOpen} />
     </header>
   )
 }

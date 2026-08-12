@@ -27,9 +27,65 @@ service cloud.firestore {
         allow read, create: if request.auth != null && request.auth.uid == uid;
         allow update, delete: if false; // immutable audit entries
       }
+      match /financeAccounts/{accountId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /transactions/{transactionId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /financeCategories/{categoryId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /budgets/{budgetId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /recurringRules/{ruleId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /financialGoals/{goalId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /integrations/{integrationId} {
+        // Chat linking itself is only ever written server-side via the Admin
+        // SDK (which bypasses rules) — this just allows the owner to read
+        // their own link status for the Settings UI.
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /notificationPreferences/{preferenceId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+      match /notifications/{notificationId} {
+        // Delivery history is written exclusively by the server (Admin SDK,
+        // bypasses rules) — client can only read its own history.
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
+      match /aiSuggestions/{suggestionId} {
+        // Created server-side (Admin SDK, via /api/ai/*), the client only
+        // updates status on accept/reject.
+        allow read, update: if request.auth != null && request.auth.uid == uid;
+        allow create, delete: if false;
+      }
+      match /aiRequestLog/{logId} {
+        // Written exclusively by the server (Admin SDK) — audit trail only.
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
+      match /aiConversations/{conversationId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == uid;
+        }
+      }
+      match /_internal/{docId} {
+        // Server-only bookkeeping (e.g. AI rate-limit counters) — Admin SDK
+        // bypasses rules regardless, this just denies client access.
+        allow read, write: if false;
+      }
     }
 
-    // Default deny for everything else (finance/ai/integrations/etc. not built yet).
+    // Default deny for everything else (telegramLinkCodes/etc — server-admin-only).
     match /{document=**} {
       allow read, write: if false;
     }
