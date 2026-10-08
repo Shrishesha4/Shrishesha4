@@ -11,7 +11,7 @@
     import Toast from '$lib/components/Toast.svelte';
     import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
     import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-    import CinematicIntro from '$lib/components/CinematicIntro.svelte';
+    // import CinematicIntro from '$lib/components/CinematicIntro.svelte';
     import WarpPageTransition from '$lib/components/warp/WarpPageTransition.svelte';
     import type { WarpTransitionKeyframe } from '$lib/components/warp/WarpPageTransition.svelte';
     import { browser } from '$app/environment';
@@ -29,7 +29,7 @@
 
     let { children }: Props = $props();
     const introSessionKey = 'cinematic-intro-shown';
-    
+
     let isStargaze = $derived($page.url.pathname.startsWith('/stargaze'));
     let isResume = $derived($page.url.pathname.startsWith('/resume'));
     let isBlogPost = $derived($page.url.pathname.match(/^\/blogs\/[^/]+$/));
@@ -176,13 +176,13 @@
             <ParticlesBackground
                 quantity={$profile.particlesQuantity/3}
                 staticity={2000}
-                ease={500}  
+                ease={500}
             />
         {:else}
             <ParticlesBackground
                 quantity={$profile.particlesQuantity}
                 staticity={20}
-                ease={10}  
+                ease={10}
             />
         {/if}
 
@@ -222,9 +222,9 @@
     <LoadingSpinner />
 </div>
 
-{#if showCinematicIntro}
+<!-- {#if showCinematicIntro}
     <CinematicIntro oncomplete={() => (showCinematicIntro = false)} />
-{/if}
+{/if} -->
 
 <WarpPageTransition
     active={warpActive}
